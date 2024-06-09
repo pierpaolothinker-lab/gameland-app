@@ -1,0 +1,7 @@
+{
+  "name": "gameland-app",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

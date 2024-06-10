@@ -1,0 +1,32 @@
+<ion-content [fullscreen]="true">
+  <div class="flex-center">
+
+    <!-- <img src="assets/logoGL.png" alt="Game Land Logo" class="logo" /> -->
+
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>GAME LAND</ion-card-title>
+        <ion-card-subtitle>The land of games</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+        <ion-item>
+          <ion-input labelPlacement="stacked" label="username" placeholder="Enter your username"
+            type="text"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-input labelPlacement="stacked" label="password" placeholder="Enter your password" type="password">
+            <ion-button fill="clear" slot="end" aria-label="Show/hide">
+              <ion-icon slot="icon-only" name="eye" aria-hidden="true"></ion-icon>
+            </ion-button>
+          </ion-input>
+        </ion-item>
+
+        <ion-button fill="clear" color="dark" expand="block">Forgot username/password</ion-button>
+        <ion-button color="success" expand="block">Login</ion-button>
+        <ion-button color="primary" fill="clear" expand="block">Register</ion-button>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

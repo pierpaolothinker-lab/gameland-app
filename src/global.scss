@@ -39,3 +39,10 @@
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
 
+.flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Altezza della viewport per centrare verticalmente */
+  }
+  

@@ -1,0 +1,41 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>Register</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>
+        Create an account
+      </ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-item>
+        <ion-input labelPlacement="floating" label="username" placeholder="Enter your username" type="text" required>
+        </ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-input labelPlacement="floating" label="email" placeholder="Enter your email" type="email" required>
+        </ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-input labelPlacement="floating" label="password" placeholder="Enter your password" type="password">
+          <ion-button fill="clear" slot="end" aria-label="Show/hide">
+            <ion-icon slot="icon-only" name="eye" aria-hidden="true"></ion-icon>
+          </ion-button>
+        </ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-input labelPlacement="floating" label="confirm password" placeholder="Confirm your password" type="password">
+          <ion-button fill="clear" slot="end" aria-label="Show/hide">
+            <ion-icon slot="icon-only" name="eye" aria-hidden="true"></ion-icon>
+          </ion-button>
+        </ion-input>
+      </ion-item>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-button color="light" expand="block">REGISTER</ion-button>
+</ion-content>

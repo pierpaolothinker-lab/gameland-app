@@ -9,4 +9,12 @@ ion-content{
     justify-content: center;
   }
 
-  
+  ion-avatar.play-cards {
+    --border-radius: 4px;
+    position: fixed;
+    height: 60px;
+    width: 60px;
+    --background: green;
+  }
+
+ 

@@ -22,6 +22,7 @@ ion-chip {
     --background: var(--ion-color-primary);
     display: flex;
     justify-content: space-between;
+    align-items: flex-end
     // width: 100px;
     // align-content: stretch;
     // align-items: center;
@@ -90,4 +91,13 @@ img.est {
 .score {
     margin: 3px;
     text-align: center !important;
+  }
+
+  ion-badge {
+    position: fixed;
+  }
+
+ion-content {
+    height: 100%;
+    --background: radial-gradient(ellipse at bottom, var(--ion-color-dark) 0%, #030617 100%);
   }

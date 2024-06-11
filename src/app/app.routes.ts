@@ -25,5 +25,9 @@ export const routes: Routes = [
     path: 'tressette4-inc',
     loadComponent: () => import('./pages/tressette4-inc/tressette4-inc.page').then( m => m.Tressette4IncPage)
   },
+  {
+    path: 'table3s74i',
+    loadComponent: () => import('./pages/table3s74i/table3s74i.page').then( m => m.Table3s74iPage)
+  },
 
 ];

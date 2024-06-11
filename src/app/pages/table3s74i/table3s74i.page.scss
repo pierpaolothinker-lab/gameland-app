@@ -1,0 +1,43 @@
+.game-table {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    padding-top: 20px;
+  }
+  
+  .card-row {
+    display: flex;
+    justify-content: space-around;
+    width: 80%;
+    margin-bottom: 10px;
+  }
+  
+  .card {
+    width: 50px;
+    height: 70px;
+    background-color: #228B22;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.5s ease;
+    position: relative;
+  }
+  
+  .play-area {
+    position: relative;
+    width: 50px;
+    height: 70px;
+    margin-top: 20px;
+    border: 1px solid;
+  }
+  
+  .playing-card {
+    position: absolute;
+    z-index: 10;
+    transition: transform 0.5s ease;
+  }
+  

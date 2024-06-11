@@ -4,3 +4,9 @@ ion-list{
         font-weight: bold;
     }
 }
+
+ion-avatar.chat-avt {
+    --border-radius: 4px;
+    width: 60px;  
+    height: 60px;  
+  }

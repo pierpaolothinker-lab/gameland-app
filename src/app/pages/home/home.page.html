@@ -26,28 +26,37 @@
     </ion-card-header>
     <ion-card-content>
       <ion-list>
-        <ion-item>Item 1</ion-item>
-        <ion-item>Item 2</ion-item>
-        <ion-item>Item 3</ion-item>
-        <ion-item>Item 4</ion-item>
-        <ion-item>Item 5</ion-item>
-        <ion-item>Item 6</ion-item>
-        <ion-item>Item 7</ion-item>
-        <ion-item>Item 8</ion-item>
-        <ion-item>Item 9</ion-item>
-        <ion-item>Item 10</ion-item>
-        <ion-item>Item 11</ion-item>
-        <ion-item>Item 12</ion-item>
-        <ion-item>Item 13</ion-item>
-        <ion-item>Item 14</ion-item>
-        <ion-item>Item 15</ion-item>
-        <ion-item>Item 16</ion-item>
-        <ion-item>Item 17</ion-item>
-        <ion-item>Item 18</ion-item>
-        <ion-item>Item 19</ion-item>
-        <ion-item>Item 20</ion-item>
-      </ion-list>
-      <ion-icon slot="end" name="chevron-forward-outline" color="primary"></ion-icon>
+        <ion-item [button]="true">
+          <ion-avatar aria-hidden="true" slot="start">
+            <img alt="tressette" src="assets\tressetteL.png" />
+          </ion-avatar>
+          <ion-label>Tressette</ion-label>
+        </ion-item>
+        <ion-item [button]="true">
+          <ion-avatar aria-hidden="true" slot="start">
+            <img alt="scopa" src="assets\scopaL.png" />
+          </ion-avatar>
+          <ion-label>Scopa</ion-label>
+        </ion-item>      
+      </ion-list>     
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card>
+    <ion-card-header> 
+      <ion-card-subtitle>Chat Rooms</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-item lines="none" [button]="true">
+        <ion-avatar class="chat-avt" slot="start">
+          <img src="assets\chat.png" alt="chat">
+      </ion-avatar>
+      <ion-label>
+        <p>Total users: <span class="score"> 342 </span></p>
+        <p>Total rooms: <span class="score"> 12 </span></p>
+      </ion-label>
+    </ion-item>
+      
     </ion-card-content>
   </ion-card>
 

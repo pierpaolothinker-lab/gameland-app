@@ -2,13 +2,18 @@
   <div class="game-table">
     <div class="play-area" #playArea></div>
     <div class="card-row">
-      <div class="card" *ngFor="let card of topRow" (click)="playCard($event, card)">{{ card }}</div>
+      <div class="card" *ngFor="let card of topRow" 
+           (click)="playCard($event, card)" 
+           (dblclick)="onDoubleClick($event, card)">
+        {{ card }}
+      </div>
     </div>
     <div class="card-row">
-      <div class="card" *ngFor="let card of bottomRow" (click)="playCard($event, card)">{{ card }}</div>
+      <div class="card" *ngFor="let card of bottomRow" 
+           (click)="playCard($event, card)" 
+           (dblclick)="onDoubleClick($event, card)">
+        {{ card }}
+      </div>
     </div> 
   </div>
 </ion-content>
-
-
-

@@ -11,7 +11,7 @@ import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular/stan
   imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule]
 })
 export class Table3s74iPage implements OnInit {
-  constructor() { }
+  constructor() { } 
 
   ngOnInit() { }
 
@@ -68,15 +68,16 @@ export class Table3s74iPage implements OnInit {
   animateCardToCenter(cardElement: HTMLElement) {
     const playAreaRect = this.playArea.nativeElement.getBoundingClientRect();
     const cardRect = cardElement.getBoundingClientRect();
-
+  
     if (!this.isAnimationEnabled) {
       // Sposta direttamente la carta al centro della play-area
       cardElement.style.transition = 'none';
       cardElement.style.transform = 'none';
       cardElement.style.left = `${playAreaRect.width / 2 - cardRect.width / 2}px`;
       cardElement.style.top = `${playAreaRect.height / 2 - cardRect.height / 2}px`;
+      cardElement.classList.add('playing-card'); // Ensure the class is added
       this.playArea.nativeElement.appendChild(cardElement);
-
+  
       // Rimuovi la carta precedente
       if (this.previousCardElement) {
         this.previousCardElement.remove();
@@ -84,39 +85,40 @@ export class Table3s74iPage implements OnInit {
       this.previousCardElement = cardElement;
       return;
     }
-
+  
     // Calcoliamo la posizione finale della carta rispetto alla play-area
     const deltaX = playAreaRect.left + (playAreaRect.width / 2) - (cardRect.left + (cardRect.width / 2));
     const deltaY = playAreaRect.top + (playAreaRect.height / 2) - (cardRect.top + (cardRect.height / 2));
-
+  
     // Posizioniamo la carta inizialmente nella posizione corretta
     cardElement.style.left = `${cardRect.left}px`;
     cardElement.style.top = `${cardRect.top}px`;
-
+  
     // Avviamo l'animazione
     requestAnimationFrame(() => {
       // Impostiamo la posizione finale della carta rispetto alla play-area
       cardElement.style.transition = 'transform 0.2s ease';
       cardElement.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
     });
-
+  
     cardElement.classList.add('playing-card');
-
+  
     cardElement.addEventListener('transitionend', () => {
       // Rimuoviamo la carta precedente dalla play-area
       if (this.previousCardElement) {
         this.previousCardElement.remove();
       }
-
+  
       // Riposizioniamo la carta al centro della play-area
       cardElement.style.transition = 'none';
       cardElement.style.transform = 'none';
       cardElement.style.left = `${playAreaRect.width / 2 - cardRect.width / 2}px`;
       cardElement.style.top = `${playAreaRect.height / 2 - cardRect.height / 2}px`;
-
+  
       this.playArea.nativeElement.appendChild(cardElement);
       this.previousCardElement = cardElement;
       cardElement.classList.remove('playing-card');
     }, { once: true });
   }
+  
 }

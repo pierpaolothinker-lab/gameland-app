@@ -1,3 +1,4 @@
+/* Layout della tavola di gioco */
 .game-table {
   display: flex;
   flex-direction: column;
@@ -5,42 +6,79 @@
   justify-content: center;
   height: 100vh;
   padding-top: 20px;
+  background-color: #f0f0f0;
+  font-family: 'Arial', sans-serif;
+  background-image: url('https://example.com/background.jpg'); /* Immagine di sfondo */
+  background-size: cover;
+  background-position: center;
 }
 
+/* Righe di carte */
 .card-row {
   display: flex;
-  justify-content: space-around;
-  width: 80%;
+  justify-content: center; /* Center the cards horizontally */
+  width: 90%;
   margin-bottom: 10px;
+  flex-wrap: wrap; /* Allow wrapping for smaller screens */
 }
 
+/* Stile delle carte */
 .card {
-  width: 50px;
-  height: 70px;
+  width: 60px; /* Aumentato per maggiore visibilità */
+  height: 90px; /* Aumentato per maggiore visibilità */
   background-color: #228B22;
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin: 5px; /* Add margin to create space between cards */
   cursor: pointer;
-  transition: transform 0.2s ease;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
   position: relative;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-size: 1.2em;
+  box-sizing: border-box; /* Ensure padding and border are included in element's total width and height */
 }
 
+/* Hover effect per le carte */
+.card:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Area di gioco */
 .play-area {
   position: relative;
-  width: 50px;
-  height: 70px;
+  width: 60px;
+  height: 90px;
   margin-top: 20px;
-  border: 1px solid;
+  border: 2px dashed #ccc; /* Cambiato bordo */
+  border-radius: 10px;
+  background-color: rgba(255, 255, 255, 0.7); /* Sfondo semi-trasparente */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+/* Carte in gioco */
 .playing-card {
   position: absolute;
   z-index: 10;
+  width: 60px !important; /* Assicurati che le carte mantengano la loro larghezza */
+  height: 90px !important; /* Assicurati che le carte mantengano la loro altezza */
   transition: transform 0.2s ease;
 }
 
+/* Carte selezionate */
 .selected-card {
   transform: scale(1.1);
+  border: 2px solid yellow;
+}
+
+/* Media query per schermi piccoli */
+@media (max-width: 768px) {
+  .card-row {
+    justify-content: center; /* Centra le carte orizzontalmente */
+    flex-wrap: wrap;
+  }
 }

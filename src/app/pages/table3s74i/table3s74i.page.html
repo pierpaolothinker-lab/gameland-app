@@ -1,14 +1,15 @@
 <ion-content [fullscreen]="true">
   <div class="game-table">
     <div class="play-area" #playArea></div>
-    <div class="card-row">
-      <div class="card" *ngFor="let card of topRow" (click)="playCard($event, card)">{{ card }}</div>
+    <div class="card-container" #cardContainer>
+      <!-- Prima riga di carte -->
+      <div class="card-row">
+        <div class="card" *ngFor="let card of cards | slice: 0 : 5" (click)="playCard($event, card)"></div>
+      </div>
+      <!-- Seconda riga di carte -->
+      <div class="card-row">
+        <div class="card" *ngFor="let card of cards | slice: 5 : 10" (click)="playCard($event, card)"></div>
+      </div>
     </div>
-    <div class="card-row">
-      <div class="card" *ngFor="let card of bottomRow" (click)="playCard($event, card)">{{ card }}</div>
-    </div> 
   </div>
 </ion-content>
-
-
-

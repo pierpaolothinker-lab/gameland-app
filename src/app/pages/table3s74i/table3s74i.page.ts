@@ -14,7 +14,6 @@ export class Table3s74iPage implements OnInit {
   constructor() { }
 
   ngOnInit() {  
-    this.showCard(0,0) 
   }
 
   cards = ['Card1', 'Card2', 'Card3', 'Card4', 'Card5', 'Card6', 'Card7', 'Card8', 'Card9', 'Card10'];
@@ -31,6 +30,8 @@ export class Table3s74iPage implements OnInit {
 
   ngAfterViewInit() {
     this.checkScreenSize();
+    this.showCard(3,9) 
+
   }
 
   checkScreenSize() {
@@ -60,15 +61,14 @@ export class Table3s74iPage implements OnInit {
   }
 
   showCard(row: number, col: number) {
-    console.log('init')
-    const originalCardWidth = 87;
-    const originalCardHeight = 139;
-    const displayCardWidth = 60;
-    const displayCardHeight = 90;
+    const originalCardWidth = 60;
+    const originalCardHeight = 90;
+    const displayCardWidth = 70;
+    const displayCardHeight = 100;
     
-    const initialOffsetX = 10;
-    const initialOffsetY = 11;
-    const horizontalSpacing = 10;
+    const initialOffsetX = 9;
+    const initialOffsetY = 9;
+    const horizontalSpacing = 5.2
     const verticalSpacing = 24;
   
     // Calcola il fattore di ridimensionamento
@@ -84,30 +84,14 @@ export class Table3s74iPage implements OnInit {
     const yPos = yPosOriginal * scaleY;
   
     const cardElements = document.getElementsByClassName('card') 
-    console.log('cardel', cardElements)
     if (cardElements) {
       console.log('cardElements', cardElements)
-      // for (const card of cardElements){
-      //   console.log(1)
-      //   const cardh = card as HTMLElement
-      //   console.log('n',card)
-      //   console.log('h',cardh)
-      //   cardh.style.backgroundPosition = `-${xPos}px -${yPos}px`;
-      // }
-      const test = Array.from(cardElements)
-      console.log('test', test)
-
-      for (let item of cardElements) {
-        console.log('item',item)
-      }
-      Array.from(cardElements).forEach( card => {
-           console.log(1)
+      for (const card of cardElements){
         const cardh = card as HTMLElement
         console.log('n',card)
         console.log('h',cardh)
         cardh.style.backgroundPosition = `-${xPos}px -${yPos}px`;
-      })
-        
+      }
     }
   }
 

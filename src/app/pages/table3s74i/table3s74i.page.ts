@@ -19,7 +19,6 @@ export class Table3s74iPage implements OnInit {
   @ViewChild('playArea', { static: false }) playArea!: ElementRef;
 
   private previousCardElement: HTMLElement | null = null;
-  private isAnimationEnabled: boolean = true;
   private selectedCardElement: HTMLElement | null = null;
 
   constructor(private animationCtrl: AnimationController, private deckService: DeckITService) { 
@@ -43,7 +42,6 @@ export class Table3s74iPage implements OnInit {
   checkScreenSize() {
     const screenWidth = window.innerWidth;
     this.isSingleRowLayout = screenWidth > 768;  // Aggiorna il layout in base alla dimensione dello schermo
-    this.isAnimationEnabled = true//screenWidth <= 992;
   }
 
   playCard(event: Event, card: ICardIT) {

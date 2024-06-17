@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { DeckIT } from 'src/app/shared/domain/models/deckIT.models';
+import { DeckIT } from 'src/app/shared/domain/models/deckIT.model';
 
 @Injectable({
   providedIn: 'root'

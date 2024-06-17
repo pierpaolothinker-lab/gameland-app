@@ -1,27 +1,30 @@
 import { Component, ElementRef, OnInit, ViewChild, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular/standalone';
+import { IonContent, IonHeader, IonTitle, IonToolbar, AnimationController } from '@ionic/angular/standalone';
+import { CardNAComponent } from 'src/app/shared/ui/card-na/card-na.component';
 
 @Component({
   selector: 'app-table3s74i',
   templateUrl: './table3s74i.page.html',
   styleUrls: ['./table3s74i.page.scss'],
   standalone: true,
-  imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule]
+  imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule, CardNAComponent]
 })
 export class Table3s74iPage implements OnInit {
-  constructor() { }
-
-  ngOnInit() {  
-  }
-
+  isSingleRowLayout: boolean = true;
   cards = ['Card1', 'Card2', 'Card3', 'Card4', 'Card5', 'Card6', 'Card7', 'Card8', 'Card9', 'Card10'];
   @ViewChild('playArea', { static: false }) playArea!: ElementRef;
 
   private previousCardElement: HTMLElement | null = null;
   private isAnimationEnabled: boolean = true;
   private selectedCardElement: HTMLElement | null = null;
+
+  constructor(private animationCtrl: AnimationController) { }
+
+  ngOnInit() {
+    this.checkScreenSize();
+  }
 
   @HostListener('window:resize', ['$event'])
   onResize(event: Event) {
@@ -30,16 +33,14 @@ export class Table3s74iPage implements OnInit {
 
   ngAfterViewInit() {
     this.checkScreenSize();
-    this.showCard(3,9) 
-
   }
 
   checkScreenSize() {
     const screenWidth = window.innerWidth;
-    this.isAnimationEnabled = screenWidth <= 992;
+    this.isSingleRowLayout = screenWidth > 768;  // Aggiorna il layout in base alla dimensione dello schermo
+    this.isAnimationEnabled = true//screenWidth <= 992;
   }
 
-  
   playCard(event: Event, card: string) {
     const cardElement = event.target as HTMLElement;
     if (!cardElement) return;
@@ -51,8 +52,15 @@ export class Table3s74iPage implements OnInit {
     }
 
     if (this.selectedCardElement === cardElement) {
-      this.animateCardToCenter(cardElement);
-      this.selectedCardElement = null; // Reset selected card
+      const offset = this.calculateOffset(cardElement)
+      this.animationCtrl.create('animation')
+        .addElement(cardElement)
+        .duration(200)
+        .keyframes([{ offset: 1, transform:  `translate(${offset.deltaX}px, ${offset.deltaY}px)` }])
+        .play()
+      // this.animateCardToCenter(cardElement)
+      this.completeTransaction(cardElement)
+      // this.selectedCardElement = null; // Reset selected card
     } else {
       this.selectedCardElement = cardElement;
       cardElement.style.transform = 'scale(1.1)'; // Slightly enlarge the card
@@ -60,102 +68,120 @@ export class Table3s74iPage implements OnInit {
     }
   }
 
-  showCard(row: number, col: number) {
-    const originalCardWidth = 60;
-    const originalCardHeight = 90;
-    const displayCardWidth = 70;
-    const displayCardHeight = 100;
-    
-    const initialOffsetX = 9;
-    const initialOffsetY = 9;
-    const horizontalSpacing = 5.2
-    const verticalSpacing = 24;
-  
-    // Calcola il fattore di ridimensionamento
-    const scaleX = displayCardWidth / originalCardWidth;
-    const scaleY = displayCardHeight / originalCardHeight;
-  
-    // Calcola la posizione della carta all'interno dell'immagine originale
-    const xPosOriginal = initialOffsetX + col * (originalCardWidth + horizontalSpacing);
-    const yPosOriginal = initialOffsetY + row * (originalCardHeight + verticalSpacing);
-  
-    // Applica il ridimensionamento
-    const xPos = xPosOriginal * scaleX;
-    const yPos = yPosOriginal * scaleY;
-  
-    const cardElements = document.getElementsByClassName('card') 
-    if (cardElements) {
-      console.log('cardElements', cardElements)
-      for (const card of cardElements){
-        const cardh = card as HTMLElement
-        console.log('n',card)
-        console.log('h',cardh)
-        cardh.style.backgroundPosition = `-${xPos}px -${yPos}px`;
-      }
-    }
-  }
+  // onDoubleClick(event: Event, card: string) {
+  //   const cardElement = event.target as HTMLElement;
+  //   console.log('ECCHIME')
+  //   if (cardElement) {
+  //     this.animateCardToCenter(cardElement);
+  //     this.selectedCardElement = null; // Reset selected card
+  //   }
+  // }
 
-  onDoubleClick(event: Event, card: string) {
-    const cardElement = event.target as HTMLElement;
-    if (cardElement) {
-      this.animateCardToCenter(cardElement);
-      this.selectedCardElement = null; // Reset selected card
-    }
-  }
-
-  animateCardToCenter(cardElement: HTMLElement) {
-    const playAreaRect = this.playArea.nativeElement.getBoundingClientRect();
-    const cardRect = cardElement.getBoundingClientRect();
-
-    if (!this.isAnimationEnabled) {
-      // Sposta direttamente la carta al centro della play-area
-      cardElement.style.transition = 'none';
-      cardElement.style.transform = 'none';
-      cardElement.style.left = `${playAreaRect.width / 2 - cardRect.width / 2}px`;
-      cardElement.style.top = `${playAreaRect.height / 2 - cardRect.height / 2}px`;
-      cardElement.classList.add('playing-card'); // Ensure the class is added
-      this.playArea.nativeElement.appendChild(cardElement);
-
-      // Rimuovi la carta precedente
-      if (this.previousCardElement) {
-        this.previousCardElement.remove();
-      }
-      this.previousCardElement = cardElement;
-      return;
-    }
-
-    // Calcoliamo la posizione finale della carta rispetto alla play-area
-    const deltaX = playAreaRect.left + (playAreaRect.width / 2) - (cardRect.left + (cardRect.width / 2));
-    const deltaY = playAreaRect.top + (playAreaRect.height / 2) - (cardRect.top + (cardRect.height / 2));
-
-    // Posizioniamo la carta inizialmente nella posizione corretta
-    cardElement.style.left = `${cardRect.left}px`;
-    cardElement.style.top = `${cardRect.top}px`;
-
-    // Avviamo l'animazione
-    requestAnimationFrame(() => {
-      // Impostiamo la posizione finale della carta rispetto alla play-area
-      cardElement.style.transition = 'transform 0.2s ease';
-      cardElement.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-    });
-
+  completeTransaction(cardElement: HTMLElement){
     cardElement.classList.add('playing-card');
 
     cardElement.addEventListener('transitionend', () => {
-      // Rimuoviamo la carta precedente dalla play-area
-      if (this.previousCardElement) {
-        this.previousCardElement.remove();
-      }
+      // // Rimuoviamo la carta precedente dalla play-area
+      // if (this.previousCardElement) {
+      //   this.previousCardElement.remove();
+      // }
 
-      // Riposizioniamo la carta al centro della play-area
-      cardElement.style.transition = 'none';
-      cardElement.style.transform = 'none';
-      cardElement.style.left = `${playAreaRect.width / 2 - cardRect.width / 2}px`;
-      cardElement.style.top = `${playAreaRect.height / 2 - cardRect.height / 2}px`;
+      // // Riposizioniamo la carta al centro della play-area
+      // // cardElement.style.transition = 'none';
+      // // cardElement.style.transform = 'none';
+      // // cardElement.style.left = `${playAreaRect.width / 2 - cardRect.width / 2}px`;
+      // // cardElement.style.top = `${playAreaRect.height / 2 - cardRect.height / 2}px`;
 
       this.playArea.nativeElement.appendChild(cardElement);
       this.previousCardElement = cardElement;
       cardElement.classList.remove('playing-card');
-    }, { once: true });
+    })
+  }
+
+  // animateCardToCenter(cardElement: HTMLElement) {
+  //   const playAreaRect = this.playArea.nativeElement.getBoundingClientRect();
+  //   const cardRect = cardElement.getBoundingClientRect();
+  //   const menuOffset = this.getMenuOffset(); // Ottieni l'offset del menu
+
+  //   if (!this.isAnimationEnabled) {
+  //     // Sposta direttamente la carta al centro della play-area
+  //     cardElement.style.transition = 'none';
+  //     cardElement.style.transform = 'none';
+  //     cardElement.style.left = `${playAreaRect.width / 2 - cardRect.width / 2}px`;
+  //     cardElement.style.top = `${playAreaRect.height / 2 - cardRect.height / 2}px`;
+  //     cardElement.classList.add('playing-card'); // Ensure the class is added
+  //     this.playArea.nativeElement.appendChild(cardElement);
+
+  //     // Rimuovi la carta precedente
+  //     if (this.previousCardElement) {
+  //       this.previousCardElement.remove();
+  //     }
+  //     this.previousCardElement = cardElement;
+  //     return;
+  //   }
+
+  //   // Calcoliamo la posizione finale della carta rispetto alla play-area
+  //   const deltaX = playAreaRect.left + (playAreaRect.width / 2) - (cardRect.left + (cardRect.width / 2));
+  //   const deltaY = playAreaRect.top + (playAreaRect.height / 2) - (cardRect.top + (cardRect.height / 2));
+
+  //   // Posizioniamo la carta inizialmente nella posizione corretta
+  //   // cardElement.style.left = `${cardRect.left - menuOffset}px`;
+  //   // cardElement.style.top = `${cardRect.top}px`;
+
+  //   const loadingAnimation = this.animationCtrl.create('animation')
+  //     .addElement(cardElement)
+  //     .duration(200)
+  //     .keyframes([
+  //       { offset: 1, transform:  `translate(${deltaX}px, ${deltaY}px)` },
+  //       // { offset: 0.5, transform: 'scale(1.2)' },
+  //       // { offset: 0.8, transform: 'scale(0.9)' },
+  //       // { offset: 1, transform: 'scale(1)' }
+  //     ]);
+
+  //     loadingAnimation.play()
+  //   // Avviamo l'animazione
+  //   // requestAnimationFrame(() => {
+  //   //   // Impostiamo la posizione finale della carta rispetto alla play-area
+  //   //   cardElement.style.transition = 'transform 0.2s ease';
+  //   //   cardElement.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+  //   // });    
+
+  //   cardElement.classList.add('playing-card');
+
+  //   cardElement.addEventListener('transitionend', () => {
+  //     // Rimuoviamo la carta precedente dalla play-area
+  //     if (this.previousCardElement) {
+  //       this.previousCardElement.remove();
+  //     }
+
+  //     // Riposizioniamo la carta al centro della play-area
+  //     cardElement.style.transition = 'none';
+  //     cardElement.style.transform = 'none';
+  //     cardElement.style.left = `${playAreaRect.width / 2 - cardRect.width / 2}px`;
+  //     cardElement.style.top = `${playAreaRect.height / 2 - cardRect.height / 2}px`;
+
+  //     this.playArea.nativeElement.appendChild(cardElement);
+  //     this.previousCardElement = cardElement;
+  //     cardElement.classList.remove('playing-card');
+  //   }, { once: true });
+  // }
+
+  getMenuOffset(): number {
+    // Calcola l'offset del menu se presente
+    const menuElement = document.querySelector('.menu-class'); // Sostituisci con il selettore corretto del tuo menu
+    if (menuElement) {
+      const menuRect = menuElement.getBoundingClientRect();
+      return menuRect.width;
+    }
+    return 0;
+  }
+
+  calculateOffset(cardElement: HTMLElement) {
+    const playAreaRect = this.playArea.nativeElement.getBoundingClientRect();
+    const cardRect = cardElement.getBoundingClientRect();
+    const deltaX = playAreaRect.left + (playAreaRect.width / 2) - (cardRect.left + (cardRect.width / 2));
+    const deltaY = playAreaRect.top + (playAreaRect.height / 2) - (cardRect.top + (cardRect.height / 2));
+    return{deltaX, deltaY}
+
   }
 }

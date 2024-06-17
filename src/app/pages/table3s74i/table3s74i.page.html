@@ -1,14 +1,13 @@
 <ion-content [fullscreen]="true">
   <div class="game-table">
     <div class="play-area" #playArea></div>
-    <div class="card-container" #cardContainer>
-      <!-- Prima riga di carte -->
+    <div class="card-container" #cardContainer [class.single-row]="isSingleRowLayout">
+      <!-- Righe di carte dinamiche -->
       <div class="card-row">
-        <div class="card" *ngFor="let card of cards | slice: 0 : 5" (click)="playCard($event, card)"></div>
+        <app-card-na *ngFor="let card of cards | slice: 0 : (isSingleRowLayout ? 10 : 5)" (click)="playCard($event, card)"></app-card-na>
       </div>
-      <!-- Seconda riga di carte -->
-      <div class="card-row">
-        <div class="card" *ngFor="let card of cards | slice: 5 : 10" (click)="playCard($event, card)"></div>
+      <div class="card-row" *ngIf="!isSingleRowLayout">
+        <app-card-na *ngFor="let card of cards | slice: 5 : 10" (click)="playCard($event, card)"></app-card-na>
       </div>
     </div>
   </div>

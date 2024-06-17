@@ -13,31 +13,6 @@
   align-items: center;
 }
 
-/* Stile delle carte */
-.card {
-  width: 58px; /* Larghezza della carta */
-  height: 105px; /* Altezza della carta */
-  border-radius: 10px;
-  background-image: url('./../../../assets/carte_napoletane.png'); /* Immagine dello sprite */
-  background-repeat: no-repeat;
-  background-size: calc(1024px * (65 / 87)) calc(649px * (108 / 139)); /* Ridimensionamento dell'immagine */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 2px; /* Spazio tra le carte */
-  cursor: pointer;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
-  position: relative;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  font-size: 1.2em;
-  box-sizing: border-box; /* Include padding e border nelle dimensioni dell'elemento */
-}
-
-/* Hover effect per le carte */
-.card:hover {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-}
-
 /* Area di gioco */
 .play-area {
   position: relative;
@@ -53,13 +28,11 @@
 }
 
 /* Carte in gioco */
-.playing-card {
-  position: absolute;
-  z-index: 10;
-  // width: 65px !important; /* Mantieni la larghezza della carta */
-  // height: 108px !important; /* Mantieni l'altezza della carta */
-  transition: transform 0.2s ease;
-}
+// .playing-card {
+//   position: absolute;
+//   z-index: 10;
+//   transition: transform 0.2s ease;
+// }
 
 /* Carte selezionate */
 .selected-card {

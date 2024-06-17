@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonContent, IonHeader, IonTitle, IonToolbar, AnimationController } from '@ionic/angular/standalone';
 import { CardNAComponent } from 'src/app/shared/ui/card-na/card-na.component';
+import { DeckITService } from 'src/app/services/fakes/deck-it.service';
+import { ICardIT } from 'src/app/shared/domain/models/cardIT.model';
 
 @Component({
   selector: 'app-table3s74i',
@@ -13,14 +15,17 @@ import { CardNAComponent } from 'src/app/shared/ui/card-na/card-na.component';
 })
 export class Table3s74iPage implements OnInit {
   isSingleRowLayout: boolean = true;
-  cards = ['Card1', 'Card2', 'Card3', 'Card4', 'Card5', 'Card6', 'Card7', 'Card8', 'Card9', 'Card10'];
+  cards: ICardIT[] = [];
   @ViewChild('playArea', { static: false }) playArea!: ElementRef;
 
   private previousCardElement: HTMLElement | null = null;
   private isAnimationEnabled: boolean = true;
   private selectedCardElement: HTMLElement | null = null;
 
-  constructor(private animationCtrl: AnimationController) { }
+  constructor(private animationCtrl: AnimationController, private deckService: DeckITService) { 
+    this.cards = deckService.getPlayerCards()
+    console.log("CARTE", this.cards)
+  }
 
   ngOnInit() {
     this.checkScreenSize();
@@ -41,7 +46,7 @@ export class Table3s74iPage implements OnInit {
     this.isAnimationEnabled = true//screenWidth <= 992;
   }
 
-  playCard(event: Event, card: string) {
+  playCard(event: Event, card: ICardIT) {
     const cardElement = event.target as HTMLElement;
     if (!cardElement) return;
 

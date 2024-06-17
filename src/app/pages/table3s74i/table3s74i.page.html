@@ -4,10 +4,10 @@
     <div class="card-container" #cardContainer [class.single-row]="isSingleRowLayout">
       <!-- Righe di carte dinamiche -->
       <div class="card-row">
-        <app-card-na *ngFor="let card of cards | slice: 0 : (isSingleRowLayout ? 10 : 5)" (click)="playCard($event, card)"></app-card-na>
+        <app-card-na [card]="card" *ngFor="let card of cards | slice: 0 : (isSingleRowLayout ? 10 : 5)" (click)="playCard($event, card)"></app-card-na>
       </div>
       <div class="card-row" *ngIf="!isSingleRowLayout">
-        <app-card-na *ngFor="let card of cards | slice: 5 : 10" (click)="playCard($event, card)"></app-card-na>
+        <app-card-na [card]="card" *ngFor="let card of cards | slice: 5 : 10" (click)="playCard($event, card)"></app-card-na>
       </div>
     </div>
   </div>

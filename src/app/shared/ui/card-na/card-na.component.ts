@@ -1,5 +1,6 @@
-import { Component, ElementRef, OnInit } from '@angular/core';
+import { Component, ElementRef, Input, OnInit } from '@angular/core';
 import { bGImageCostants } from './../../domain/costants/cardNA.costants'
+import { ICardIT, Suit } from '../../domain/models/cardIT.model';
 
 @Component({
   selector: 'app-card-na',
@@ -9,11 +10,39 @@ import { bGImageCostants } from './../../domain/costants/cardNA.costants'
 })
 export class CardNAComponent  implements OnInit {
   constructor(private myElement: ElementRef, private K : bGImageCostants) { }
+  @Input({ required: true }) card!: ICardIT
 
   ngOnInit() {}
 
   ngAfterViewInit() {
-    this.showCard(0,2) 
+    this.showCard(this.getMatrixRow(this.card), this.getMatrixCol(this.card)) 
+  }
+
+  private getMatrixRow(card: ICardIT): number {
+    if (!card)
+      throw new Error('No card')
+
+    if (card.suit === Suit.Coppe)
+      return 0
+
+    if (card.suit === Suit.Denari)
+      return 1
+
+    if (card.suit === Suit.Bastoni)
+      return 2
+
+    if (card.suit === Suit.Spade)
+      return 3
+
+    return -1
+  }
+
+  private getMatrixCol(card: ICardIT): number {
+    if (!card)
+      throw new Error('No card')
+
+    return this.card.value - 1
+
   }
 
   showCard(row: number, col: number) {

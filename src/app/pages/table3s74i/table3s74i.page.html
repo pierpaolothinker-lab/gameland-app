@@ -1,0 +1,8 @@
+<ion-content [fullscreen]="true">
+  <div class="game-table">
+    <div class="play-area" #playArea>
+      <app-card-played-area [playedCard]="card"></app-card-played-area>
+    </div>
+    <app-card-it10 (onPlayedCard)="card=$event"></app-card-it10>
+  </div>
+</ion-content>

@@ -1,0 +1,23 @@
+/* Stile delle carte */
+:host {
+    width: 58px; /* Larghezza della carta */
+    height: 105px; /* Altezza della carta */
+    border-radius: 10px;
+    background-image: url('./../../../../assets/carte_napoletane.png'); /* Immagine dello sprite */
+    background-repeat: no-repeat;
+    background-size: calc(1024px * (65 / 87)) calc(649px * (108 / 139)); /* Ridimensionamento dell'immagine */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 2px; /* Spazio tra le carte */
+    cursor: pointer;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box; /* Include padding e border nelle dimensioni dell'elemento */
+  }
+
+  /* Hover effect per le carte */
+  :host:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }

@@ -1,0 +1,13 @@
+/* Area di gioco */
+.play-area {
+  // position: relative;
+  width: 70px;
+  height: 108px;
+  margin-top: 20px;
+  border: 2px dashed #ccc; /* Bordo della play-area */
+  border-radius: 10px;
+  background-color: rgba(255, 255, 255, 0.7); /* Sfondo semi-trasparente */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

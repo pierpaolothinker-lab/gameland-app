@@ -29,7 +29,6 @@ export class CardIT10Component implements OnInit {
   }
 
   playCard(event: Event, card: ICardIT) {
-    console.log('QUESTA', card)
     const cardElement = event.target as HTMLElement;
     if (!cardElement) return;
 

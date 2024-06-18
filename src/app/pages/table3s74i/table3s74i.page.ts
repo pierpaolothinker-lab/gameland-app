@@ -1,17 +1,18 @@
 import { Component, ElementRef, OnInit, ViewChild, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonHeader, IonTitle, IonToolbar, AnimationController } from '@ionic/angular/standalone';
+import { IonContent, IonHeader, IonTitle, IonToolbar, AnimationController, IonGrid, IonRow, IonCol } from '@ionic/angular/standalone';
 import { CardNAComponent } from 'src/app/shared/ui/card-na/card-na.component';
 import { DeckITService } from 'src/app/services/fakes/deck-it.service';
 import { ICardIT } from 'src/app/shared/domain/models/cardIT.model';
+import { CardIT10Component } from 'src/app/shared/ui/card-it10/card-it10.component';
 
 @Component({
   selector: 'app-table3s74i',
   templateUrl: './table3s74i.page.html',
   styleUrls: ['./table3s74i.page.scss'],
   standalone: true,
-  imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule, CardNAComponent]
+  imports: [IonCol, IonRow, IonGrid, IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule, CardNAComponent, CardIT10Component]
 })
 export class Table3s74iPage implements OnInit {
   isSingleRowLayout: boolean = true;
@@ -81,7 +82,7 @@ export class Table3s74iPage implements OnInit {
   // }
 
   completeTransaction(cardElement: HTMLElement){
-    cardElement.classList.add('playing-card');
+    // cardElement.classList.add('playing-card');
 
     cardElement.addEventListener('transitionend', () => {
       // // Rimuoviamo la carta precedente dalla play-area
@@ -96,8 +97,8 @@ export class Table3s74iPage implements OnInit {
       // // cardElement.style.top = `${playAreaRect.height / 2 - cardRect.height / 2}px`;
 
       this.playArea.nativeElement.appendChild(cardElement);
-      this.previousCardElement = cardElement;
-      cardElement.classList.remove('playing-card');
+      // this.previousCardElement = cardElement;
+      // cardElement.classList.remove('playing-card');
     })
   }
 

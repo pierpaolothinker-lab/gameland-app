@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnInit } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, SimpleChanges } from '@angular/core';
 import { bGImageCostants } from './../../domain/costants/cardNA.costants'
 import { ICardIT, Suit } from '../../domain/models/cardIT.model';
 
@@ -14,8 +14,8 @@ export class CardNAComponent  implements OnInit {
 
   ngOnInit() {}
 
-  ngAfterViewInit() {
-    this.showCard(this.getMatrixRow(this.card), this.getMatrixCol(this.card)) 
+  ngOnChanges(changes: SimpleChanges): void {
+    this.showCard(this.getMatrixRow(this.card), this.getMatrixCol(this.card))
   }
 
   private getMatrixRow(card: ICardIT): number {

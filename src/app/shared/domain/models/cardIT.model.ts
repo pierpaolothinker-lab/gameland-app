@@ -19,7 +19,7 @@ export class CardIT implements ICardIT {
      */
     constructor(suit: Suit, value: number) {
         this.suit = suit
-        if (value > 0 && value <= 0)
+        if (value > 0 && value <= 10)
             this.value = value
     }
 

@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   IonButton,
   IonCard,
@@ -9,15 +9,18 @@ import {
   IonCardSubtitle,
   IonCardTitle,
   IonContent,
-  IonInput,
   IonItem,
   IonLabel,
+  IonSelect,
+  IonSelectOption,
   IonSpinner,
   IonToast,
 } from '@ionic/angular/standalone';
 
+import { AuthSessionService, MockSessionUser } from 'src/app/services/auth/auth-session.service';
 import { TressetteTableService } from 'src/app/services/tressette/tressette-table.service';
 import { TressettePlayer, TressettePosition, TressetteTableView } from 'src/app/shared/domain/models/tressette-table.model';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-tressette-lobby',
@@ -32,30 +35,45 @@ import { TressettePlayer, TressettePosition, TressetteTableView } from 'src/app/
     IonCardSubtitle,
     IonCardTitle,
     IonContent,
-    IonInput,
     IonItem,
     IonLabel,
+    IonSelect,
+    IonSelectOption,
     IonSpinner,
     IonToast,
     CommonModule,
-    FormsModule,
   ],
 })
 export class TressetteLobbyPage implements OnInit {
   readonly positions: TressettePosition[] = ['SUD', 'NORD', 'EST', 'OVEST'];
+  readonly availableUsers = this.authSessionService.availableUsers;
+  readonly showDevAuthPanel = !environment.production;
 
   tables: TressetteTableView[] = [];
   loading = false;
-  ownerUsername = '';
-  joinUsernameByTable: Record<string, string> = {};
 
   errorBanner = '';
   toastOpen = false;
   toastMessage = '';
 
-  constructor(private readonly tableService: TressetteTableService) {}
+  activeUser: MockSessionUser;
+
+  private readonly destroyRef = inject(DestroyRef);
+
+  constructor(
+    private readonly tableService: TressetteTableService,
+    private readonly authSessionService: AuthSessionService
+  ) {
+    this.activeUser = this.authSessionService.currentUser;
+  }
 
   ngOnInit(): void {
+    this.authSessionService.currentUser$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((user) => {
+        this.activeUser = user;
+      });
+
     this.refreshTables();
   }
 
@@ -76,20 +94,18 @@ export class TressetteLobbyPage implements OnInit {
     });
   }
 
-  createTable(): void {
-    const owner = this.ownerUsername.trim();
-    if (!owner) {
-      this.openToast('Inserisci username owner');
-      return;
-    }
+  onSwitchUser(userId: string): void {
+    this.authSessionService.setActiveUser(userId);
+    this.openToast(`Utente attivo: ${this.activeUser.username}`);
+  }
 
+  createTable(): void {
     this.loading = true;
     this.errorBanner = '';
 
-    this.tableService.createTable(owner).subscribe({
+    this.tableService.createTable(this.activeUser.username).subscribe({
       next: () => {
-        this.ownerUsername = '';
-        this.openToast('Tavolo creato');
+        this.openToast(`Tavolo creato come ${this.activeUser.username}`);
         this.refreshTables();
       },
       error: () => {
@@ -100,19 +116,12 @@ export class TressetteLobbyPage implements OnInit {
   }
 
   joinSeat(tableId: string, position: TressettePosition): void {
-    const username = (this.joinUsernameByTable[tableId] ?? '').trim();
-
-    if (!username) {
-      this.openToast('Inserisci username per sederti');
-      return;
-    }
-
     this.loading = true;
     this.errorBanner = '';
 
-    this.tableService.joinTable(tableId, username, position).subscribe({
+    this.tableService.joinTable(tableId, this.activeUser.username, position).subscribe({
       next: () => {
-        this.openToast(`${username} seduto su ${position}`);
+        this.openToast(`${this.activeUser.username} seduto su ${position}`);
         this.refreshTables();
       },
       error: () => {

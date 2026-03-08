@@ -161,3 +161,15 @@
     grid-template-columns: 1fr;
   }
 }
+
+.active-user {
+  margin-top: 8px;
+  color: #d9f2ff;
+}
+
+.mock-users-row {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

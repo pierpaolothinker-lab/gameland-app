@@ -1,76 +1,70 @@
 <ion-content [fullscreen]="true" class="tressette-content">
   <section class="title-block">
-    <h1>Tressette Table</h1>
-    <p class="subtitle">Controlli tavolo realtime</p>
+    <h1>Tressette Gameplay</h1>
+    <p class="subtitle">Tavolo: {{ tableId || '-' }}</p>
   </section>
 
-  <section class="controls">
-    <ion-item lines="none">
-      <ion-label position="stacked">Owner</ion-label>
-      <ion-input [(ngModel)]="ownerName" placeholder="Pierpaolo"></ion-input>
-    </ion-item>
-    <ion-button expand="block" (click)="createTable()">Crea Tavolo</ion-button>
-
-    <ion-item lines="none">
-      <ion-label position="stacked">Table ID</ion-label>
-      <ion-input [(ngModel)]="tableId" placeholder="uuid tavolo"></ion-input>
-    </ion-item>
-
-    <ion-item lines="none">
-      <ion-label position="stacked">Username Join</ion-label>
-      <ion-input [(ngModel)]="joinUsername" placeholder="Nome giocatore"></ion-input>
-    </ion-item>
-
-    <ion-item lines="none">
-      <ion-label position="stacked">Posizione</ion-label>
-      <ion-select [(ngModel)]="joinPosition" interface="popover">
-        <ion-select-option value="SUD">SUD</ion-select-option>
-        <ion-select-option value="NORD">NORD</ion-select-option>
-        <ion-select-option value="EST">EST</ion-select-option>
-        <ion-select-option value="OVEST">OVEST</ion-select-option>
-      </ion-select>
-    </ion-item>
-
-    <div class="actions-row">
-      <ion-button (click)="joinTable()">Join</ion-button>
-      <ion-button fill="outline" (click)="refreshTable()">Refresh</ion-button>
+  <section class="status-board data-mode-bar">
+    <p><strong>Data Mode:</strong> {{ dataMode | uppercase }}</p>
+    <div class="data-mode-actions">
+      <ion-button size="small" [fill]="dataMode === 'demo' ? 'solid' : 'outline'" (click)="onDataModeChange('demo')">Demo</ion-button>
+      <ion-button size="small" [fill]="dataMode === 'live' ? 'solid' : 'outline'" (click)="onDataModeChange('live')">Live</ion-button>
     </div>
+  </section>
 
-    <ion-item lines="none">
-      <ion-label position="stacked">Start Username</ion-label>
-      <ion-input [(ngModel)]="startUsername" placeholder="Owner"></ion-input>
-    </ion-item>
-    <ion-button color="success" expand="block" (click)="startGame()">Start Game</ion-button>
+  <section class="connection-banner" *ngIf="connectionBannerVisible">
+    <strong>Connessione realtime assente.</strong>
+    <ion-button size="small" fill="outline" (click)="goToLobby()">Torna alla lobby</ion-button>
   </section>
 
   <section class="status-board">
     <p><strong>Socket:</strong> {{ socketMessage }}</p>
+    <p><strong>Endpoint:</strong> {{ socketUrl }}</p>
+    <p><strong>Stato tavolo:</strong> {{ table?.status ?? 'waiting' }}</p>
+    <p><strong>Turno: {{ currentTurnLabel }}</strong></p>
+    <p *ngIf="lastPlayedMessage"><strong>Ultima giocata:</strong> {{ lastPlayedMessage }}</p>
     <p class="info" *ngIf="infoMessage">{{ infoMessage }}</p>
     <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
-  </section>
-
-  <section class="table-meta" *ngIf="table as t">
-    <p>Status: <strong>{{ t.status }}</strong> | Complete: <strong>{{ t.isComplete }}</strong></p>
-    <p>Owner: <strong>{{ t.owner }}</strong> | Players: <strong>{{ t.players.length }}</strong></p>
   </section>
 
   <div class="loading" *ngIf="loading">
     <ion-spinner name="crescent"></ion-spinner>
   </div>
 
+  <section class="table-meta" *ngIf="table as t">
+    <p>Owner: <strong>{{ t.owner }}</strong> | Players: <strong>{{ t.players.length }}</strong></p>
+    <p>Punti SN/EO: <strong>{{ t.points.teamSN }} / {{ t.points.teamEO }}</strong></p>
+  </section>
+
   <section class="table-stage">
     <div class="game-table">
-      <div class="seat seat-north">
-        <div class="player-badge">{{ getPlayer('NORD')?.username ?? 'NORD' }}</div>
+      <div class="seat seat-north" [class.turn]="isTurnPosition('NORD')">
+        <div class="player-badge">
+          <span class="player-name">{{ getPlayer('NORD')?.username ?? 'NORD' }}</span>
+          <span class="turn-badge" *ngIf="isTurnPosition('NORD')">DI TURNO</span>
+          <span class="turn-countdown" *ngIf="getSeatCountdown('NORD') !== null">{{ getSeatCountdown('NORD') }}s</span>
+        </div>
       </div>
-      <div class="seat seat-east">
-        <div class="player-badge">{{ getPlayer('EST')?.username ?? 'EST' }}</div>
+      <div class="seat seat-east" [class.turn]="isTurnPosition('EST')">
+        <div class="player-badge">
+          <span class="player-name">{{ getPlayer('EST')?.username ?? 'EST' }}</span>
+          <span class="turn-badge" *ngIf="isTurnPosition('EST')">DI TURNO</span>
+          <span class="turn-countdown" *ngIf="getSeatCountdown('EST') !== null">{{ getSeatCountdown('EST') }}s</span>
+        </div>
       </div>
-      <div class="seat seat-south">
-        <div class="player-badge me">{{ getPlayer('SUD')?.username ?? 'TU (SUD)' }}</div>
+      <div class="seat seat-south" [class.turn]="isTurnPosition('SUD')">
+        <div class="player-badge me">
+          <span class="player-name">{{ getPlayer('SUD')?.username ?? 'SUD' }}</span>
+          <span class="turn-badge" *ngIf="isTurnPosition('SUD')">DI TURNO</span>
+          <span class="turn-countdown" *ngIf="getSeatCountdown('SUD') !== null">{{ getSeatCountdown('SUD') }}s</span>
+        </div>
       </div>
-      <div class="seat seat-west">
-        <div class="player-badge">{{ getPlayer('OVEST')?.username ?? 'OVEST' }}</div>
+      <div class="seat seat-west" [class.turn]="isTurnPosition('OVEST')">
+        <div class="player-badge">
+          <span class="player-name">{{ getPlayer('OVEST')?.username ?? 'OVEST' }}</span>
+          <span class="turn-badge" *ngIf="isTurnPosition('OVEST')">DI TURNO</span>
+          <span class="turn-countdown" *ngIf="getSeatCountdown('OVEST') !== null">{{ getSeatCountdown('OVEST') }}s</span>
+        </div>
       </div>
 
       <div class="trick-center">
@@ -80,7 +74,7 @@
         <div class="trick-slot trick-east">
           <app-card-na *ngIf="playedCards.EST" [card]="playedCards.EST"></app-card-na>
         </div>
-        <div class="trick-slot trick-south" #playArea>
+        <div class="trick-slot trick-south">
           <app-card-na *ngIf="playedCards.SUD" [card]="playedCards.SUD"></app-card-na>
         </div>
         <div class="trick-slot trick-west">
@@ -89,8 +83,23 @@
       </div>
     </div>
 
-    <div class="hand-panel">
-      <app-card-it10 (onPlayedCard)="onCardPlayed($event)"></app-card-it10>
+    <div class="hand-panel" [class.disabled]="!canPlayCards">
+      <p class="hand-title">La tua mano (click per giocare)</p>
+      <div class="hand-cards">
+        <button
+          type="button"
+          class="hand-card"
+          *ngFor="let card of handCards"
+          [disabled]="!canPlayCards"
+          (click)="playCard(card)"
+        >
+          <app-card-na [card]="card"></app-card-na>
+        </button>
+      </div>
+    </div>
+
+    <div class="back-row">
+      <ion-button fill="outline" (click)="goToLobby()">Torna alla lobby</ion-button>
     </div>
   </section>
 </ion-content>

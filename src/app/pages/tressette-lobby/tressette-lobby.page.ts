@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
 import {
   IonButton,
   IonCard,
@@ -18,6 +19,7 @@ import {
 } from '@ionic/angular/standalone';
 
 import { AuthSessionService, MockSessionUser } from 'src/app/services/auth/auth-session.service';
+import { DataMode, DataModeService } from 'src/app/services/data-mode/data-mode.service';
 import { TressetteTableService } from 'src/app/services/tressette/tressette-table.service';
 import { TressettePlayer, TressettePosition, TressetteTableView } from 'src/app/shared/domain/models/tressette-table.model';
 import { environment } from 'src/environments/environment';
@@ -51,20 +53,25 @@ export class TressetteLobbyPage implements OnInit {
 
   tables: TressetteTableView[] = [];
   loading = false;
+  starting = false;
 
   errorBanner = '';
   toastOpen = false;
   toastMessage = '';
 
   activeUser: MockSessionUser;
+  dataMode: DataMode;
 
   private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private readonly tableService: TressetteTableService,
-    private readonly authSessionService: AuthSessionService
+    private readonly authSessionService: AuthSessionService,
+    private readonly dataModeService: DataModeService,
+    private readonly router: Router
   ) {
     this.activeUser = this.authSessionService.currentUser;
+    this.dataMode = this.dataModeService.mode;
   }
 
   ngOnInit(): void {
@@ -74,7 +81,20 @@ export class TressetteLobbyPage implements OnInit {
         this.activeUser = user;
       });
 
-    this.refreshTables();
+    this.dataModeService.mode$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((mode) => {
+        const changed = mode !== this.dataMode;
+        this.dataMode = mode;
+        if (changed) {
+          this.openToast(`Data mode: ${mode.toUpperCase()}`);
+        }
+        this.refreshTables();
+      });
+  }
+
+  onDataModeChange(mode: DataMode): void {
+    this.dataModeService.setMode(mode);
   }
 
   refreshTables(): void {
@@ -131,6 +151,82 @@ export class TressetteLobbyPage implements OnInit {
     });
   }
 
+  get selectedOwnerTable(): TressetteTableView | null {
+    const ownerTables = this.tables.filter((table) => table.owner === this.activeUser.username);
+    if (ownerTables.length === 0) {
+      return null;
+    }
+
+    const ready = ownerTables.find((table) => table.status === 'waiting' && this.isTableFull(table));
+    if (ready) {
+      return ready;
+    }
+
+    const waiting = ownerTables.find((table) => table.status === 'waiting');
+    if (waiting) {
+      return waiting;
+    }
+
+    return ownerTables[0];
+  }
+
+  get ownerTargetTableId(): string {
+    return this.selectedOwnerTable?.tableId ?? '-';
+  }
+
+  get canStartOwnerTable(): boolean {
+    const ownerTable = this.selectedOwnerTable;
+    if (!ownerTable || this.starting) {
+      return false;
+    }
+
+    return ownerTable.status === 'waiting' && this.isTableFull(ownerTable);
+  }
+
+  get startDisabledReason(): string {
+    const ownerTable = this.selectedOwnerTable;
+    if (!ownerTable) {
+      return 'Nessun tavolo owner';
+    }
+
+    if (ownerTable.status !== 'waiting') {
+      return 'Il tuo tavolo non e in stato waiting';
+    }
+
+    if (!this.isTableFull(ownerTable)) {
+      return 'Il tuo tavolo non e completo (servono 4/4)';
+    }
+
+    if (this.starting) {
+      return 'Avvio partita in corso...';
+    }
+
+    return '';
+  }
+
+  startMyGame(): void {
+    const ownerTable = this.selectedOwnerTable;
+    if (!ownerTable || !this.canStartOwnerTable) {
+      return;
+    }
+
+    this.starting = true;
+    this.errorBanner = '';
+
+    this.tableService.startTable(ownerTable.tableId, this.activeUser.username).subscribe({
+      next: () => {
+        this.starting = false;
+        this.openToast('Partita avviata su ' + ownerTable.tableId);
+        this.refreshTables();
+        void this.router.navigate(['/table3s74i', ownerTable.tableId]);
+      },
+      error: () => {
+        this.starting = false;
+        this.errorBanner = 'Avvio partita fallito';
+      },
+    });
+  }
+
   seatOccupied(table: TressetteTableView, position: TressettePosition): boolean {
     return table.players.some((player) => player.position === position);
   }
@@ -153,11 +249,15 @@ export class TressetteLobbyPage implements OnInit {
   }
 
   statusLabel(table: TressetteTableView): string {
-    if (this.isTableFull(table)) {
-      return 'COMPLETO';
+    if (table.status === 'in_game') {
+      return 'IN GAME';
     }
 
-    return 'IN ATTESA';
+    if (table.status === 'ended') {
+      return 'ENDED';
+    }
+
+    return this.isTableFull(table) ? 'COMPLETO' : 'IN ATTESA';
   }
 
   onToastDismiss(): void {

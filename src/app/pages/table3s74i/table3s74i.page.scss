@@ -16,30 +16,21 @@
   color: #d4efce;
 }
 
-.controls {
-  margin: 0 16px;
-  padding: 12px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(18, 62, 18, 0.15);
-}
-
-.actions-row {
-  display: flex;
-  gap: 8px;
-  margin: 6px 0;
-}
-
-.actions-row ion-button {
-  flex: 1;
-}
-
+.connection-banner,
 .status-board,
 .table-meta {
   margin: 12px 16px;
   padding: 10px 12px;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.86);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.connection-banner {
+  border-left: 4px solid #a52a2a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
 }
 
 .info {
@@ -71,6 +62,12 @@
 .seat {
   position: absolute;
   z-index: 2;
+}
+
+.seat.turn .player-badge {
+  border-color: #ffe17a;
+  box-shadow: 0 0 0 3px rgba(255, 225, 122, 0.5), 0 0 18px rgba(255, 225, 122, 0.5);
+  background: linear-gradient(180deg, rgba(22, 114, 22, 0.95), rgba(11, 80, 11, 0.98));
 }
 
 .seat-north {
@@ -106,6 +103,33 @@
   padding: 8px 10px;
   border-radius: 10px;
   font-weight: 600;
+  display: grid;
+  gap: 4px;
+}
+
+.player-name {
+  line-height: 1.2;
+}
+
+.turn-badge {
+  justify-self: center;
+  font-size: 10px;
+  letter-spacing: 0.4px;
+  border-radius: 999px;
+  padding: 2px 8px;
+  color: #1f2908;
+  background: #ffe17a;
+  font-weight: 700;
+}
+
+.turn-countdown {
+  justify-self: center;
+  min-width: 40px;
+  border-radius: 999px;
+  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  font-size: 12px;
 }
 
 .player-badge.me {
@@ -156,6 +180,38 @@
   background: rgba(0, 0, 0, 0.18);
 }
 
+.hand-panel.disabled {
+  opacity: 0.55;
+}
+
+.hand-title {
+  color: #f4ffef;
+  margin: 0 0 8px;
+}
+
+.hand-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.hand-card {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.hand-card:disabled {
+  cursor: not-allowed;
+}
+
+.back-row {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+}
+
 @media (max-width: 900px) {
   .game-table {
     min-height: 360px;
@@ -164,6 +220,16 @@
   .player-badge {
     min-width: 90px;
     font-size: 12px;
+  }
+
+  .turn-badge {
+    font-size: 9px;
+    padding: 2px 6px;
+  }
+
+  .turn-countdown {
+    min-width: 32px;
+    font-size: 11px;
   }
 
   .trick-slot {
@@ -187,3 +253,15 @@
     left: calc(50% - 128px);
   }
 }
+.data-mode-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.data-mode-actions {
+  display: flex;
+  gap: 8px;
+}
+

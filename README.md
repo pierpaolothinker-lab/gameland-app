@@ -10,13 +10,19 @@ La lobby Tressette usa una sessione utente mock (nessun login reale).
 - Persistenza utente attivo su `localStorage` con chiave:
   `gameland.mockAuthSession.userId`
 
-### Toggle dati mock lobby
+## Data Mode globale (Demo | Live)
 
-- `?mock=1` attiva dati mock
-- `?mock=0` disattiva dati mock (usa backend reale)
+Lobby e Gameplay condividono un unico toggle dati globale:
 
-Esempio:
-`http://localhost:4400/tressette-lobby?mock=1`
+- `Demo` (default al primo avvio)
+- `Live`
+
+Dettagli tecnici:
+
+- Persistenza su `localStorage` chiave `gameland.dataMode`
+- Ogni chiamata HTTP Tressette invia query param `mode=demo|live`
+- La connessione socket invia il `mode` in query/auth e viene riconnessa al cambio mode
+- Nessun uso di `/assets/mocks/...` per dati lobby/gameplay
 
 ## License
 

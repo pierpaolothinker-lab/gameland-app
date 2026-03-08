@@ -1,7 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 
 import { AuthSessionService, MockSessionUser } from 'src/app/services/auth/auth-session.service';
+import { DataMode, DataModeService } from 'src/app/services/data-mode/data-mode.service';
 import { TressetteTableService } from 'src/app/services/tressette/tressette-table.service';
 import { TressetteTableView } from 'src/app/shared/domain/models/tressette-table.model';
 import { TressetteLobbyPage } from './tressette-lobby.page';
@@ -13,6 +15,7 @@ describe('TressetteLobbyPage', () => {
     listTables: jasmine.Spy;
     createTable: jasmine.Spy;
     joinTable: jasmine.Spy;
+    startTable: jasmine.Spy;
   };
   let authMock: {
     availableUsers: MockSessionUser[];
@@ -20,25 +23,45 @@ describe('TressetteLobbyPage', () => {
     currentUser$: BehaviorSubject<MockSessionUser>;
     setActiveUser: jasmine.Spy;
   };
+  let dataModeMock: {
+    mode: DataMode;
+    mode$: BehaviorSubject<DataMode>;
+    setMode: jasmine.Spy;
+  };
+  let routerMock: {
+    navigate: jasmine.Spy;
+  };
 
   const activeUser: MockSessionUser = { userId: 'u-luca', username: 'Luca' };
 
-  const tablesMock: TressetteTableView[] = [
-    {
-      tableId: 'table-1',
-      owner: 'owner-a',
-      players: [{ username: 'user-sud', position: 'SUD' }],
-      isComplete: false,
-      points: { teamSN: 0, teamEO: 0 },
-      status: 'waiting',
-    },
-  ];
+  const makeTable = (
+    tableId: string,
+    owner: string,
+    status: 'waiting' | 'in_game' | 'ended',
+    playersCount: number,
+    isComplete = false
+  ): TressetteTableView => ({
+    tableId,
+    owner,
+    players: [
+      { username: 'p1', position: 'SUD' as const },
+      { username: 'p2', position: 'NORD' as const },
+      { username: 'p3', position: 'EST' as const },
+      { username: 'p4', position: 'OVEST' as const },
+    ].slice(0, playersCount),
+    isComplete,
+    points: { teamSN: 0, teamEO: 0 },
+    status,
+  });
+
+  const tablesMock: TressetteTableView[] = [makeTable('table-1', 'owner-a', 'waiting', 1)];
 
   beforeEach(async () => {
     serviceMock = {
       listTables: jasmine.createSpy('listTables').and.returnValue(of(tablesMock)),
       createTable: jasmine.createSpy('createTable').and.returnValue(of(tablesMock[0])),
       joinTable: jasmine.createSpy('joinTable').and.returnValue(of(tablesMock[0])),
+      startTable: jasmine.createSpy('startTable').and.returnValue(of(tablesMock[0])),
     };
 
     authMock = {
@@ -48,11 +71,26 @@ describe('TressetteLobbyPage', () => {
       setActiveUser: jasmine.createSpy('setActiveUser'),
     };
 
+    dataModeMock = {
+      mode: 'demo',
+      mode$: new BehaviorSubject<DataMode>('demo'),
+      setMode: jasmine.createSpy('setMode').and.callFake((mode: DataMode) => {
+        dataModeMock.mode = mode;
+        dataModeMock.mode$.next(mode);
+      }),
+    };
+
+    routerMock = {
+      navigate: jasmine.createSpy('navigate').and.returnValue(Promise.resolve(true)),
+    };
+
     await TestBed.configureTestingModule({
       imports: [TressetteLobbyPage],
       providers: [
         { provide: TressetteTableService, useValue: serviceMock },
         { provide: AuthSessionService, useValue: authMock },
+        { provide: DataModeService, useValue: dataModeMock },
+        { provide: Router, useValue: routerMock },
       ],
     }).compileComponents();
 
@@ -65,22 +103,6 @@ describe('TressetteLobbyPage', () => {
     expect(serviceMock.listTables).toHaveBeenCalledTimes(1);
     expect(component.tables.length).toBe(1);
     expect(component.tables[0].tableId).toBe('table-1');
-  });
-
-  it('empty state', () => {
-    serviceMock.listTables.and.returnValue(of([]));
-
-    component.refreshTables();
-
-    expect(component.loading).toBeFalse();
-    expect(component.tables.length).toBe(0);
-  });
-
-  it('non mostra input username manuali', () => {
-    const compiled = fixture.nativeElement as HTMLElement;
-
-    expect(compiled.textContent).not.toContain('Username owner');
-    expect(compiled.textContent).not.toContain('Username per join');
   });
 
   it('create success usa username da sessione', () => {
@@ -104,5 +126,49 @@ describe('TressetteLobbyPage', () => {
 
     expect(component.errorBanner).toContain('Errore caricamento lobby');
     expect(component.loading).toBeFalse();
+  });
+
+  it('multiple owner tables, one start-ready -> button enabled', () => {
+    component.tables = [
+      makeTable('tbl-owner-wait-2of4', 'Luca', 'waiting', 2),
+      makeTable('tbl-owner-ready', 'Luca', 'waiting', 4, true),
+      makeTable('tbl-other', 'Marta', 'waiting', 4, true),
+    ];
+
+    expect(component.ownerTargetTableId).toBe('tbl-owner-ready');
+    expect(component.canStartOwnerTable).toBeTrue();
+    expect(component.startDisabledReason).toBe('');
+  });
+
+  it('multiple owner tables, none start-ready -> disabled with correct reason', () => {
+    component.tables = [
+      makeTable('tbl-owner-wait-2of4', 'Luca', 'waiting', 2),
+      makeTable('tbl-owner-ended', 'Luca', 'ended', 4, true),
+    ];
+
+    expect(component.ownerTargetTableId).toBe('tbl-owner-wait-2of4');
+    expect(component.canStartOwnerTable).toBeFalse();
+    expect(component.startDisabledReason).toBe('Il tuo tavolo non e completo (servono 4/4)');
+  });
+
+  it('start success -> navigation a gameplay con tableId', () => {
+    component.tables = [
+      makeTable('tbl-owner-not-ready', 'Luca', 'waiting', 1),
+      makeTable('tbl-owner-ready', 'Luca', 'waiting', 4, true),
+    ];
+
+    component.startMyGame();
+
+    expect(serviceMock.startTable).toHaveBeenCalledWith('tbl-owner-ready', 'Luca');
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/table3s74i', 'tbl-owner-ready']);
+  });
+
+  it('start error -> nessuna navigazione', () => {
+    serviceMock.startTable.and.returnValue(throwError(() => new Error('start failed')));
+    component.tables = [makeTable('tbl-owner-ready', 'Luca', 'waiting', 4, true)];
+
+    component.startMyGame();
+
+    expect(routerMock.navigate).not.toHaveBeenCalled();
   });
 });

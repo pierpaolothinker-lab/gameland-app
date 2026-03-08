@@ -1,9 +1,13 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Socket, io } from 'socket.io-client';
 
 import { environment } from 'src/environments/environment';
+
+export interface BackendRequestOptions {
+  mode?: 'demo' | 'live';
+}
 
 @Injectable({
   providedIn: 'root',
@@ -14,18 +18,33 @@ export class BackendClientService {
 
   constructor(private readonly http: HttpClient) {}
 
-  get<T>(path: string): Observable<T> {
-    return this.http.get<T>(this.buildApiUrl(path));
+  get<T>(path: string, options?: BackendRequestOptions): Observable<T> {
+    return this.http.get<T>(this.buildApiUrl(path), {
+      params: this.buildParams(options),
+    });
   }
 
-  post<T>(path: string, body: unknown): Observable<T> {
-    return this.http.post<T>(this.buildApiUrl(path), body);
+  post<T>(path: string, body: unknown, options?: BackendRequestOptions): Observable<T> {
+    return this.http.post<T>(this.buildApiUrl(path), body, {
+      params: this.buildParams(options),
+    });
   }
 
-  connectSocket(): Socket {
+  connectSocket(options?: BackendRequestOptions): Socket {
+    const mode = options?.mode;
     return io(this.socketBaseUrl, {
       transports: ['websocket'],
+      query: mode ? { mode } : undefined,
+      auth: mode ? { mode } : undefined,
     });
+  }
+
+  private buildParams(options?: BackendRequestOptions): HttpParams | undefined {
+    if (!options?.mode) {
+      return undefined;
+    }
+
+    return new HttpParams().set('mode', options.mode);
   }
 
   private buildApiUrl(path: string): string {
@@ -33,8 +52,6 @@ export class BackendClientService {
       return path;
     }
 
-    // Frontend static assets must stay on app origin (localhost:4400),
-    // and must not be prefixed by backend base URL.
     if (path.startsWith('/assets/')) {
       return path;
     }

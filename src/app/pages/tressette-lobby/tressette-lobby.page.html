@@ -5,6 +5,14 @@
     <p class="active-user">Utente attivo: <strong>{{ activeUser.username }}</strong></p>
   </section>
 
+  <section class="create-block data-mode-block">
+    <div class="data-mode-title">Data Mode</div>
+    <div class="data-mode-actions">
+      <ion-button size="small" [fill]="dataMode === 'demo' ? 'solid' : 'outline'" (click)="onDataModeChange('demo')">Demo</ion-button>
+      <ion-button size="small" [fill]="dataMode === 'live' ? 'solid' : 'outline'" (click)="onDataModeChange('live')">Live</ion-button>
+    </div>
+  </section>
+
   <section class="create-block" *ngIf="showDevAuthPanel">
     <ion-item lines="none">
       <ion-label>Switch utente mock</ion-label>

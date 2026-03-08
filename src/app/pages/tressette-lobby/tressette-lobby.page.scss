@@ -213,3 +213,17 @@
   color: #38566f;
   font-size: 13px;
 }
+.data-mode-block {
+  border-color: rgba(49, 132, 201, 0.55);
+}
+
+.data-mode-title {
+  font-weight: 700;
+  color: #20445c;
+}
+
+.data-mode-actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+}

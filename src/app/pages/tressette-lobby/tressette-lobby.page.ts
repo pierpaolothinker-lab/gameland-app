@@ -19,6 +19,7 @@ import {
 } from '@ionic/angular/standalone';
 
 import { AuthSessionService, MockSessionUser } from 'src/app/services/auth/auth-session.service';
+import { DataMode, DataModeService } from 'src/app/services/data-mode/data-mode.service';
 import { TressetteTableService } from 'src/app/services/tressette/tressette-table.service';
 import { TressettePlayer, TressettePosition, TressetteTableView } from 'src/app/shared/domain/models/tressette-table.model';
 import { environment } from 'src/environments/environment';
@@ -59,15 +60,18 @@ export class TressetteLobbyPage implements OnInit {
   toastMessage = '';
 
   activeUser: MockSessionUser;
+  dataMode: DataMode;
 
   private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private readonly tableService: TressetteTableService,
     private readonly authSessionService: AuthSessionService,
+    private readonly dataModeService: DataModeService,
     private readonly router: Router
   ) {
     this.activeUser = this.authSessionService.currentUser;
+    this.dataMode = this.dataModeService.mode;
   }
 
   ngOnInit(): void {
@@ -77,7 +81,20 @@ export class TressetteLobbyPage implements OnInit {
         this.activeUser = user;
       });
 
-    this.refreshTables();
+    this.dataModeService.mode$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((mode) => {
+        const changed = mode !== this.dataMode;
+        this.dataMode = mode;
+        if (changed) {
+          this.openToast(`Data mode: ${mode.toUpperCase()}`);
+        }
+        this.refreshTables();
+      });
+  }
+
+  onDataModeChange(mode: DataMode): void {
+    this.dataModeService.setMode(mode);
   }
 
   refreshTables(): void {

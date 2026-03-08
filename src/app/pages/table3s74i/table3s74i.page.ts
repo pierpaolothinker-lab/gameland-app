@@ -1,10 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnDestroy, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonButton, IonContent, IonSpinner } from '@ionic/angular/standalone';
 import { Socket } from 'socket.io-client';
 
 import { AuthSessionService } from 'src/app/services/auth/auth-session.service';
+import { DataMode, DataModeService } from 'src/app/services/data-mode/data-mode.service';
 import { DeckITService } from 'src/app/services/fakes/deck-it.service';
 import { TressetteTableService } from 'src/app/services/tressette/tressette-table.service';
 import { ICardIT } from 'src/app/shared/domain/models/cardIT.model';
@@ -52,6 +54,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
   infoMessage = 'In attesa snapshot tavolo...';
   socketMessage = 'disconnected';
 
+  dataMode: DataMode;
   turnPlayerUsername = '';
   turnPlayerPosition: TressettePosition | null = null;
   countdownSeconds: number | null = null;
@@ -70,15 +73,18 @@ export class Table3s74iPage implements OnInit, OnDestroy {
 
   private socket?: Socket;
   private countdownInterval?: ReturnType<typeof setInterval>;
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private readonly tableService: TressetteTableService,
     private readonly authSessionService: AuthSessionService,
+    private readonly dataModeService: DataModeService,
     private readonly deckService: DeckITService,
     private readonly route: ActivatedRoute,
     private readonly router: Router
   ) {
     this.handCards = this.deckService.getPlayerCards();
+    this.dataMode = this.dataModeService.mode;
   }
 
   ngOnInit(): void {
@@ -90,8 +96,21 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     }
 
     this.tableId = routeTableId;
-    this.fetchTable();
-    this.ensureSocketConnected();
+
+    this.dataModeService.mode$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((mode) => {
+        const changed = mode !== this.dataMode;
+        this.dataMode = mode;
+
+        if (changed) {
+          this.reconnectSocketForMode();
+        } else {
+          this.ensureSocketConnected();
+        }
+
+        this.fetchTable();
+      });
   }
 
   ngOnDestroy(): void {
@@ -144,6 +163,10 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return `Turno: ${this.turnPlayerUsername} (${position ?? '-'}) - ${this.countdownSeconds}s`;
   }
 
+  onDataModeChange(mode: DataMode): void {
+    this.dataModeService.setMode(mode);
+  }
+
   playCard(card: ICardIT): void {
     if (!this.canPlayCards || !this.socket) {
       this.infoMessage = 'Mossa non disponibile: attendi il tuo turno o riconnessione socket.';
@@ -188,12 +211,12 @@ export class Table3s74iPage implements OnInit, OnDestroy {
 
   private fetchTable(): void {
     this.loading = true;
-    this.errorMessage = '';
 
     this.tableService.getTableRealtime(this.tableId).subscribe({
       next: (table) => {
         this.table = table;
         this.loading = false;
+        this.errorMessage = '';
         this.infoMessage = `Snapshot tavolo ${table.tableId} caricato`;
       },
       error: () => {
@@ -201,6 +224,16 @@ export class Table3s74iPage implements OnInit, OnDestroy {
         this.errorMessage = 'Tavolo non trovato o backend non raggiungibile.';
       },
     });
+  }
+
+  private reconnectSocketForMode(): void {
+    if (this.socket) {
+      this.socket.disconnect();
+      this.socket = undefined;
+    }
+
+    this.socketMessage = 'disconnected';
+    this.ensureSocketConnected();
   }
 
   private ensureSocketConnected(): void {
@@ -213,13 +246,17 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     this.socket.on('connect', () => {
       this.socketMessage = 'connected';
       this.infoMessage = 'Socket connesso';
-      console.info('[tressette][socket] connected', { tableId: this.tableId, socketUrl: this.socketUrl });
-      this.socket?.emit('tressette:watch-table', { tableId: this.tableId });
+      console.info('[tressette][socket] connected', {
+        tableId: this.tableId,
+        socketUrl: this.socketUrl,
+        mode: this.dataMode,
+      });
+      this.socket?.emit('tressette:watch-table', { tableId: this.tableId, mode: this.dataMode });
     });
 
     this.socket.on('disconnect', (reason: string) => {
       this.socketMessage = `disconnected (${reason ?? 'unknown'})`;
-      console.warn('[tressette][socket] disconnected', { tableId: this.tableId, reason });
+      console.warn('[tressette][socket] disconnected', { tableId: this.tableId, reason, mode: this.dataMode });
     });
 
     this.socket.on('tressette:table-updated', (table: TressetteTableView) => {

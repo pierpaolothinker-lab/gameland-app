@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 
 import { AuthSessionService, MockSessionUser } from 'src/app/services/auth/auth-session.service';
+import { DataMode, DataModeService } from 'src/app/services/data-mode/data-mode.service';
 import { TressetteTableService } from 'src/app/services/tressette/tressette-table.service';
 import { TressetteTableView } from 'src/app/shared/domain/models/tressette-table.model';
 import { TressetteLobbyPage } from './tressette-lobby.page';
@@ -21,6 +22,11 @@ describe('TressetteLobbyPage', () => {
     currentUser: MockSessionUser;
     currentUser$: BehaviorSubject<MockSessionUser>;
     setActiveUser: jasmine.Spy;
+  };
+  let dataModeMock: {
+    mode: DataMode;
+    mode$: BehaviorSubject<DataMode>;
+    setMode: jasmine.Spy;
   };
   let routerMock: {
     navigate: jasmine.Spy;
@@ -65,6 +71,15 @@ describe('TressetteLobbyPage', () => {
       setActiveUser: jasmine.createSpy('setActiveUser'),
     };
 
+    dataModeMock = {
+      mode: 'demo',
+      mode$: new BehaviorSubject<DataMode>('demo'),
+      setMode: jasmine.createSpy('setMode').and.callFake((mode: DataMode) => {
+        dataModeMock.mode = mode;
+        dataModeMock.mode$.next(mode);
+      }),
+    };
+
     routerMock = {
       navigate: jasmine.createSpy('navigate').and.returnValue(Promise.resolve(true)),
     };
@@ -74,6 +89,7 @@ describe('TressetteLobbyPage', () => {
       providers: [
         { provide: TressetteTableService, useValue: serviceMock },
         { provide: AuthSessionService, useValue: authMock },
+        { provide: DataModeService, useValue: dataModeMock },
         { provide: Router, useValue: routerMock },
       ],
     }).compileComponents();

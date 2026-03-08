@@ -3,6 +3,7 @@ import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 
 import { AuthSessionService, MockSessionUser } from 'src/app/services/auth/auth-session.service';
+import { DataMode, DataModeService } from 'src/app/services/data-mode/data-mode.service';
 import { DeckITService } from 'src/app/services/fakes/deck-it.service';
 import { TressetteTableService } from 'src/app/services/tressette/tressette-table.service';
 import { CardIT, Suit } from 'src/app/shared/domain/models/cardIT.model';
@@ -23,6 +24,12 @@ describe('Table3s74iPage', () => {
     currentUser$: BehaviorSubject<MockSessionUser>;
   };
 
+  let dataModeMock: {
+    mode: DataMode;
+    mode$: BehaviorSubject<DataMode>;
+    setMode: jasmine.Spy;
+  };
+
   let routeMock: {
     snapshot: { paramMap: ReturnType<typeof convertToParamMap> };
   };
@@ -31,7 +38,7 @@ describe('Table3s74iPage', () => {
     navigate: jasmine.Spy;
   };
 
-  let socketHandlers: Record<string, (...args: any[]) => void>;
+  let socketHandlersList: Record<string, (...args: any[]) => void>[];
 
   const tableMock: TressetteTableView = {
     tableId: 'tbl-001',
@@ -47,24 +54,41 @@ describe('Table3s74iPage', () => {
     status: 'waiting',
   };
 
+  const latestSocketHandlers = (): Record<string, (...args: any[]) => void> => {
+    return socketHandlersList[socketHandlersList.length - 1] ?? {};
+  };
+
   beforeEach(async () => {
-    socketHandlers = {};
-    const socketMock = {
-      on: jasmine.createSpy('on').and.callFake((event: string, cb: (...args: any[]) => void) => {
-        socketHandlers[event] = cb;
-      }),
-      emit: jasmine.createSpy('emit'),
-      disconnect: jasmine.createSpy('disconnect'),
-    };
+    socketHandlersList = [];
 
     serviceMock = {
       getTableRealtime: jasmine.createSpy('getTableRealtime').and.returnValue(of(tableMock)),
-      connectSocket: jasmine.createSpy('connectSocket').and.returnValue(socketMock),
+      connectSocket: jasmine.createSpy('connectSocket').and.callFake(() => {
+        const handlers: Record<string, (...args: any[]) => void> = {};
+        socketHandlersList.push(handlers);
+
+        return {
+          on: jasmine.createSpy('on').and.callFake((event: string, cb: (...args: any[]) => void) => {
+            handlers[event] = cb;
+          }),
+          emit: jasmine.createSpy('emit'),
+          disconnect: jasmine.createSpy('disconnect'),
+        };
+      }),
     };
 
     authMock = {
       currentUser: { userId: 'u-luca', username: 'Luca' },
       currentUser$: new BehaviorSubject<MockSessionUser>({ userId: 'u-luca', username: 'Luca' }),
+    };
+
+    dataModeMock = {
+      mode: 'demo',
+      mode$: new BehaviorSubject<DataMode>('demo'),
+      setMode: jasmine.createSpy('setMode').and.callFake((mode: DataMode) => {
+        dataModeMock.mode = mode;
+        dataModeMock.mode$.next(mode);
+      }),
     };
 
     routeMock = {
@@ -80,6 +104,7 @@ describe('Table3s74iPage', () => {
       providers: [
         { provide: TressetteTableService, useValue: serviceMock },
         { provide: AuthSessionService, useValue: authMock },
+        { provide: DataModeService, useValue: dataModeMock },
         { provide: ActivatedRoute, useValue: routeMock },
         { provide: Router, useValue: routerMock },
         { provide: DeckITService, useValue: { getPlayerCards: () => [new CardIT(Suit.Bastoni, 3), new CardIT(Suit.Spade, 5)] } },
@@ -97,6 +122,14 @@ describe('Table3s74iPage', () => {
     expect(serviceMock.connectSocket).toHaveBeenCalled();
   });
 
+  it('mostra data mode toggle in gameplay', () => {
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+
+    expect(text).toContain('Data Mode');
+    expect(text).toContain('Demo');
+    expect(text).toContain('Live');
+  });
+
   it('rimuove controlli setup dalla view gameplay', () => {
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
 
@@ -107,7 +140,7 @@ describe('Table3s74iPage', () => {
   });
 
   it('render connected state quando socket connette', () => {
-    socketHandlers['connect']?.();
+    latestSocketHandlers()['connect']?.();
 
     expect(component.isSocketConnected).toBeTrue();
     expect(component.connectionBannerVisible).toBeFalse();
@@ -117,13 +150,13 @@ describe('Table3s74iPage', () => {
   it('table status passa a in_game su hand-started', () => {
     expect(component.table?.status).toBe('waiting');
 
-    socketHandlers['tressette:hand-started']?.({ table: { ...tableMock, status: 'in_game' } });
+    latestSocketHandlers()['tressette:hand-started']?.({ table: { ...tableMock, status: 'in_game' } });
 
     expect(component.table?.status).toBe('in_game');
   });
 
   it('timer parte su turn-started con secondsRemaining', fakeAsync(() => {
-    socketHandlers['tressette:turn-started']?.({ turnPlayer: 'Luca', turnPosition: 'SUD', secondsRemaining: 3 });
+    latestSocketHandlers()['tressette:turn-started']?.({ turnPlayer: 'Luca', turnPosition: 'SUD', secondsRemaining: 3 });
 
     expect(component.countdownSeconds).toBe(3);
     expect(component.turnStatusText).toBe('Turno: Luca (SUD) - 3s');
@@ -134,7 +167,7 @@ describe('Table3s74iPage', () => {
   }));
 
   it('mostra badge DI TURNO sul seat attivo', () => {
-    socketHandlers['tressette:turn-started']?.({ turnPlayer: 'Luca', turnPosition: 'SUD', secondsRemaining: 8 });
+    latestSocketHandlers()['tressette:turn-started']?.({ turnPlayer: 'Luca', turnPosition: 'SUD', secondsRemaining: 8 });
     fixture.detectChanges();
 
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
@@ -142,8 +175,31 @@ describe('Table3s74iPage', () => {
     expect(text).toContain('8s');
   });
 
+  it('switching to Demo ricarica tavolo e pulisce errore precedente', () => {
+    serviceMock.getTableRealtime.calls.reset();
+    serviceMock.getTableRealtime.and.returnValue(of(tableMock));
+    component.dataMode = 'live';
+    component.errorMessage = 'Tavolo non trovato o backend non raggiungibile.';
+
+    component.onDataModeChange('demo');
+
+    expect(component.dataMode).toBe('demo');
+    expect(component.errorMessage).toBe('');
+    expect(serviceMock.getTableRealtime).toHaveBeenCalledWith('tbl-001');
+  });
+
+  it('switching mode non rimuove rendering turno e countdown', () => {
+    latestSocketHandlers()['tressette:turn-started']?.({ turnPlayer: 'Luca', turnPosition: 'SUD', secondsRemaining: 10 });
+    expect(component.turnStatusText).toContain('Luca (SUD) - 10s');
+
+    component.onDataModeChange('live');
+
+    latestSocketHandlers()['tressette:turn-started']?.({ turnPlayer: 'Marta', turnPosition: 'NORD', secondsRemaining: 9 });
+    expect(component.turnStatusText).toContain('Marta (NORD) - 9s');
+  });
+
   it('mostra stato disconnected quando socket cade', () => {
-    socketHandlers['disconnect']?.('transport close');
+    latestSocketHandlers()['disconnect']?.('transport close');
 
     expect(component.connectionBannerVisible).toBeTrue();
     expect(component.socketMessage).toContain('disconnected');
@@ -159,7 +215,7 @@ describe('Table3s74iPage', () => {
   });
 
   it('emette play-card quando connesso e in turno', () => {
-    socketHandlers['connect']?.();
+    latestSocketHandlers()['connect']?.();
     component.turnPlayerUsername = 'Luca';
     component.table = { ...tableMock, status: 'in_game' };
 
@@ -173,7 +229,7 @@ describe('Table3s74iPage', () => {
   });
 
   it('renderizza autoplay timeout con messaggio esplicito e aggiorna il turno successivo', () => {
-    socketHandlers['tressette:card-played']?.({
+    latestSocketHandlers()['tressette:card-played']?.({
       position: 'NORD',
       username: 'Marta',
       card: new CardIT(Suit.Spade, 7),

@@ -4,6 +4,14 @@
     <p class="subtitle">Tavolo: {{ tableId || '-' }}</p>
   </section>
 
+  <section class="status-board data-mode-bar">
+    <p><strong>Data Mode:</strong> {{ dataMode | uppercase }}</p>
+    <div class="data-mode-actions">
+      <ion-button size="small" [fill]="dataMode === 'demo' ? 'solid' : 'outline'" (click)="onDataModeChange('demo')">Demo</ion-button>
+      <ion-button size="small" [fill]="dataMode === 'live' ? 'solid' : 'outline'" (click)="onDataModeChange('live')">Live</ion-button>
+    </div>
+  </section>
+
   <section class="connection-banner" *ngIf="connectionBannerVisible">
     <strong>Connessione realtime assente.</strong>
     <ion-button size="small" fill="outline" (click)="goToLobby()">Torna alla lobby</ion-button>

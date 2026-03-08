@@ -1,4 +1,4 @@
-﻿name: App CI
+name: App CI
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
     branches: [dev]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,3 +25,12 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Setup Chrome
+        id: chrome
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Run tests (headless)
+        env:
+          CHROME_BIN: ${{ steps.chrome.outputs.chrome-path }}
+        run: npm run test -- --watch=false --browsers=ChromeHeadless

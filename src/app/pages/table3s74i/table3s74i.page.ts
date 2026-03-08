@@ -1,60 +1,53 @@
-import { Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import {
-  IonButton,
-  IonContent,
-  IonInput,
-  IonItem,
-  IonLabel,
-  IonSelect,
-  IonSelectOption,
-  IonSpinner,
-} from '@ionic/angular/standalone';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { IonButton, IonContent, IonSpinner } from '@ionic/angular/standalone';
 import { Socket } from 'socket.io-client';
 
-import { CardIT10Component } from 'src/app/shared/ui/card-it10/card-it10.component';
-import { CardNAComponent } from 'src/app/shared/ui/card-na/card-na.component';
-import { ICardIT } from 'src/app/shared/domain/models/cardIT.model';
+import { AuthSessionService } from 'src/app/services/auth/auth-session.service';
+import { DeckITService } from 'src/app/services/fakes/deck-it.service';
 import { TressetteTableService } from 'src/app/services/tressette/tressette-table.service';
+import { ICardIT } from 'src/app/shared/domain/models/cardIT.model';
 import { TressettePlayer, TressettePosition, TressetteTableView } from 'src/app/shared/domain/models/tressette-table.model';
+import { CardNAComponent } from 'src/app/shared/ui/card-na/card-na.component';
+
+interface TurnEventPayload {
+  tableId?: string;
+  turnPlayer?: string;
+  turnPlayerUsername?: string;
+  turnPosition?: TressettePosition;
+  turnPlayerPosition?: TressettePosition;
+  turnDeadlineUtc?: string;
+  deadlineUtc?: string;
+  remainingSeconds?: number;
+  countdownSeconds?: number;
+  timeoutSeconds?: number;
+}
 
 @Component({
   selector: 'app-table3s74i',
   templateUrl: './table3s74i.page.html',
   styleUrls: ['./table3s74i.page.scss'],
   standalone: true,
-  imports: [
-    IonButton,
-    IonContent,
-    IonInput,
-    IonItem,
-    IonLabel,
-    IonSelect,
-    IonSelectOption,
-    IonSpinner,
-    FormsModule,
-    CommonModule,
-    CardIT10Component,
-    CardNAComponent,
-  ],
+  imports: [IonButton, IonContent, IonSpinner, CommonModule, CardNAComponent],
 })
-export class Table3s74iPage implements OnDestroy {
-  @ViewChild('playArea', { static: false }) playArea!: ElementRef;
-
+export class Table3s74iPage implements OnInit, OnDestroy {
   table?: TressetteTableView;
   tableId = '';
   loading = false;
+
   errorMessage = '';
-  infoMessage = 'Crea un tavolo per iniziare';
+  infoMessage = 'In attesa snapshot tavolo...';
   socketMessage = 'disconnected';
 
-  ownerName = 'Pierpaolo';
-  joinUsername = 'Vito';
-  joinPosition: TressettePosition = 'NORD';
-  startUsername = 'Pierpaolo';
+  turnPlayerUsername = '';
+  turnPlayerPosition: TressettePosition | null = null;
+  countdownSeconds: number | null = null;
+  lastPlayedMessage = '';
 
   readonly positions: TressettePosition[] = ['NORD', 'EST', 'SUD', 'OVEST'];
+  readonly handCards: ICardIT[];
+
   playedCards: Record<TressettePosition, ICardIT | null> = {
     NORD: null,
     EST: null,
@@ -63,112 +56,84 @@ export class Table3s74iPage implements OnDestroy {
   };
 
   private socket?: Socket;
+  private countdownInterval?: ReturnType<typeof setInterval>;
 
-  constructor(private readonly tableService: TressetteTableService) {}
+  constructor(
+    private readonly tableService: TressetteTableService,
+    private readonly authSessionService: AuthSessionService,
+    private readonly deckService: DeckITService,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router
+  ) {
+    this.handCards = this.deckService.getPlayerCards();
+  }
+
+  ngOnInit(): void {
+    const routeTableId = this.route.snapshot.paramMap.get('tableId')?.trim() ?? '';
+    if (!routeTableId) {
+      this.errorMessage = 'TableId mancante o non valido';
+      this.infoMessage = 'Apri un tavolo dalla lobby.';
+      return;
+    }
+
+    this.tableId = routeTableId;
+    this.fetchTable();
+    this.ensureSocketConnected();
+  }
 
   ngOnDestroy(): void {
+    this.clearCountdown();
     this.socket?.disconnect();
   }
 
-  calculateOffset(cardElement: HTMLElement): { deltaX: number; deltaY: number } {
-    const playAreaRect = this.playArea.nativeElement.getBoundingClientRect();
-    const cardRect = cardElement.getBoundingClientRect();
-    const deltaX = playAreaRect.left + playAreaRect.width / 2 - (cardRect.left + cardRect.width / 2);
-    const deltaY = playAreaRect.top + playAreaRect.height / 2 - (cardRect.top + cardRect.height / 2);
-    return { deltaX, deltaY };
+  get isSocketConnected(): boolean {
+    return this.socketMessage === 'connected';
   }
 
-  createTable(): void {
-    const owner = this.ownerName.trim();
-    if (!owner) {
-      this.errorMessage = 'Inserisci il nome owner';
+  get connectionBannerVisible(): boolean {
+    return !this.isSocketConnected;
+  }
+
+  get myUsername(): string {
+    return this.authSessionService.currentUser.username;
+  }
+
+  get myPlayer(): TressettePlayer | undefined {
+    return this.table?.players.find((player) => player.username === this.myUsername);
+  }
+
+  get canPlayCards(): boolean {
+    if (!this.table || this.table.status !== 'in_game') {
+      return false;
+    }
+
+    if (!this.isSocketConnected) {
+      return false;
+    }
+
+    if (!this.turnPlayerUsername) {
+      return false;
+    }
+
+    return this.turnPlayerUsername === this.myUsername;
+  }
+
+  playCard(card: ICardIT): void {
+    if (!this.canPlayCards || !this.socket) {
+      this.infoMessage = 'Mossa non disponibile: attendi il tuo turno o riconnessione socket.';
       return;
     }
 
-    this.setBusyState('Creazione tavolo in corso...');
-
-    this.tableService.createTable(owner).subscribe({
-      next: (table) => {
-        this.table = table;
-        this.tableId = table.tableId;
-        this.startUsername = table.owner;
-        this.infoMessage = `Tavolo creato: ${table.tableId}`;
-        this.loading = false;
-        this.ensureSocketConnected();
-      },
-      error: () => {
-        this.loading = false;
-        this.errorMessage = 'Backend non raggiungibile (porta 3500).';
-      },
+    this.socket.emit('tressette:play-card', {
+      tableId: this.tableId,
+      username: this.myUsername,
+      card,
     });
+    this.infoMessage = `Carta inviata: ${card.value}`;
   }
 
-  joinTable(): void {
-    const tableId = this.tableId.trim();
-    const username = this.joinUsername.trim();
-
-    if (!tableId || !username) {
-      this.errorMessage = 'Inserisci tableId e username per join';
-      return;
-    }
-
-    this.setBusyState('Join al tavolo in corso...');
-
-    this.tableService.joinTable(tableId, username, this.joinPosition).subscribe({
-      next: (table) => {
-        this.table = table;
-        this.infoMessage = `${username} si e unito in posizione ${this.joinPosition}`;
-        this.loading = false;
-      },
-      error: () => {
-        this.loading = false;
-        this.errorMessage = 'Join fallita. Controlla posizione/username.';
-      },
-    });
-  }
-
-  refreshTable(): void {
-    const tableId = this.tableId.trim();
-    if (!tableId) {
-      this.errorMessage = 'Inserisci un tableId valido';
-      return;
-    }
-
-    this.setBusyState('Aggiornamento tavolo...');
-
-    this.tableService.getTable(tableId).subscribe({
-      next: (table) => {
-        this.table = table;
-        this.loading = false;
-        this.infoMessage = 'Snapshot tavolo aggiornato';
-      },
-      error: () => {
-        this.loading = false;
-        this.errorMessage = 'Tavolo non trovato o backend non raggiungibile.';
-      },
-    });
-  }
-
-  startGame(): void {
-    const tableId = this.tableId.trim();
-    const username = this.startUsername.trim();
-
-    if (!tableId || !username) {
-      this.errorMessage = 'Inserisci tableId e username owner per start';
-      return;
-    }
-
-    this.setBusyState('Avvio partita...');
-    this.ensureSocketConnected();
-
-    this.socket?.emit('tressette:start-game', {
-      tableId,
-      username,
-    });
-  }
-
-  onCardPlayed(card: ICardIT): void {
-    this.playedCards.SUD = card;
+  goToLobby(): void {
+    void this.router.navigate(['/tressette-lobby']);
   }
 
   getPlayer(position: TressettePosition): TressettePlayer | undefined {
@@ -179,8 +144,29 @@ export class Table3s74iPage implements OnDestroy {
     return position;
   }
 
+  calculateOffset(_: HTMLElement): { deltaX: number; deltaY: number } {
+    return { deltaX: 0, deltaY: 0 };
+  }
+
+  private fetchTable(): void {
+    this.loading = true;
+    this.errorMessage = '';
+
+    this.tableService.getTable(this.tableId).subscribe({
+      next: (table) => {
+        this.table = table;
+        this.loading = false;
+        this.infoMessage = `Snapshot tavolo ${table.tableId} caricato`;
+      },
+      error: () => {
+        this.loading = false;
+        this.errorMessage = 'Tavolo non trovato o backend non raggiungibile.';
+      },
+    });
+  }
+
   private ensureSocketConnected(): void {
-    if (this.socket) {
+    if (this.socket || !this.tableId) {
       return;
     }
 
@@ -188,37 +174,158 @@ export class Table3s74iPage implements OnDestroy {
 
     this.socket.on('connect', () => {
       this.socketMessage = 'connected';
+      this.infoMessage = 'Socket connesso';
+      this.socket?.emit('tressette:watch-table', { tableId: this.tableId });
+    });
+
+    this.socket.on('disconnect', (reason: string) => {
+      this.socketMessage = `disconnected (${reason ?? 'unknown'})`;
     });
 
     this.socket.on('tressette:table-updated', (table: TressetteTableView) => {
+      if (table.tableId !== this.tableId) {
+        return;
+      }
+
       this.table = table;
-      this.loading = false;
       this.errorMessage = '';
       this.infoMessage = 'Tavolo aggiornato realtime';
     });
 
-    this.socket.on('tressette:hand-started', () => {
-      this.loading = false;
+    this.socket.on('tressette:hand-started', (payload?: { table?: TressetteTableView }) => {
+      if (payload?.table?.tableId === this.tableId) {
+        this.table = payload.table;
+      }
+
+      if (this.table) {
+        this.table.status = 'in_game';
+      }
+
       this.errorMessage = '';
-      this.infoMessage = 'Partita avviata';
-      this.socketMessage = 'hand-started received';
+      this.infoMessage = 'Mano avviata';
       this.playedCards = { NORD: null, EST: null, SUD: null, OVEST: null };
     });
 
-    this.socket.on('tressette:error', (payload: { error?: { code?: string; message?: string } }) => {
-      this.loading = false;
-      this.errorMessage = payload?.error?.message ?? 'Errore socket';
-      this.socketMessage = `error: ${payload?.error?.code ?? 'UNKNOWN_ERROR'}`;
+    this.socket.on('tressette:turn-started', (payload: TurnEventPayload) => {
+      this.applyTurnPayload(payload);
     });
 
-    this.socket.on('disconnect', () => {
-      this.socketMessage = 'disconnected';
+    this.socket.on('tressette:turn-updated', (payload: TurnEventPayload) => {
+      this.applyTurnPayload(payload);
+    });
+
+    this.socket.on(
+      'tressette:card-played',
+      (payload: { position?: TressettePosition; turnPlayerPosition?: TressettePosition; username?: string; card: ICardIT; source?: string }) => {
+        const position = this.resolvePlayedCardPosition(payload);
+        if (!position) {
+          return;
+        }
+
+        this.playedCards[position] = payload.card;
+        this.lastPlayedMessage = payload.source === 'timeout_auto' ? 'Auto-play dal server' : 'Carta giocata';
+      }
+    );
+
+    this.socket.on(
+      'tressette:trick-ended',
+      (payload: { winner?: string; winnerPosition?: TressettePosition; points?: { teamSN: number; teamEO: number } }) => {
+        if (payload?.points && this.table) {
+          this.table.points = payload.points;
+        }
+
+        this.infoMessage = `Trick chiuso: ${payload.winnerPosition ?? payload.winner ?? '-'}`;
+      }
+    );
+
+    this.socket.on('tressette:error', (payload: { error?: { code?: string; message?: string } }) => {
+      this.errorMessage = payload?.error?.message ?? 'Errore socket';
     });
   }
 
-  private setBusyState(message: string): void {
-    this.loading = true;
-    this.errorMessage = '';
-    this.infoMessage = message;
+  private applyTurnPayload(payload: TurnEventPayload): void {
+    if (payload.tableId && payload.tableId !== this.tableId) {
+      return;
+    }
+
+    this.turnPlayerUsername = payload.turnPlayerUsername ?? payload.turnPlayer ?? '';
+    this.turnPlayerPosition = payload.turnPlayerPosition ?? payload.turnPosition ?? this.resolvePositionByUsername(this.turnPlayerUsername);
+
+    const deadline = payload.turnDeadlineUtc ?? payload.deadlineUtc;
+    const initial = this.resolveInitialCountdown(payload, deadline);
+    this.startCountdown(initial);
+  }
+
+  private resolveInitialCountdown(payload: TurnEventPayload, deadlineUtc?: string): number {
+    if (deadlineUtc) {
+      const deadlineMs = Date.parse(deadlineUtc);
+      if (!Number.isNaN(deadlineMs)) {
+        return Math.max(0, Math.ceil((deadlineMs - Date.now()) / 1000));
+      }
+    }
+
+    const fallback = payload.remainingSeconds ?? payload.countdownSeconds ?? payload.timeoutSeconds ?? 20;
+    return Math.max(0, fallback);
+  }
+
+  private startCountdown(startFrom: number): void {
+    this.clearCountdown();
+    this.countdownSeconds = startFrom;
+
+    if (startFrom <= 0) {
+      return;
+    }
+
+    this.countdownInterval = setInterval(() => {
+      if (this.countdownSeconds === null) {
+        return;
+      }
+
+      if (this.countdownSeconds <= 0) {
+        this.clearCountdown();
+        this.countdownSeconds = 0;
+        return;
+      }
+
+      this.countdownSeconds -= 1;
+      if (this.countdownSeconds <= 0) {
+        this.clearCountdown();
+        this.countdownSeconds = 0;
+      }
+    }, 1000);
+  }
+
+  private clearCountdown(): void {
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+      this.countdownInterval = undefined;
+    }
+  }
+
+  private resolvePlayedCardPosition(payload: { position?: TressettePosition; turnPlayerPosition?: TressettePosition; username?: string }): TressettePosition | null {
+    if (payload.position) {
+      return payload.position;
+    }
+
+    if (payload.turnPlayerPosition) {
+      return payload.turnPlayerPosition;
+    }
+
+    if (payload.username) {
+      return this.resolvePositionByUsername(payload.username);
+    }
+
+    return null;
+  }
+
+  private resolvePositionByUsername(username: string): TressettePosition | null {
+    if (!username || !this.table) {
+      return null;
+    }
+
+    return this.table.players.find((player) => player.username === username)?.position ?? null;
   }
 }
+
+
+

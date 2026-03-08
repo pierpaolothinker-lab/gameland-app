@@ -16,30 +16,21 @@
   color: #d4efce;
 }
 
-.controls {
-  margin: 0 16px;
-  padding: 12px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(18, 62, 18, 0.15);
-}
-
-.actions-row {
-  display: flex;
-  gap: 8px;
-  margin: 6px 0;
-}
-
-.actions-row ion-button {
-  flex: 1;
-}
-
+.connection-banner,
 .status-board,
 .table-meta {
   margin: 12px 16px;
   padding: 10px 12px;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.86);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.connection-banner {
+  border-left: 4px solid #a52a2a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
 }
 
 .info {
@@ -71,6 +62,11 @@
 .seat {
   position: absolute;
   z-index: 2;
+}
+
+.seat.turn .player-badge {
+  border-color: #ffe17a;
+  box-shadow: 0 0 0 2px rgba(255, 225, 122, 0.35);
 }
 
 .seat-north {
@@ -154,6 +150,38 @@
   border-radius: 12px;
   padding: 10px 8px;
   background: rgba(0, 0, 0, 0.18);
+}
+
+.hand-panel.disabled {
+  opacity: 0.55;
+}
+
+.hand-title {
+  color: #f4ffef;
+  margin: 0 0 8px;
+}
+
+.hand-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.hand-card {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.hand-card:disabled {
+  cursor: not-allowed;
+}
+
+.back-row {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
 }
 
 @media (max-width: 900px) {

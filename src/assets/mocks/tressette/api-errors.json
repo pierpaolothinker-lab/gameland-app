@@ -1,0 +1,32 @@
+{
+  "validationError": {
+    "error": {
+      "code": "VALIDATION_ERROR",
+      "message": "owner is required"
+    }
+  },
+  "tableNotFound": {
+    "error": {
+      "code": "TABLE_NOT_FOUND",
+      "message": "table not found"
+    }
+  },
+  "tableFull": {
+    "error": {
+      "code": "TABLE_FULL",
+      "message": "table is already complete"
+    }
+  },
+  "positionNotAvailable": {
+    "error": {
+      "code": "POSITION_NOT_AVAILABLE",
+      "message": "position is not available"
+    }
+  },
+  "forbiddenStart": {
+    "error": {
+      "code": "FORBIDDEN_START",
+      "message": "only owner can start game"
+    }
+  }
+}

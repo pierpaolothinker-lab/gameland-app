@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 
 import { CardNAComponent } from './card-na.component';
 
@@ -9,12 +8,12 @@ describe('CardNAComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ CardNAComponent ],
-      imports: [IonicModule.forRoot()]
+      imports: [CardNAComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CardNAComponent);
     component = fixture.componentInstance;
+    component.card = { suit: 0, value: 1 };
     fixture.detectChanges();
   }));
 

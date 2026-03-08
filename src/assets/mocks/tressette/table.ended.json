@@ -1,0 +1,13 @@
+{
+  "tableId": "tbl-end-001",
+  "owner": "Gianni",
+  "players": [
+    { "username": "Gianni", "position": "SUD" },
+    { "username": "Franco", "position": "NORD" },
+    { "username": "Sara", "position": "EST" },
+    { "username": "Elena", "position": "OVEST" }
+  ],
+  "isComplete": true,
+  "points": { "teamSN": 31, "teamEO": 24 },
+  "status": "ended"
+}

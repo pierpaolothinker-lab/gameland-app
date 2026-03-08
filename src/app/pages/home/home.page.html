@@ -11,7 +11,7 @@
   <ion-list color="primary">
     <ion-item color="primary">
       <ion-avatar slot="start">
-        <img src="assets\avatarExample.png" alt="avatar">
+        <img src="assets/avatarExample.png" alt="avatar">
       </ion-avatar>
       <ion-label>
         <h1>Pierpaolo Monaco</h1>
@@ -21,42 +21,45 @@
   </ion-list>
 
   <ion-card>
-    <ion-card-header> 
+    <ion-card-header>
       <ion-card-subtitle>Games</ion-card-subtitle>
     </ion-card-header>
     <ion-card-content>
       <ion-list>
-        <ion-item [button]="true">
+        <ion-item [button]="true" (click)="goToTressetteLobby()">
           <ion-avatar aria-hidden="true" slot="start">
-            <img alt="tressette" src="assets\tressetteL.png" />
+            <img alt="tressette" src="assets/tressetteL.png" />
           </ion-avatar>
           <ion-label>Tressette</ion-label>
         </ion-item>
-        <ion-item [button]="true">
+
+        <ion-item [button]="false" lines="none">
           <ion-avatar aria-hidden="true" slot="start">
-            <img alt="scopa" src="assets\scopaL.png" />
+            <img alt="scopa" src="assets/scopaL.png" />
           </ion-avatar>
-          <ion-label>Scopa</ion-label>
-        </ion-item>      
-      </ion-list>     
+          <ion-label>
+            <div>Scopa</div>
+            <small>In fase di costruzione</small>
+          </ion-label>
+        </ion-item>
+      </ion-list>
     </ion-card-content>
   </ion-card>
 
   <ion-card>
-    <ion-card-header> 
+    <ion-card-header>
       <ion-card-subtitle>Chat Rooms</ion-card-subtitle>
     </ion-card-header>
     <ion-card-content>
       <ion-item lines="none" [button]="true">
         <ion-avatar class="chat-avt" slot="start">
-          <img src="assets\chat.png" alt="chat">
-      </ion-avatar>
-      <ion-label>
-        <p>Total users: <span class="score"> 342 </span></p>
-        <p>Total rooms: <span class="score"> 12 </span></p>
-      </ion-label>
-    </ion-item>
-      
+          <img src="assets/chat.png" alt="chat">
+        </ion-avatar>
+        <ion-label>
+          <p>Total users: <span class="score"> 342 </span></p>
+          <p>Total rooms: <span class="score"> 12 </span></p>
+        </ion-label>
+      </ion-item>
     </ion-card-content>
   </ion-card>
 

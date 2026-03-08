@@ -1,4 +1,4 @@
-﻿import { Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -16,9 +16,8 @@ import { Socket } from 'socket.io-client';
 import { CardIT10Component } from 'src/app/shared/ui/card-it10/card-it10.component';
 import { CardNAComponent } from 'src/app/shared/ui/card-na/card-na.component';
 import { ICardIT } from 'src/app/shared/domain/models/cardIT.model';
-import { CardPlayedAreaComponent } from 'src/app/shared/ui/card-played-area/card-played-area.component';
 import { TressetteTableService } from 'src/app/services/tressette/tressette-table.service';
-import { TressettePosition, TressetteTableView } from 'src/app/shared/domain/models/tressette-table.model';
+import { TressettePlayer, TressettePosition, TressetteTableView } from 'src/app/shared/domain/models/tressette-table.model';
 
 @Component({
   selector: 'app-table3s74i',
@@ -38,13 +37,11 @@ import { TressettePosition, TressetteTableView } from 'src/app/shared/domain/mod
     CommonModule,
     CardIT10Component,
     CardNAComponent,
-    CardPlayedAreaComponent,
   ],
 })
 export class Table3s74iPage implements OnDestroy {
   @ViewChild('playArea', { static: false }) playArea!: ElementRef;
 
-  card?: ICardIT;
   table?: TressetteTableView;
   tableId = '';
   loading = false;
@@ -56,6 +53,14 @@ export class Table3s74iPage implements OnDestroy {
   joinUsername = 'Vito';
   joinPosition: TressettePosition = 'NORD';
   startUsername = 'Pierpaolo';
+
+  readonly positions: TressettePosition[] = ['NORD', 'EST', 'SUD', 'OVEST'];
+  playedCards: Record<TressettePosition, ICardIT | null> = {
+    NORD: null,
+    EST: null,
+    SUD: null,
+    OVEST: null,
+  };
 
   private socket?: Socket;
 
@@ -112,7 +117,7 @@ export class Table3s74iPage implements OnDestroy {
     this.tableService.joinTable(tableId, username, this.joinPosition).subscribe({
       next: (table) => {
         this.table = table;
-        this.infoMessage = `${username} si e' unito in posizione ${this.joinPosition}`;
+        this.infoMessage = `${username} si e unito in posizione ${this.joinPosition}`;
         this.loading = false;
       },
       error: () => {
@@ -162,6 +167,18 @@ export class Table3s74iPage implements OnDestroy {
     });
   }
 
+  onCardPlayed(card: ICardIT): void {
+    this.playedCards.SUD = card;
+  }
+
+  getPlayer(position: TressettePosition): TressettePlayer | undefined {
+    return this.table?.players.find((player) => player.position === position);
+  }
+
+  trackByPosition(_: number, position: TressettePosition): TressettePosition {
+    return position;
+  }
+
   private ensureSocketConnected(): void {
     if (this.socket) {
       return;
@@ -185,6 +202,7 @@ export class Table3s74iPage implements OnDestroy {
       this.errorMessage = '';
       this.infoMessage = 'Partita avviata';
       this.socketMessage = 'hand-started received';
+      this.playedCards = { NORD: null, EST: null, SUD: null, OVEST: null };
     });
 
     this.socket.on('tressette:error', (payload: { error?: { code?: string; message?: string } }) => {

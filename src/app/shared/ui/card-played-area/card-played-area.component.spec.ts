@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 
 import { CardPlayedAreaComponent } from './card-played-area.component';
 
@@ -9,8 +8,7 @@ describe('CardPlayedAreaComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ CardPlayedAreaComponent ],
-      imports: [IonicModule.forRoot()]
+      imports: [CardPlayedAreaComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CardPlayedAreaComponent);

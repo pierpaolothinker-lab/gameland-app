@@ -1,0 +1,11 @@
+{
+  "tableId": "tbl-wait-001",
+  "owner": "Luca",
+  "players": [
+    { "username": "Luca", "position": "SUD" },
+    { "username": "Marta", "position": "NORD" }
+  ],
+  "isComplete": false,
+  "points": { "teamSN": 0, "teamEO": 0 },
+  "status": "waiting"
+}

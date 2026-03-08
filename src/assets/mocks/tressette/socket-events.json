@@ -1,0 +1,49 @@
+{
+  "tableUpdatedWaiting": {
+    "event": "tressette:table-updated",
+    "payload": {
+      "tableId": "tbl-wait-001",
+      "owner": "Luca",
+      "players": [
+        { "username": "Luca", "position": "SUD" },
+        { "username": "Marta", "position": "NORD" },
+        { "username": "Diego", "position": "EST" }
+      ],
+      "isComplete": false,
+      "points": { "teamSN": 0, "teamEO": 0 },
+      "status": "waiting"
+    }
+  },
+  "tableUpdatedInGame": {
+    "event": "tressette:table-updated",
+    "payload": {
+      "tableId": "tbl-play-001",
+      "owner": "Pierpaolo",
+      "players": [
+        { "username": "Pierpaolo", "position": "SUD" },
+        { "username": "Vito", "position": "NORD" },
+        { "username": "Tonino", "position": "EST" },
+        { "username": "Paolo", "position": "OVEST" }
+      ],
+      "isComplete": true,
+      "points": { "teamSN": 13, "teamEO": 9 },
+      "status": "in_game"
+    }
+  },
+  "handStarted": {
+    "event": "tressette:hand-started",
+    "payload": {
+      "tableId": "tbl-play-001",
+      "status": "in_game"
+    }
+  },
+  "socketError": {
+    "event": "tressette:error",
+    "payload": {
+      "error": {
+        "code": "NOT_IMPLEMENTED",
+        "message": "tressette:play-card is not implemented yet"
+      }
+    }
+  }
+}

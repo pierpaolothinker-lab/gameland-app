@@ -1,0 +1,49 @@
+[
+  {
+    "tableId": "tbl-wait-001",
+    "owner": "Luca",
+    "players": [
+      { "username": "Luca", "position": "SUD" },
+      { "username": "Marta", "position": "NORD" }
+    ],
+    "isComplete": false,
+    "points": { "teamSN": 0, "teamEO": 0 },
+    "status": "waiting"
+  },
+  {
+    "tableId": "tbl-wait-002",
+    "owner": "Sofia",
+    "players": [
+      { "username": "Sofia", "position": "SUD" }
+    ],
+    "isComplete": false,
+    "points": { "teamSN": 0, "teamEO": 0 },
+    "status": "waiting"
+  },
+  {
+    "tableId": "tbl-play-001",
+    "owner": "Pierpaolo",
+    "players": [
+      { "username": "Pierpaolo", "position": "SUD" },
+      { "username": "Vito", "position": "NORD" },
+      { "username": "Tonino", "position": "EST" },
+      { "username": "Paolo", "position": "OVEST" }
+    ],
+    "isComplete": true,
+    "points": { "teamSN": 12, "teamEO": 8 },
+    "status": "in_game"
+  },
+  {
+    "tableId": "tbl-end-001",
+    "owner": "Gianni",
+    "players": [
+      { "username": "Gianni", "position": "SUD" },
+      { "username": "Franco", "position": "NORD" },
+      { "username": "Sara", "position": "EST" },
+      { "username": "Elena", "position": "OVEST" }
+    ],
+    "isComplete": true,
+    "points": { "teamSN": 31, "teamEO": 24 },
+    "status": "ended"
+  }
+]

@@ -1,4 +1,4 @@
-﻿import { Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Socket, io } from 'socket.io-client';
@@ -30,6 +30,12 @@ export class BackendClientService {
 
   private buildApiUrl(path: string): string {
     if (path.startsWith('http://') || path.startsWith('https://')) {
+      return path;
+    }
+
+    // Frontend static assets must stay on app origin (localhost:4400),
+    // and must not be prefixed by backend base URL.
+    if (path.startsWith('/assets/')) {
       return path;
     }
 

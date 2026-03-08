@@ -1,0 +1,13 @@
+{
+  "tableId": "tbl-play-001",
+  "owner": "Pierpaolo",
+  "players": [
+    { "username": "Pierpaolo", "position": "SUD" },
+    { "username": "Vito", "position": "NORD" },
+    { "username": "Tonino", "position": "EST" },
+    { "username": "Paolo", "position": "OVEST" }
+  ],
+  "isComplete": true,
+  "points": { "teamSN": 12, "teamEO": 8 },
+  "status": "in_game"
+}

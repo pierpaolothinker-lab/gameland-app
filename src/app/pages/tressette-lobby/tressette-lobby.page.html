@@ -1,0 +1,121 @@
+<ion-content [fullscreen]="true" class="lobby-content">
+  <section class="header-block">
+    <h1>Lobby Tavoli Tressette</h1>
+    <p>Lista tavoli, creazione e join posto libero</p>
+    <p class="active-user">Utente attivo: <strong>{{ activeUser.username }}</strong></p>
+  </section>
+
+  <section class="create-block" *ngIf="showDevAuthPanel">
+    <ion-item lines="none">
+      <ion-label>Switch utente mock</ion-label>
+      <ion-select [value]="activeUser.userId" interface="popover" (ionChange)="onSwitchUser($event.detail.value)">
+        <ion-select-option *ngFor="let user of availableUsers" [value]="user.userId">
+          {{ user.username }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <div class="mock-users-row">
+      <ion-button size="small" *ngFor="let user of availableUsers" (click)="onSwitchUser(user.userId)">
+        {{ user.username }}
+      </ion-button>
+    </div>
+  </section>
+
+  <section class="create-block">
+    <div class="create-actions">
+      <ion-button (click)="createTable()">Crea Tavolo</ion-button>
+      <ion-button fill="outline" (click)="refreshTables()">Aggiorna Lista</ion-button>
+    </div>
+  </section>
+
+  <div class="error-banner" *ngIf="errorBanner">{{ errorBanner }}</div>
+
+  <section class="state" *ngIf="loading">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Caricamento tavoli...</p>
+  </section>
+
+  <section class="state" *ngIf="!loading && tables.length === 0">
+    <p>Nessun tavolo disponibile</p>
+  </section>
+
+  <section class="table-list" *ngIf="!loading && tables.length > 0">
+    <ion-card *ngFor="let table of tables" class="table-card" [class.full]="isTableFull(table)">
+      <ion-card-header>
+        <ion-card-title>{{ table.tableId }}</ion-card-title>
+        <ion-card-subtitle>
+          owner: {{ table.owner }} - stato backend: {{ table.status }}
+        </ion-card-subtitle>
+        <p class="table-fullness" [class.full]="isTableFull(table)">
+          {{ occupiedSeats(table) }}/4 posti - {{ statusLabel(table) }}
+        </p>
+      </ion-card-header>
+
+      <ion-card-content>
+        <div class="mini-table-wrap">
+          <div class="mini-table-bg"></div>
+
+          <div class="seat seat-nord" [class.occupied]="seatOccupied(table, 'NORD')">
+            <div class="seat-label">NORD</div>
+            <div class="seat-player">{{ playerAt(table, 'NORD')?.username ?? 'libero' }}</div>
+            <ion-button
+              size="small"
+              fill="solid"
+              [disabled]="seatOccupied(table, 'NORD')"
+              (click)="joinSeat(table.tableId, 'NORD')"
+            >
+              {{ seatOccupied(table, 'NORD') ? 'Occupato' : 'Siediti' }}
+            </ion-button>
+          </div>
+
+          <div class="seat seat-est" [class.occupied]="seatOccupied(table, 'EST')">
+            <div class="seat-label">EST</div>
+            <div class="seat-player">{{ playerAt(table, 'EST')?.username ?? 'libero' }}</div>
+            <ion-button
+              size="small"
+              fill="solid"
+              [disabled]="seatOccupied(table, 'EST')"
+              (click)="joinSeat(table.tableId, 'EST')"
+            >
+              {{ seatOccupied(table, 'EST') ? 'Occupato' : 'Siediti' }}
+            </ion-button>
+          </div>
+
+          <div class="seat seat-sud" [class.occupied]="seatOccupied(table, 'SUD')">
+            <div class="seat-label">SUD</div>
+            <div class="seat-player">{{ playerAt(table, 'SUD')?.username ?? 'libero' }}</div>
+            <ion-button
+              size="small"
+              fill="solid"
+              [disabled]="seatOccupied(table, 'SUD')"
+              (click)="joinSeat(table.tableId, 'SUD')"
+            >
+              {{ seatOccupied(table, 'SUD') ? 'Occupato' : 'Siediti' }}
+            </ion-button>
+          </div>
+
+          <div class="seat seat-ovest" [class.occupied]="seatOccupied(table, 'OVEST')">
+            <div class="seat-label">OVEST</div>
+            <div class="seat-player">{{ playerAt(table, 'OVEST')?.username ?? 'libero' }}</div>
+            <ion-button
+              size="small"
+              fill="solid"
+              [disabled]="seatOccupied(table, 'OVEST')"
+              (click)="joinSeat(table.tableId, 'OVEST')"
+            >
+              {{ seatOccupied(table, 'OVEST') ? 'Occupato' : 'Siediti' }}
+            </ion-button>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </section>
+
+  <ion-toast
+    [isOpen]="toastOpen"
+    [message]="toastMessage"
+    [duration]="1800"
+    (didDismiss)="onToastDismiss()"
+  ></ion-toast>
+</ion-content>

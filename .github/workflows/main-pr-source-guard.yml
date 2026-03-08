@@ -1,0 +1,17 @@
+name: Main PR Source Guard
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  enforce-dev-source:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ensure PR source branch is dev
+        run: |
+          echo "PR head branch: ${{ github.head_ref }}"
+          if [ "${{ github.head_ref }}" != "dev" ]; then
+            echo "Only PRs from 'dev' to 'main' are allowed."
+            exit 1
+          fi

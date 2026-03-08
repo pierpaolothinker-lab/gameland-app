@@ -30,6 +30,25 @@
   margin-top: 8px;
 }
 
+.start-owner-block {
+  display: grid;
+  gap: 6px;
+}
+
+.start-owner-title {
+  font-weight: 700;
+  color: #264b57;
+}
+
+.start-owner-target {
+  color: #385968;
+}
+
+.start-owner-reason {
+  color: #5f7783;
+  font-size: 13px;
+}
+
 .error-banner {
   margin: 0 16px 12px;
   padding: 10px;

@@ -52,7 +52,7 @@ export class TressetteLobbyPage implements OnInit {
 
   tables: TressetteTableView[] = [];
   loading = false;
-  startingGlobal = false;
+  starting = false;
 
   errorBanner = '';
   toastOpen = false;
@@ -78,32 +78,6 @@ export class TressetteLobbyPage implements OnInit {
       });
 
     this.refreshTables();
-  }
-
-  get ownerTable(): TressetteTableView | null {
-    return this.tables.find((table) => table.owner === this.activeUser.username) ?? null;
-  }
-
-  get startDisabledReason(): string {
-    const table = this.ownerTable;
-    if (!table) {
-      return 'Nessun tavolo owner';
-    }
-
-    if (!this.isTableFull(table)) {
-      return 'Il tuo tavolo non e completo (servono 4/4)';
-    }
-
-    if (table.status !== 'waiting') {
-      return `Il tuo tavolo non e in waiting (stato: ${table.status})`;
-    }
-
-    return 'Pronto per avvio';
-  }
-
-  get canStartOwnerTable(): boolean {
-    const table = this.ownerTable;
-    return !!table && this.isTableFull(table) && table.status === 'waiting' && !this.startingGlobal;
   }
 
   refreshTables(): void {
@@ -160,24 +134,77 @@ export class TressetteLobbyPage implements OnInit {
     });
   }
 
+  get selectedOwnerTable(): TressetteTableView | null {
+    const ownerTables = this.tables.filter((table) => table.owner === this.activeUser.username);
+    if (ownerTables.length === 0) {
+      return null;
+    }
+
+    const ready = ownerTables.find((table) => table.status === 'waiting' && this.isTableFull(table));
+    if (ready) {
+      return ready;
+    }
+
+    const waiting = ownerTables.find((table) => table.status === 'waiting');
+    if (waiting) {
+      return waiting;
+    }
+
+    return ownerTables[0];
+  }
+
+  get ownerTargetTableId(): string {
+    return this.selectedOwnerTable?.tableId ?? '-';
+  }
+
+  get canStartOwnerTable(): boolean {
+    const ownerTable = this.selectedOwnerTable;
+    if (!ownerTable || this.starting) {
+      return false;
+    }
+
+    return ownerTable.status === 'waiting' && this.isTableFull(ownerTable);
+  }
+
+  get startDisabledReason(): string {
+    const ownerTable = this.selectedOwnerTable;
+    if (!ownerTable) {
+      return 'Nessun tavolo owner';
+    }
+
+    if (ownerTable.status !== 'waiting') {
+      return 'Il tuo tavolo non e in stato waiting';
+    }
+
+    if (!this.isTableFull(ownerTable)) {
+      return 'Il tuo tavolo non e completo (servono 4/4)';
+    }
+
+    if (this.starting) {
+      return 'Avvio partita in corso...';
+    }
+
+    return '';
+  }
+
   startMyGame(): void {
-    const table = this.ownerTable;
-    if (!table || !this.canStartOwnerTable) {
+    const ownerTable = this.selectedOwnerTable;
+    if (!ownerTable || !this.canStartOwnerTable) {
       return;
     }
 
-    this.startingGlobal = true;
+    this.starting = true;
     this.errorBanner = '';
 
-    this.tableService.startTable(table.tableId, this.activeUser.username).subscribe({
+    this.tableService.startTable(ownerTable.tableId, this.activeUser.username).subscribe({
       next: () => {
-        this.openToast(`Partita avviata: ${table.tableId}`);
+        this.starting = false;
+        this.openToast('Partita avviata su ' + ownerTable.tableId);
         this.refreshTables();
-        this.router.navigate(['/table3s74i']);
-        this.startingGlobal = false;
+        void this.router.navigate(['/table3s74i', ownerTable.tableId]);
       },
       error: () => {
-        this.startingGlobal = false;
+        this.starting = false;
         this.errorBanner = 'Avvio partita fallito';
       },
     });

@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 
-import { Router } from '@angular/router';
 import { AuthSessionService, MockSessionUser } from 'src/app/services/auth/auth-session.service';
 import { TressetteTableService } from 'src/app/services/tressette/tressette-table.service';
 import { TressetteTableView } from 'src/app/shared/domain/models/tressette-table.model';
@@ -22,30 +22,40 @@ describe('TressetteLobbyPage', () => {
     currentUser$: BehaviorSubject<MockSessionUser>;
     setActiveUser: jasmine.Spy;
   };
-  let routerMock: { navigate: jasmine.Spy };
+  let routerMock: {
+    navigate: jasmine.Spy;
+  };
 
   const activeUser: MockSessionUser = { userId: 'u-luca', username: 'Luca' };
 
-  const ownerStartReadyTable: TressetteTableView = {
-    tableId: 'table-1',
-    owner: 'Luca',
+  const makeTable = (
+    tableId: string,
+    owner: string,
+    status: 'waiting' | 'in_game' | 'ended',
+    playersCount: number,
+    isComplete = false
+  ): TressetteTableView => ({
+    tableId,
+    owner,
     players: [
-      { username: 'Luca', position: 'SUD' },
-      { username: 'Marta', position: 'NORD' },
-      { username: 'Sofia', position: 'EST' },
-      { username: 'Paolo', position: 'OVEST' },
-    ],
-    isComplete: true,
+      { username: 'p1', position: 'SUD' as const },
+      { username: 'p2', position: 'NORD' as const },
+      { username: 'p3', position: 'EST' as const },
+      { username: 'p4', position: 'OVEST' as const },
+    ].slice(0, playersCount),
+    isComplete,
     points: { teamSN: 0, teamEO: 0 },
-    status: 'waiting',
-  };
+    status,
+  });
+
+  const tablesMock: TressetteTableView[] = [makeTable('table-1', 'owner-a', 'waiting', 1)];
 
   beforeEach(async () => {
     serviceMock = {
-      listTables: jasmine.createSpy('listTables').and.returnValue(of([ownerStartReadyTable])),
-      createTable: jasmine.createSpy('createTable').and.returnValue(of(ownerStartReadyTable)),
-      joinTable: jasmine.createSpy('joinTable').and.returnValue(of(ownerStartReadyTable)),
-      startTable: jasmine.createSpy('startTable').and.returnValue(of({ ...ownerStartReadyTable, status: 'in_game' })),
+      listTables: jasmine.createSpy('listTables').and.returnValue(of(tablesMock)),
+      createTable: jasmine.createSpy('createTable').and.returnValue(of(tablesMock[0])),
+      joinTable: jasmine.createSpy('joinTable').and.returnValue(of(tablesMock[0])),
+      startTable: jasmine.createSpy('startTable').and.returnValue(of(tablesMock[0])),
     };
 
     authMock = {
@@ -79,40 +89,6 @@ describe('TressetteLobbyPage', () => {
     expect(component.tables[0].tableId).toBe('table-1');
   });
 
-  it('owner con tavolo avviabile -> bottone globale abilitato', () => {
-    expect(component.ownerTable?.tableId).toBe('table-1');
-    expect(component.canStartOwnerTable).toBeTrue();
-    expect(component.startDisabledReason).toContain('Pronto per avvio');
-  });
-
-  it('owner senza tavolo -> bottone globale disabilitato', () => {
-    component.tables = [{ ...ownerStartReadyTable, owner: 'Marta' }];
-
-    expect(component.ownerTable).toBeNull();
-    expect(component.canStartOwnerTable).toBeFalse();
-    expect(component.startDisabledReason).toContain('Nessun tavolo owner');
-  });
-
-  it('owner con tavolo non completo -> bottone globale disabilitato', () => {
-    component.tables = [
-      {
-        ...ownerStartReadyTable,
-        isComplete: false,
-        players: ownerStartReadyTable.players.slice(0, 2),
-      },
-    ];
-
-    expect(component.canStartOwnerTable).toBeFalse();
-    expect(component.startDisabledReason).toContain('non e completo');
-  });
-
-  it('start success -> navigation a gameplay', () => {
-    component.startMyGame();
-
-    expect(serviceMock.startTable).toHaveBeenCalledWith('table-1', 'Luca');
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/table3s74i']);
-  });
-
   it('create success usa username da sessione', () => {
     component.createTable();
 
@@ -134,5 +110,49 @@ describe('TressetteLobbyPage', () => {
 
     expect(component.errorBanner).toContain('Errore caricamento lobby');
     expect(component.loading).toBeFalse();
+  });
+
+  it('multiple owner tables, one start-ready -> button enabled', () => {
+    component.tables = [
+      makeTable('tbl-owner-wait-2of4', 'Luca', 'waiting', 2),
+      makeTable('tbl-owner-ready', 'Luca', 'waiting', 4, true),
+      makeTable('tbl-other', 'Marta', 'waiting', 4, true),
+    ];
+
+    expect(component.ownerTargetTableId).toBe('tbl-owner-ready');
+    expect(component.canStartOwnerTable).toBeTrue();
+    expect(component.startDisabledReason).toBe('');
+  });
+
+  it('multiple owner tables, none start-ready -> disabled with correct reason', () => {
+    component.tables = [
+      makeTable('tbl-owner-wait-2of4', 'Luca', 'waiting', 2),
+      makeTable('tbl-owner-ended', 'Luca', 'ended', 4, true),
+    ];
+
+    expect(component.ownerTargetTableId).toBe('tbl-owner-wait-2of4');
+    expect(component.canStartOwnerTable).toBeFalse();
+    expect(component.startDisabledReason).toBe('Il tuo tavolo non e completo (servono 4/4)');
+  });
+
+  it('start success -> navigation a gameplay con tableId', () => {
+    component.tables = [
+      makeTable('tbl-owner-not-ready', 'Luca', 'waiting', 1),
+      makeTable('tbl-owner-ready', 'Luca', 'waiting', 4, true),
+    ];
+
+    component.startMyGame();
+
+    expect(serviceMock.startTable).toHaveBeenCalledWith('tbl-owner-ready', 'Luca');
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/table3s74i', 'tbl-owner-ready']);
+  });
+
+  it('start error -> nessuna navigazione', () => {
+    serviceMock.startTable.and.returnValue(throwError(() => new Error('start failed')));
+    component.tables = [makeTable('tbl-owner-ready', 'Luca', 'waiting', 4, true)];
+
+    component.startMyGame();
+
+    expect(routerMock.navigate).not.toHaveBeenCalled();
   });
 });

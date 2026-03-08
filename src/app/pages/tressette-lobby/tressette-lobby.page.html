@@ -22,16 +22,11 @@
     </div>
   </section>
 
-  <section class="create-block start-global-block">
-    <p class="start-title">Start owner</p>
-    <p class="start-target">
-      Tavolo owner target:
-      <strong>{{ ownerTable?.tableId ?? '-' }}</strong>
-    </p>
-    <p class="start-reason">{{ startDisabledReason }}</p>
-    <ion-button color="success" [disabled]="!canStartOwnerTable" (click)="startMyGame()">
-      {{ startingGlobal ? 'Avvio in corso...' : 'Avvia la mia partita' }}
-    </ion-button>
+  <section class="create-block start-owner-block">
+    <div class="start-owner-title">Start owner</div>
+    <div class="start-owner-target">Tavolo owner target: <strong>{{ ownerTargetTableId }}</strong></div>
+    <div class="start-owner-reason" *ngIf="!canStartOwnerTable">{{ startDisabledReason }}</div>
+    <ion-button [disabled]="!canStartOwnerTable" (click)="startMyGame()">Avvia la mia partita</ion-button>
   </section>
 
   <section class="create-block">

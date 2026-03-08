@@ -14,7 +14,7 @@ describe('Table3s74iPage', () => {
   let fixture: ComponentFixture<Table3s74iPage>;
 
   let serviceMock: {
-    getTable: jasmine.Spy;
+    getTableRealtime: jasmine.Spy;
     connectSocket: jasmine.Spy;
   };
 
@@ -44,7 +44,7 @@ describe('Table3s74iPage', () => {
     ],
     isComplete: true,
     points: { teamSN: 0, teamEO: 0 },
-    status: 'in_game',
+    status: 'waiting',
   };
 
   beforeEach(async () => {
@@ -58,7 +58,7 @@ describe('Table3s74iPage', () => {
     };
 
     serviceMock = {
-      getTable: jasmine.createSpy('getTable').and.returnValue(of(tableMock)),
+      getTableRealtime: jasmine.createSpy('getTableRealtime').and.returnValue(of(tableMock)),
       connectSocket: jasmine.createSpy('connectSocket').and.returnValue(socketMock),
     };
 
@@ -91,9 +91,9 @@ describe('Table3s74iPage', () => {
     fixture.detectChanges();
   });
 
-  it('carica tableId da route e apre socket', () => {
+  it('carica tableId da route e usa backend realtime fetch', () => {
     expect(component.tableId).toBe('tbl-001');
-    expect(serviceMock.getTable).toHaveBeenCalledWith('tbl-001');
+    expect(serviceMock.getTableRealtime).toHaveBeenCalledWith('tbl-001');
     expect(serviceMock.connectSocket).toHaveBeenCalled();
   });
 
@@ -106,25 +106,38 @@ describe('Table3s74iPage', () => {
     expect(text).not.toContain('Start Username');
   });
 
+  it('render connected state quando socket connette', () => {
+    socketHandlers['connect']?.();
+
+    expect(component.isSocketConnected).toBeTrue();
+    expect(component.connectionBannerVisible).toBeFalse();
+    expect(component.socketMessage).toBe('connected');
+  });
+
+  it('table status passa a in_game su hand-started', () => {
+    expect(component.table?.status).toBe('waiting');
+
+    socketHandlers['tressette:hand-started']?.({ table: { ...tableMock, status: 'in_game' } });
+
+    expect(component.table?.status).toBe('in_game');
+  });
+
+  it('timer parte su turn-started con secondsRemaining', fakeAsync(() => {
+    socketHandlers['tressette:turn-started']?.({ turnPlayer: 'Luca', secondsRemaining: 3 });
+
+    expect(component.countdownSeconds).toBe(3);
+    tick(1000);
+    expect(component.countdownSeconds).toBe(2);
+    tick(2000);
+    expect(component.countdownSeconds).toBe(0);
+  }));
+
   it('mostra stato disconnected quando socket cade', () => {
     socketHandlers['disconnect']?.('transport close');
 
     expect(component.connectionBannerVisible).toBeTrue();
     expect(component.socketMessage).toContain('disconnected');
   });
-
-  it('countdown parte da evento turno', fakeAsync(() => {
-
-    socketHandlers['tressette:turn-started']?.({ turnPlayer: 'Luca', remainingSeconds: 3 });
-
-    expect(component.countdownSeconds).toBe(3);
-
-    tick(1000);
-    expect(component.countdownSeconds).toBe(2);
-
-    tick(2000);
-    expect(component.countdownSeconds).toBe(0);
-  }));
 
   it('blocca play-card fuori turno o disconnesso', () => {
     component.turnPlayerUsername = 'Marta';
@@ -138,6 +151,7 @@ describe('Table3s74iPage', () => {
   it('emette play-card quando connesso e in turno', () => {
     socketHandlers['connect']?.();
     component.turnPlayerUsername = 'Luca';
+    component.table = { ...tableMock, status: 'in_game' };
 
     component.playCard(new CardIT(Suit.Coppe, 1));
 
@@ -148,7 +162,7 @@ describe('Table3s74iPage', () => {
     }));
   });
 
-  it('non naviga quando manca tableId', async () => {
+  it('non naviga quando manca tableId', () => {
     routeMock.snapshot.paramMap = convertToParamMap({});
 
     const localFixture = TestBed.createComponent(Table3s74iPage);
@@ -156,12 +170,12 @@ describe('Table3s74iPage', () => {
     localFixture.detectChanges();
 
     expect(localComponent.errorMessage).toContain('TableId mancante');
-    expect(serviceMock.getTable).toHaveBeenCalledTimes(1);
+    expect(serviceMock.getTableRealtime).toHaveBeenCalledTimes(1);
     expect(routerMock.navigate).not.toHaveBeenCalled();
   });
 
   it('gestisce errore snapshot tavolo', () => {
-    serviceMock.getTable.and.returnValue(throwError(() => new Error('offline')));
+    serviceMock.getTableRealtime.and.returnValue(throwError(() => new Error('offline')));
     const localFixture = TestBed.createComponent(Table3s74iPage);
     const localComponent = localFixture.componentInstance;
 
@@ -170,3 +184,4 @@ describe('Table3s74iPage', () => {
     expect(localComponent.errorMessage).toContain('Tavolo non trovato');
   });
 });
+

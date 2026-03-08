@@ -11,6 +11,7 @@
 
   <section class="status-board">
     <p><strong>Socket:</strong> {{ socketMessage }}</p>
+    <p><strong>Endpoint:</strong> {{ socketUrl }}</p>
     <p><strong>Stato tavolo:</strong> {{ table?.status ?? 'waiting' }}</p>
     <p><strong>Turno:</strong> {{ turnPlayerUsername || 'in attesa evento turno...' }}</p>
     <p *ngIf="countdownSeconds !== null"><strong>Countdown:</strong> {{ countdownSeconds }}s</p>

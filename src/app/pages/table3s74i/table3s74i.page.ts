@@ -10,6 +10,7 @@ import { TressetteTableService } from 'src/app/services/tressette/tressette-tabl
 import { ICardIT } from 'src/app/shared/domain/models/cardIT.model';
 import { TressettePlayer, TressettePosition, TressetteTableView } from 'src/app/shared/domain/models/tressette-table.model';
 import { CardNAComponent } from 'src/app/shared/ui/card-na/card-na.component';
+import { environment } from 'src/environments/environment';
 
 interface TurnEventPayload {
   tableId?: string;
@@ -19,6 +20,8 @@ interface TurnEventPayload {
   turnPlayerPosition?: TressettePosition;
   turnDeadlineUtc?: string;
   deadlineUtc?: string;
+  turnDeadlineMs?: number;
+  secondsRemaining?: number;
   remainingSeconds?: number;
   countdownSeconds?: number;
   timeoutSeconds?: number;
@@ -47,6 +50,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
 
   readonly positions: TressettePosition[] = ['NORD', 'EST', 'SUD', 'OVEST'];
   readonly handCards: ICardIT[];
+  readonly socketUrl = environment.backend.socketUrl;
 
   playedCards: Record<TressettePosition, ICardIT | null> = {
     NORD: null,
@@ -152,7 +156,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     this.loading = true;
     this.errorMessage = '';
 
-    this.tableService.getTable(this.tableId).subscribe({
+    this.tableService.getTableRealtime(this.tableId).subscribe({
       next: (table) => {
         this.table = table;
         this.loading = false;
@@ -175,11 +179,14 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     this.socket.on('connect', () => {
       this.socketMessage = 'connected';
       this.infoMessage = 'Socket connesso';
+      // Useful diagnostics for manual test when CORS/socket namespace is wrong.
+      console.info('[tressette][socket] connected', { tableId: this.tableId, socketUrl: this.socketUrl });
       this.socket?.emit('tressette:watch-table', { tableId: this.tableId });
     });
 
     this.socket.on('disconnect', (reason: string) => {
       this.socketMessage = `disconnected (${reason ?? 'unknown'})`;
+      console.warn('[tressette][socket] disconnected', { tableId: this.tableId, reason });
     });
 
     this.socket.on('tressette:table-updated', (table: TressetteTableView) => {
@@ -251,12 +258,16 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     this.turnPlayerUsername = payload.turnPlayerUsername ?? payload.turnPlayer ?? '';
     this.turnPlayerPosition = payload.turnPlayerPosition ?? payload.turnPosition ?? this.resolvePositionByUsername(this.turnPlayerUsername);
 
-    const deadline = payload.turnDeadlineUtc ?? payload.deadlineUtc;
-    const initial = this.resolveInitialCountdown(payload, deadline);
+    const initial = this.resolveInitialCountdown(payload);
     this.startCountdown(initial);
   }
 
-  private resolveInitialCountdown(payload: TurnEventPayload, deadlineUtc?: string): number {
+  private resolveInitialCountdown(payload: TurnEventPayload): number {
+    if (typeof payload.turnDeadlineMs === 'number') {
+      return Math.max(0, Math.ceil((payload.turnDeadlineMs - Date.now()) / 1000));
+    }
+
+    const deadlineUtc = payload.turnDeadlineUtc ?? payload.deadlineUtc;
     if (deadlineUtc) {
       const deadlineMs = Date.parse(deadlineUtc);
       if (!Number.isNaN(deadlineMs)) {
@@ -264,7 +275,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       }
     }
 
-    const fallback = payload.remainingSeconds ?? payload.countdownSeconds ?? payload.timeoutSeconds ?? 20;
+    const fallback = payload.secondsRemaining ?? payload.remainingSeconds ?? payload.countdownSeconds ?? payload.timeoutSeconds ?? 20;
     return Math.max(0, fallback);
   }
 
@@ -326,6 +337,3 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.table.players.find((player) => player.username === username)?.position ?? null;
   }
 }
-
-
-

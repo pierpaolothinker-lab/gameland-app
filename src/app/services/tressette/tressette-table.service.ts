@@ -71,6 +71,11 @@ export class TressetteTableService {
     );
   }
 
+  // Gameplay must always use backend realtime state, independent of lobby/mock toggle.
+  getTableRealtime(tableId: string): Observable<TressetteTableView> {
+    return this.backendClient.get<TressetteTableView>(`${this.tableBasePath}/${tableId}`);
+  }
+
   joinTable(tableId: string, username: string, position: TressettePosition): Observable<TressetteTableView> {
     if (!this.useMockDataEnabled) {
       return this.backendClient.post<TressetteTableView>(`${this.tableBasePath}/${tableId}/join`, {

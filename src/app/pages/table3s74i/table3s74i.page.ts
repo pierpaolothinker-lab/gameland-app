@@ -1,8 +1,16 @@
-﻿import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+﻿import { Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonContent } from '@ionic/angular/standalone';
-import { forkJoin, of } from 'rxjs';
-import { catchError, switchMap } from 'rxjs/operators';
+import { FormsModule } from '@angular/forms';
+import {
+  IonButton,
+  IonContent,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
+} from '@ionic/angular/standalone';
 import { Socket } from 'socket.io-client';
 
 import { CardIT10Component } from 'src/app/shared/ui/card-it10/card-it10.component';
@@ -10,32 +18,48 @@ import { CardNAComponent } from 'src/app/shared/ui/card-na/card-na.component';
 import { ICardIT } from 'src/app/shared/domain/models/cardIT.model';
 import { CardPlayedAreaComponent } from 'src/app/shared/ui/card-played-area/card-played-area.component';
 import { TressetteTableService } from 'src/app/services/tressette/tressette-table.service';
-import { TressetteTableView } from 'src/app/shared/domain/models/tressette-table.model';
+import { TressettePosition, TressetteTableView } from 'src/app/shared/domain/models/tressette-table.model';
 
 @Component({
   selector: 'app-table3s74i',
   templateUrl: './table3s74i.page.html',
   styleUrls: ['./table3s74i.page.scss'],
   standalone: true,
-  imports: [IonContent, CommonModule, CardIT10Component, CardNAComponent, CardPlayedAreaComponent],
+  imports: [
+    IonButton,
+    IonContent,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonSelect,
+    IonSelectOption,
+    IonSpinner,
+    FormsModule,
+    CommonModule,
+    CardIT10Component,
+    CardNAComponent,
+    CardPlayedAreaComponent,
+  ],
 })
-export class Table3s74iPage implements OnInit, OnDestroy {
+export class Table3s74iPage implements OnDestroy {
   @ViewChild('playArea', { static: false }) playArea!: ElementRef;
 
   card?: ICardIT;
   table?: TressetteTableView;
   tableId = '';
-  loading = true;
+  loading = false;
   errorMessage = '';
-  socketMessage = 'socket: disconnected';
+  infoMessage = 'Crea un tavolo per iniziare';
+  socketMessage = 'disconnected';
+
+  ownerName = 'Pierpaolo';
+  joinUsername = 'Vito';
+  joinPosition: TressettePosition = 'NORD';
+  startUsername = 'Pierpaolo';
 
   private socket?: Socket;
 
   constructor(private readonly tableService: TressetteTableService) {}
-
-  ngOnInit(): void {
-    this.bootstrapVisualFlow();
-  }
 
   ngOnDestroy(): void {
     this.socket?.disconnect();
@@ -49,67 +73,134 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return { deltaX, deltaY };
   }
 
-  private bootstrapVisualFlow(): void {
-    this.loading = true;
-    this.errorMessage = '';
+  createTable(): void {
+    const owner = this.ownerName.trim();
+    if (!owner) {
+      this.errorMessage = 'Inserisci il nome owner';
+      return;
+    }
 
-    this.tableService
-      .createTable('Pierpaolo')
-      .pipe(
-        switchMap((table) => {
-          this.tableId = table.tableId;
+    this.setBusyState('Creazione tavolo in corso...');
 
-          return forkJoin([
-            this.tableService.joinTable(table.tableId, 'Vito', 'NORD'),
-            this.tableService.joinTable(table.tableId, 'Tonino', 'EST'),
-            this.tableService.joinTable(table.tableId, 'Paolo', 'OVEST'),
-          ]).pipe(switchMap(() => this.tableService.getTable(table.tableId)));
-        }),
-        catchError(() => {
-          this.errorMessage = 'Backend non raggiungibile (porta 3500). Controlla gameland-server in esecuzione.';
-          this.loading = false;
-          return of(undefined);
-        })
-      )
-      .subscribe((table) => {
-        if (!table) {
-          return;
-        }
-
+    this.tableService.createTable(owner).subscribe({
+      next: (table) => {
         this.table = table;
+        this.tableId = table.tableId;
+        this.startUsername = table.owner;
+        this.infoMessage = `Tavolo creato: ${table.tableId}`;
         this.loading = false;
-        this.connectSocketAndStart(table.tableId);
-      });
+        this.ensureSocketConnected();
+      },
+      error: () => {
+        this.loading = false;
+        this.errorMessage = 'Backend non raggiungibile (porta 3500).';
+      },
+    });
   }
 
-  private connectSocketAndStart(tableId: string): void {
+  joinTable(): void {
+    const tableId = this.tableId.trim();
+    const username = this.joinUsername.trim();
+
+    if (!tableId || !username) {
+      this.errorMessage = 'Inserisci tableId e username per join';
+      return;
+    }
+
+    this.setBusyState('Join al tavolo in corso...');
+
+    this.tableService.joinTable(tableId, username, this.joinPosition).subscribe({
+      next: (table) => {
+        this.table = table;
+        this.infoMessage = `${username} si e' unito in posizione ${this.joinPosition}`;
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+        this.errorMessage = 'Join fallita. Controlla posizione/username.';
+      },
+    });
+  }
+
+  refreshTable(): void {
+    const tableId = this.tableId.trim();
+    if (!tableId) {
+      this.errorMessage = 'Inserisci un tableId valido';
+      return;
+    }
+
+    this.setBusyState('Aggiornamento tavolo...');
+
+    this.tableService.getTable(tableId).subscribe({
+      next: (table) => {
+        this.table = table;
+        this.loading = false;
+        this.infoMessage = 'Snapshot tavolo aggiornato';
+      },
+      error: () => {
+        this.loading = false;
+        this.errorMessage = 'Tavolo non trovato o backend non raggiungibile.';
+      },
+    });
+  }
+
+  startGame(): void {
+    const tableId = this.tableId.trim();
+    const username = this.startUsername.trim();
+
+    if (!tableId || !username) {
+      this.errorMessage = 'Inserisci tableId e username owner per start';
+      return;
+    }
+
+    this.setBusyState('Avvio partita...');
+    this.ensureSocketConnected();
+
+    this.socket?.emit('tressette:start-game', {
+      tableId,
+      username,
+    });
+  }
+
+  private ensureSocketConnected(): void {
+    if (this.socket) {
+      return;
+    }
+
     this.socket = this.tableService.connectSocket();
 
     this.socket.on('connect', () => {
-      this.socketMessage = `socket: connected (${this.socket?.id ?? 'n/a'})`;
-      this.socket?.emit('tressette:start-game', {
-        tableId,
-        username: 'Pierpaolo',
-      });
+      this.socketMessage = 'connected';
     });
 
     this.socket.on('tressette:table-updated', (table: TressetteTableView) => {
       this.table = table;
+      this.loading = false;
+      this.errorMessage = '';
+      this.infoMessage = 'Tavolo aggiornato realtime';
     });
 
     this.socket.on('tressette:hand-started', () => {
-      this.socketMessage = 'socket: hand-started received';
+      this.loading = false;
+      this.errorMessage = '';
+      this.infoMessage = 'Partita avviata';
+      this.socketMessage = 'hand-started received';
     });
 
     this.socket.on('tressette:error', (payload: { error?: { code?: string; message?: string } }) => {
-      const code = payload?.error?.code ?? 'UNKNOWN_ERROR';
-      const message = payload?.error?.message ?? 'socket error';
-      this.socketMessage = `socket error: ${code}`;
-      this.errorMessage = message;
+      this.loading = false;
+      this.errorMessage = payload?.error?.message ?? 'Errore socket';
+      this.socketMessage = `error: ${payload?.error?.code ?? 'UNKNOWN_ERROR'}`;
     });
 
     this.socket.on('disconnect', () => {
-      this.socketMessage = 'socket: disconnected';
+      this.socketMessage = 'disconnected';
     });
+  }
+
+  private setBusyState(message: string): void {
+    this.loading = true;
+    this.errorMessage = '';
+    this.infoMessage = message;
   }
 }

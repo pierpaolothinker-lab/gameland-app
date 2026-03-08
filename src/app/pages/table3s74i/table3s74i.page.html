@@ -1,8 +1,51 @@
 ﻿<ion-content [fullscreen]="true" class="tressette-content">
-  <section class="debug-header">
+  <section class="title-block">
     <h1>Tressette Table</h1>
-    <p>Backend table id: <strong>{{ tableId || 'n/a' }}</strong></p>
-    <p>Socket status: <strong>{{ socketMessage }}</strong></p>
+    <p class="subtitle">Controlli tavolo realtime</p>
+  </section>
+
+  <section class="controls">
+    <ion-item lines="none">
+      <ion-label position="stacked">Owner</ion-label>
+      <ion-input [(ngModel)]="ownerName" placeholder="Pierpaolo"></ion-input>
+    </ion-item>
+    <ion-button expand="block" (click)="createTable()">Crea Tavolo</ion-button>
+
+    <ion-item lines="none">
+      <ion-label position="stacked">Table ID</ion-label>
+      <ion-input [(ngModel)]="tableId" placeholder="uuid tavolo"></ion-input>
+    </ion-item>
+
+    <ion-item lines="none">
+      <ion-label position="stacked">Username Join</ion-label>
+      <ion-input [(ngModel)]="joinUsername" placeholder="Nome giocatore"></ion-input>
+    </ion-item>
+
+    <ion-item lines="none">
+      <ion-label position="stacked">Posizione</ion-label>
+      <ion-select [(ngModel)]="joinPosition" interface="popover">
+        <ion-select-option value="SUD">SUD</ion-select-option>
+        <ion-select-option value="NORD">NORD</ion-select-option>
+        <ion-select-option value="EST">EST</ion-select-option>
+        <ion-select-option value="OVEST">OVEST</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <div class="actions-row">
+      <ion-button (click)="joinTable()">Join</ion-button>
+      <ion-button fill="outline" (click)="refreshTable()">Refresh</ion-button>
+    </div>
+
+    <ion-item lines="none">
+      <ion-label position="stacked">Start Username</ion-label>
+      <ion-input [(ngModel)]="startUsername" placeholder="Owner"></ion-input>
+    </ion-item>
+    <ion-button color="success" expand="block" (click)="startGame()">Start Game</ion-button>
+  </section>
+
+  <section class="status-board">
+    <p><strong>Socket:</strong> {{ socketMessage }}</p>
+    <p class="info" *ngIf="infoMessage">{{ infoMessage }}</p>
     <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
   </section>
 
@@ -14,7 +57,9 @@
     </ul>
   </section>
 
-  <p class="loading" *ngIf="loading">Loading table from backend...</p>
+  <div class="loading" *ngIf="loading">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
 
   <div class="game-table">
     <div class="play-area" #playArea>

@@ -173,3 +173,24 @@
   flex-wrap: wrap;
   gap: 8px;
 }
+
+.start-global-block {
+  border-color: rgba(57, 150, 84, 0.55);
+}
+
+.start-title {
+  margin: 0;
+  font-weight: 700;
+  color: #123b22;
+}
+
+.start-target {
+  margin: 6px 0 0;
+  color: #23465f;
+}
+
+.start-reason {
+  margin: 6px 0 10px;
+  color: #38566f;
+  font-size: 13px;
+}

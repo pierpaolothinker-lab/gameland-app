@@ -22,6 +22,18 @@
     </div>
   </section>
 
+  <section class="create-block start-global-block">
+    <p class="start-title">Start owner</p>
+    <p class="start-target">
+      Tavolo owner target:
+      <strong>{{ ownerTable?.tableId ?? '-' }}</strong>
+    </p>
+    <p class="start-reason">{{ startDisabledReason }}</p>
+    <ion-button color="success" [disabled]="!canStartOwnerTable" (click)="startMyGame()">
+      {{ startingGlobal ? 'Avvio in corso...' : 'Avvia la mia partita' }}
+    </ion-button>
+  </section>
+
   <section class="create-block">
     <div class="create-actions">
       <ion-button (click)="createTable()">Crea Tavolo</ion-button>

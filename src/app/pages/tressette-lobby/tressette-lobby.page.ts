@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
 import {
   IonButton,
   IonCard,
@@ -51,6 +52,7 @@ export class TressetteLobbyPage implements OnInit {
 
   tables: TressetteTableView[] = [];
   loading = false;
+  startingGlobal = false;
 
   errorBanner = '';
   toastOpen = false;
@@ -62,7 +64,8 @@ export class TressetteLobbyPage implements OnInit {
 
   constructor(
     private readonly tableService: TressetteTableService,
-    private readonly authSessionService: AuthSessionService
+    private readonly authSessionService: AuthSessionService,
+    private readonly router: Router
   ) {
     this.activeUser = this.authSessionService.currentUser;
   }
@@ -75,6 +78,32 @@ export class TressetteLobbyPage implements OnInit {
       });
 
     this.refreshTables();
+  }
+
+  get ownerTable(): TressetteTableView | null {
+    return this.tables.find((table) => table.owner === this.activeUser.username) ?? null;
+  }
+
+  get startDisabledReason(): string {
+    const table = this.ownerTable;
+    if (!table) {
+      return 'Nessun tavolo owner';
+    }
+
+    if (!this.isTableFull(table)) {
+      return 'Il tuo tavolo non e completo (servono 4/4)';
+    }
+
+    if (table.status !== 'waiting') {
+      return `Il tuo tavolo non e in waiting (stato: ${table.status})`;
+    }
+
+    return 'Pronto per avvio';
+  }
+
+  get canStartOwnerTable(): boolean {
+    const table = this.ownerTable;
+    return !!table && this.isTableFull(table) && table.status === 'waiting' && !this.startingGlobal;
   }
 
   refreshTables(): void {
@@ -131,6 +160,29 @@ export class TressetteLobbyPage implements OnInit {
     });
   }
 
+  startMyGame(): void {
+    const table = this.ownerTable;
+    if (!table || !this.canStartOwnerTable) {
+      return;
+    }
+
+    this.startingGlobal = true;
+    this.errorBanner = '';
+
+    this.tableService.startTable(table.tableId, this.activeUser.username).subscribe({
+      next: () => {
+        this.openToast(`Partita avviata: ${table.tableId}`);
+        this.refreshTables();
+        this.router.navigate(['/table3s74i']);
+        this.startingGlobal = false;
+      },
+      error: () => {
+        this.startingGlobal = false;
+        this.errorBanner = 'Avvio partita fallito';
+      },
+    });
+  }
+
   seatOccupied(table: TressetteTableView, position: TressettePosition): boolean {
     return table.players.some((player) => player.position === position);
   }
@@ -153,11 +205,15 @@ export class TressetteLobbyPage implements OnInit {
   }
 
   statusLabel(table: TressetteTableView): string {
-    if (this.isTableFull(table)) {
-      return 'COMPLETO';
+    if (table.status === 'in_game') {
+      return 'IN GAME';
     }
 
-    return 'IN ATTESA';
+    if (table.status === 'ended') {
+      return 'ENDED';
+    }
+
+    return this.isTableFull(table) ? 'COMPLETO' : 'IN ATTESA';
   }
 
   onToastDismiss(): void {

@@ -13,8 +13,7 @@
     <p><strong>Socket:</strong> {{ socketMessage }}</p>
     <p><strong>Endpoint:</strong> {{ socketUrl }}</p>
     <p><strong>Stato tavolo:</strong> {{ table?.status ?? 'waiting' }}</p>
-    <p><strong>Turno:</strong> {{ turnPlayerUsername || 'in attesa evento turno...' }}</p>
-    <p *ngIf="countdownSeconds !== null"><strong>Countdown:</strong> {{ countdownSeconds }}s</p>
+    <p><strong>{{ turnStatusText }}</strong></p>
     <p *ngIf="lastPlayedMessage"><strong>Ultima giocata:</strong> {{ lastPlayedMessage }}</p>
     <p class="info" *ngIf="infoMessage">{{ infoMessage }}</p>
     <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
@@ -31,17 +30,33 @@
 
   <section class="table-stage">
     <div class="game-table">
-      <div class="seat seat-north" [class.turn]="turnPlayerPosition === 'NORD'">
-        <div class="player-badge">{{ getPlayer('NORD')?.username ?? 'NORD' }}</div>
+      <div class="seat seat-north" [class.turn]="isTurnPosition('NORD')">
+        <div class="player-badge">
+          <span class="player-name">{{ getPlayer('NORD')?.username ?? 'NORD' }}</span>
+          <span class="turn-badge" *ngIf="isTurnPosition('NORD')">DI TURNO</span>
+          <span class="turn-countdown" *ngIf="getSeatCountdown('NORD') !== null">{{ getSeatCountdown('NORD') }}s</span>
+        </div>
       </div>
-      <div class="seat seat-east" [class.turn]="turnPlayerPosition === 'EST'">
-        <div class="player-badge">{{ getPlayer('EST')?.username ?? 'EST' }}</div>
+      <div class="seat seat-east" [class.turn]="isTurnPosition('EST')">
+        <div class="player-badge">
+          <span class="player-name">{{ getPlayer('EST')?.username ?? 'EST' }}</span>
+          <span class="turn-badge" *ngIf="isTurnPosition('EST')">DI TURNO</span>
+          <span class="turn-countdown" *ngIf="getSeatCountdown('EST') !== null">{{ getSeatCountdown('EST') }}s</span>
+        </div>
       </div>
-      <div class="seat seat-south" [class.turn]="turnPlayerPosition === 'SUD'">
-        <div class="player-badge me">{{ getPlayer('SUD')?.username ?? 'SUD' }}</div>
+      <div class="seat seat-south" [class.turn]="isTurnPosition('SUD')">
+        <div class="player-badge me">
+          <span class="player-name">{{ getPlayer('SUD')?.username ?? 'SUD' }}</span>
+          <span class="turn-badge" *ngIf="isTurnPosition('SUD')">DI TURNO</span>
+          <span class="turn-countdown" *ngIf="getSeatCountdown('SUD') !== null">{{ getSeatCountdown('SUD') }}s</span>
+        </div>
       </div>
-      <div class="seat seat-west" [class.turn]="turnPlayerPosition === 'OVEST'">
-        <div class="player-badge">{{ getPlayer('OVEST')?.username ?? 'OVEST' }}</div>
+      <div class="seat seat-west" [class.turn]="isTurnPosition('OVEST')">
+        <div class="player-badge">
+          <span class="player-name">{{ getPlayer('OVEST')?.username ?? 'OVEST' }}</span>
+          <span class="turn-badge" *ngIf="isTurnPosition('OVEST')">DI TURNO</span>
+          <span class="turn-countdown" *ngIf="getSeatCountdown('OVEST') !== null">{{ getSeatCountdown('OVEST') }}s</span>
+        </div>
       </div>
 
       <div class="trick-center">

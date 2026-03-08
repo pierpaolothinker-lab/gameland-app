@@ -27,6 +27,15 @@ interface TurnEventPayload {
   timeoutSeconds?: number;
 }
 
+interface CardPlayedPayload {
+  position?: TressettePosition;
+  turnPlayerPosition?: TressettePosition;
+  username?: string;
+  card: ICardIT;
+  source?: 'manual' | 'timeout_auto' | string;
+  nextTurn?: TurnEventPayload;
+}
+
 @Component({
   selector: 'app-table3s74i',
   templateUrl: './table3s74i.page.html',
@@ -122,6 +131,19 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.turnPlayerUsername === this.myUsername;
   }
 
+  get turnStatusText(): string {
+    if (!this.turnPlayerUsername) {
+      return 'Turno: in attesa evento turno...';
+    }
+
+    const position = this.turnPlayerPosition ?? this.resolvePositionByUsername(this.turnPlayerUsername);
+    if (this.countdownSeconds === null) {
+      return `Turno: ${this.turnPlayerUsername} (${position ?? '-'})`;
+    }
+
+    return `Turno: ${this.turnPlayerUsername} (${position ?? '-'}) - ${this.countdownSeconds}s`;
+  }
+
   playCard(card: ICardIT): void {
     if (!this.canPlayCards || !this.socket) {
       this.infoMessage = 'Mossa non disponibile: attendi il tuo turno o riconnessione socket.';
@@ -142,6 +164,18 @@ export class Table3s74iPage implements OnInit, OnDestroy {
 
   getPlayer(position: TressettePosition): TressettePlayer | undefined {
     return this.table?.players.find((player) => player.position === position);
+  }
+
+  isTurnPosition(position: TressettePosition): boolean {
+    return this.turnPlayerPosition === position;
+  }
+
+  getSeatCountdown(position: TressettePosition): number | null {
+    if (!this.isTurnPosition(position) || this.countdownSeconds === null) {
+      return null;
+    }
+
+    return this.countdownSeconds;
   }
 
   trackByPosition(_: number, position: TressettePosition): TressettePosition {
@@ -179,7 +213,6 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     this.socket.on('connect', () => {
       this.socketMessage = 'connected';
       this.infoMessage = 'Socket connesso';
-      // Useful diagnostics for manual test when CORS/socket namespace is wrong.
       console.info('[tressette][socket] connected', { tableId: this.tableId, socketUrl: this.socketUrl });
       this.socket?.emit('tressette:watch-table', { tableId: this.tableId });
     });
@@ -221,18 +254,20 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       this.applyTurnPayload(payload);
     });
 
-    this.socket.on(
-      'tressette:card-played',
-      (payload: { position?: TressettePosition; turnPlayerPosition?: TressettePosition; username?: string; card: ICardIT; source?: string }) => {
-        const position = this.resolvePlayedCardPosition(payload);
-        if (!position) {
-          return;
-        }
-
-        this.playedCards[position] = payload.card;
-        this.lastPlayedMessage = payload.source === 'timeout_auto' ? 'Auto-play dal server' : 'Carta giocata';
+    this.socket.on('tressette:card-played', (payload: CardPlayedPayload) => {
+      const position = this.resolvePlayedCardPosition(payload);
+      if (!position) {
+        return;
       }
-    );
+
+      this.playedCards[position] = payload.card;
+      this.lastPlayedMessage =
+        payload.source === 'timeout_auto' ? 'Carta giocata automaticamente per timeout' : 'Carta giocata';
+
+      if (payload.nextTurn) {
+        this.applyTurnPayload(payload.nextTurn);
+      }
+    });
 
     this.socket.on(
       'tressette:trick-ended',

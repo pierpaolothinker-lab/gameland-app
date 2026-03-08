@@ -102,6 +102,33 @@
   padding: 8px 10px;
   border-radius: 10px;
   font-weight: 600;
+  display: grid;
+  gap: 4px;
+}
+
+.player-name {
+  line-height: 1.2;
+}
+
+.turn-badge {
+  justify-self: center;
+  font-size: 10px;
+  letter-spacing: 0.4px;
+  border-radius: 999px;
+  padding: 2px 8px;
+  color: #1f2908;
+  background: #ffe17a;
+  font-weight: 700;
+}
+
+.turn-countdown {
+  justify-self: center;
+  min-width: 40px;
+  border-radius: 999px;
+  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  font-size: 12px;
 }
 
 .player-badge.me {
@@ -192,6 +219,16 @@
   .player-badge {
     min-width: 90px;
     font-size: 12px;
+  }
+
+  .turn-badge {
+    font-size: 9px;
+    padding: 2px 6px;
+  }
+
+  .turn-countdown {
+    min-width: 32px;
+    font-size: 11px;
   }
 
   .trick-slot {

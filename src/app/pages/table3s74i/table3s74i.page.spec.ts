@@ -123,14 +123,24 @@ describe('Table3s74iPage', () => {
   });
 
   it('timer parte su turn-started con secondsRemaining', fakeAsync(() => {
-    socketHandlers['tressette:turn-started']?.({ turnPlayer: 'Luca', secondsRemaining: 3 });
+    socketHandlers['tressette:turn-started']?.({ turnPlayer: 'Luca', turnPosition: 'SUD', secondsRemaining: 3 });
 
     expect(component.countdownSeconds).toBe(3);
+    expect(component.turnStatusText).toBe('Turno: Luca (SUD) - 3s');
     tick(1000);
     expect(component.countdownSeconds).toBe(2);
     tick(2000);
     expect(component.countdownSeconds).toBe(0);
   }));
+
+  it('mostra badge DI TURNO sul seat attivo', () => {
+    socketHandlers['tressette:turn-started']?.({ turnPlayer: 'Luca', turnPosition: 'SUD', secondsRemaining: 8 });
+    fixture.detectChanges();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('DI TURNO');
+    expect(text).toContain('8s');
+  });
 
   it('mostra stato disconnected quando socket cade', () => {
     socketHandlers['disconnect']?.('transport close');
@@ -162,6 +172,26 @@ describe('Table3s74iPage', () => {
     }));
   });
 
+  it('renderizza autoplay timeout con messaggio esplicito e aggiorna il turno successivo', () => {
+    socketHandlers['tressette:card-played']?.({
+      position: 'NORD',
+      username: 'Marta',
+      card: new CardIT(Suit.Spade, 7),
+      source: 'timeout_auto',
+      nextTurn: {
+        tableId: 'tbl-001',
+        turnPlayerUsername: 'Diego',
+        turnPlayerPosition: 'EST',
+        secondsRemaining: 20,
+      },
+    });
+
+    expect(component.lastPlayedMessage).toBe('Carta giocata automaticamente per timeout');
+    expect(component.turnPlayerUsername).toBe('Diego');
+    expect(component.turnPlayerPosition).toBe('EST');
+    expect(component.countdownSeconds).toBe(20);
+  });
+
   it('non naviga quando manca tableId', () => {
     routeMock.snapshot.paramMap = convertToParamMap({});
 
@@ -184,4 +214,3 @@ describe('Table3s74iPage', () => {
     expect(localComponent.errorMessage).toContain('Tavolo non trovato');
   });
 });
-

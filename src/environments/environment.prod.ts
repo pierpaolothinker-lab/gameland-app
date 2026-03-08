@@ -1,3 +1,9 @@
-export const environment = {
-  production: true
+﻿export const environment = {
+  production: true,
+  backend: {
+    apiBaseUrl: 'http://localhost:3500',
+    socketUrl: 'http://localhost:3500',
+    tressetteTableBasePath: '/api/tressette/tables',
+    useMockTableOnError: false,
+  },
 };

@@ -17,6 +17,33 @@
   color: #3e4e73;
 }
 
+.error {
+  color: #a11f2d;
+  font-weight: 600;
+}
+
+.loading {
+  margin: 0 16px;
+  color: #3e4e73;
+}
+
+.table-meta {
+  margin: 0 16px 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(91, 111, 165, 0.25);
+}
+
+.table-meta p {
+  margin: 0 0 6px;
+}
+
+.table-meta ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
 .game-table {
   padding: 12px 16px 24px;
 }

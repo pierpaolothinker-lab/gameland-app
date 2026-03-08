@@ -1,3 +1,4 @@
+﻿import { CommonModule } from '@angular/common';
 import { Component, ElementRef, Input, OnInit, SimpleChanges } from '@angular/core';
 import { bGImageCostants } from './../../domain/costants/cardNA.costants'
 import { ICardIT, Suit } from '../../domain/models/cardIT.model';
@@ -6,7 +7,8 @@ import { ICardIT, Suit } from '../../domain/models/cardIT.model';
   selector: 'app-card-na',
   templateUrl: './card-na.component.html',
   styleUrls: ['./card-na.component.scss'],
-  standalone: true
+  standalone: true,
+  imports: [CommonModule]
 })
 export class CardNAComponent  implements OnInit {
   constructor(private myElement: ElementRef, private K : bGImageCostants) { }

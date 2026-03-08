@@ -1,9 +1,9 @@
-import { Routes } from '@angular/router';
+﻿import { Routes } from '@angular/router';
 
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'loader',
+    redirectTo: 'tressette',
     pathMatch: 'full',
   },
   {
@@ -13,7 +13,8 @@ export const routes: Routes = [
   {
     path: 'login',
     loadComponent: () => import('./pages/login/login.page').then( m => m.LoginPage)
-  },  {
+  },
+  {
     path: 'register',
     loadComponent: () => import('./pages/register/register.page').then( m => m.RegisterPage)
   },
@@ -24,6 +25,11 @@ export const routes: Routes = [
   {
     path: 'tressette4-inc',
     loadComponent: () => import('./pages/tressette4-inc/tressette4-inc.page').then( m => m.Tressette4IncPage)
+  },
+  {
+    path: 'tressette',
+    redirectTo: 'table3s74i',
+    pathMatch: 'full',
   },
   {
     path: 'table3s74i',

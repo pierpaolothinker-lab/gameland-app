@@ -283,6 +283,10 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       this.applyTurnPayload(payload);
     });
 
+    this.socket.on('tressette:turn-bootstrap', (payload: TurnEventPayload) => {
+      this.applyTurnPayload(payload);
+    });
+
     this.socket.on('tressette:turn-updated', (payload: TurnEventPayload) => {
       this.applyTurnPayload(payload);
     });
@@ -413,3 +417,4 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.table.players.find((player) => player.username === username)?.position ?? null;
   }
 }
+

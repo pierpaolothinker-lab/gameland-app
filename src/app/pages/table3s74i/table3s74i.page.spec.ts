@@ -171,6 +171,13 @@ describe('Table3s74iPage', () => {
     expect(text).toContain('Turno: Luca (SUD)');
   });
 
+  it('bootstrap turno inizializza subito current player e countdown', () => {
+    latestSocketHandlers()['tressette:turn-bootstrap']?.({ turnPlayerUsername: 'Marta', turnPlayerPosition: 'NORD', secondsRemaining: 19 });
+
+    expect(component.currentTurnLabel).toBe('Marta (NORD)');
+    expect(component.countdownSeconds).toBe(19);
+  });
+
   it('timer usa secondsRemaining in priorita rispetto a turnDeadlineMs', () => {
     latestSocketHandlers()['tressette:turn-started']?.({
       turnPlayer: 'Luca',
@@ -316,3 +323,4 @@ describe('Table3s74iPage', () => {
     expect(localComponent.errorMessage).toContain('Tavolo non trovato');
   });
 });
+

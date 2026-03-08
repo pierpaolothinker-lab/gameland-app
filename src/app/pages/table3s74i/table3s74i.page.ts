@@ -150,17 +150,13 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.turnPlayerUsername === this.myUsername;
   }
 
-  get turnStatusText(): string {
+  get currentTurnLabel(): string {
     if (!this.turnPlayerUsername) {
-      return 'Turno: in attesa evento turno...';
+      return '--';
     }
 
     const position = this.turnPlayerPosition ?? this.resolvePositionByUsername(this.turnPlayerUsername);
-    if (this.countdownSeconds === null) {
-      return `Turno: ${this.turnPlayerUsername} (${position ?? '-'})`;
-    }
-
-    return `Turno: ${this.turnPlayerUsername} (${position ?? '-'}) - ${this.countdownSeconds}s`;
+    return `${this.turnPlayerUsername} (${position ?? '-'})`;
   }
 
   onDataModeChange(mode: DataMode): void {
@@ -335,6 +331,14 @@ export class Table3s74iPage implements OnInit, OnDestroy {
   }
 
   private resolveInitialCountdown(payload: TurnEventPayload): number {
+    if (typeof payload.secondsRemaining === 'number') {
+      return Math.max(0, payload.secondsRemaining);
+    }
+
+    if (typeof payload.remainingSeconds === 'number') {
+      return Math.max(0, payload.remainingSeconds);
+    }
+
     if (typeof payload.turnDeadlineMs === 'number') {
       return Math.max(0, Math.ceil((payload.turnDeadlineMs - Date.now()) / 1000));
     }
@@ -347,7 +351,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       }
     }
 
-    const fallback = payload.secondsRemaining ?? payload.remainingSeconds ?? payload.countdownSeconds ?? payload.timeoutSeconds ?? 20;
+    const fallback = payload.countdownSeconds ?? payload.timeoutSeconds ?? 20;
     return Math.max(0, fallback);
   }
 

@@ -21,7 +21,7 @@
     <p><strong>Socket:</strong> {{ socketMessage }}</p>
     <p><strong>Endpoint:</strong> {{ socketUrl }}</p>
     <p><strong>Stato tavolo:</strong> {{ table?.status ?? 'waiting' }}</p>
-    <p><strong>{{ turnStatusText }}</strong></p>
+    <p><strong>Turno: {{ currentTurnLabel }}</strong></p>
     <p *ngIf="lastPlayedMessage"><strong>Ultima giocata:</strong> {{ lastPlayedMessage }}</p>
     <p class="info" *ngIf="infoMessage">{{ infoMessage }}</p>
     <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>

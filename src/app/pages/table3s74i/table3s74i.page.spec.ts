@@ -139,6 +139,13 @@ describe('Table3s74iPage', () => {
     expect(text).not.toContain('Start Username');
   });
 
+  it('mostra Turno: -- quando non c e ancora un turno', () => {
+    expect(component.currentTurnLabel).toBe('--');
+    fixture.detectChanges();
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Turno: --');
+  });
+
   it('render connected state quando socket connette', () => {
     latestSocketHandlers()['connect']?.();
 
@@ -155,24 +162,62 @@ describe('Table3s74iPage', () => {
     expect(component.table?.status).toBe('in_game');
   });
 
-  it('timer parte su turn-started con secondsRemaining', fakeAsync(() => {
-    latestSocketHandlers()['tressette:turn-started']?.({ turnPlayer: 'Luca', turnPosition: 'SUD', secondsRemaining: 3 });
+  it('current player text renderizza da payload turno', () => {
+    latestSocketHandlers()['tressette:turn-started']?.({ turnPlayer: 'Luca', turnPosition: 'SUD', secondsRemaining: 20 });
 
-    expect(component.countdownSeconds).toBe(3);
-    expect(component.turnStatusText).toBe('Turno: Luca (SUD) - 3s');
-    tick(1000);
-    expect(component.countdownSeconds).toBe(2);
-    tick(2000);
-    expect(component.countdownSeconds).toBe(0);
-  }));
+    expect(component.currentTurnLabel).toBe('Luca (SUD)');
+    fixture.detectChanges();
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Turno: Luca (SUD)');
+  });
 
-  it('mostra badge DI TURNO sul seat attivo', () => {
+  it('timer usa secondsRemaining in priorita rispetto a turnDeadlineMs', () => {
+    latestSocketHandlers()['tressette:turn-started']?.({
+      turnPlayer: 'Luca',
+      turnPosition: 'SUD',
+      secondsRemaining: 7,
+      turnDeadlineMs: Date.now() + 20000,
+    });
+
+    expect(component.countdownSeconds).toBe(7);
+  });
+
+  it('countdown displayed next to current seat only', () => {
     latestSocketHandlers()['tressette:turn-started']?.({ turnPlayer: 'Luca', turnPosition: 'SUD', secondsRemaining: 8 });
     fixture.detectChanges();
 
+    expect(component.getSeatCountdown('SUD')).toBe(8);
+    expect(component.getSeatCountdown('NORD')).toBeNull();
+
+    const seatCountdowns = fixture.nativeElement.querySelectorAll('.turn-countdown');
+    expect(seatCountdowns.length).toBe(1);
+    expect((seatCountdowns[0] as HTMLElement).textContent ?? '').toContain('8s');
+  });
+
+  it('DI TURNO applied to correct seat only', () => {
+    latestSocketHandlers()['tressette:turn-started']?.({ turnPlayer: 'Marta', turnPosition: 'NORD', secondsRemaining: 8 });
+    fixture.detectChanges();
+
+    const activeSeats = fixture.nativeElement.querySelectorAll('.seat.turn');
+    expect(activeSeats.length).toBe(1);
+    expect((activeSeats[0] as HTMLElement).className).toContain('seat-north');
+  });
+
+  it('turn switch moves badge and timer to new seat', () => {
+    latestSocketHandlers()['tressette:turn-started']?.({ turnPlayer: 'Marta', turnPosition: 'NORD', secondsRemaining: 8 });
+    latestSocketHandlers()['tressette:turn-updated']?.({ turnPlayer: 'Diego', turnPosition: 'EST', secondsRemaining: 17 });
+    fixture.detectChanges();
+
+    expect(component.currentTurnLabel).toBe('Diego (EST)');
+    expect(component.getSeatCountdown('NORD')).toBeNull();
+    expect(component.getSeatCountdown('EST')).toBe(17);
+
+    const activeSeats = fixture.nativeElement.querySelectorAll('.seat.turn');
+    expect(activeSeats.length).toBe(1);
+    expect((activeSeats[0] as HTMLElement).className).toContain('seat-east');
+
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
-    expect(text).toContain('DI TURNO');
-    expect(text).toContain('8s');
+    expect(text).toContain('17s');
   });
 
   it('switching to Demo ricarica tavolo e pulisce errore precedente', () => {
@@ -190,12 +235,13 @@ describe('Table3s74iPage', () => {
 
   it('switching mode non rimuove rendering turno e countdown', () => {
     latestSocketHandlers()['tressette:turn-started']?.({ turnPlayer: 'Luca', turnPosition: 'SUD', secondsRemaining: 10 });
-    expect(component.turnStatusText).toContain('Luca (SUD) - 10s');
+    expect(component.currentTurnLabel).toBe('Luca (SUD)');
 
     component.onDataModeChange('live');
 
     latestSocketHandlers()['tressette:turn-started']?.({ turnPlayer: 'Marta', turnPosition: 'NORD', secondsRemaining: 9 });
-    expect(component.turnStatusText).toContain('Marta (NORD) - 9s');
+    expect(component.currentTurnLabel).toBe('Marta (NORD)');
+    expect(component.countdownSeconds).toBe(9);
   });
 
   it('mostra stato disconnected quando socket cade', () => {

@@ -66,7 +66,8 @@
 
 .seat.turn .player-badge {
   border-color: #ffe17a;
-  box-shadow: 0 0 0 2px rgba(255, 225, 122, 0.35);
+  box-shadow: 0 0 0 3px rgba(255, 225, 122, 0.5), 0 0 18px rgba(255, 225, 122, 0.5);
+  background: linear-gradient(180deg, rgba(22, 114, 22, 0.95), rgba(11, 80, 11, 0.98));
 }
 
 .seat-north {
@@ -263,3 +264,4 @@
   display: flex;
   gap: 8px;
 }
+

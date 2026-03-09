@@ -288,7 +288,17 @@ export class Table3s74iPage implements OnInit, OnDestroy {
         return;
       }
 
-      this.applyAuthoritativePayload({ table });
+      const filteredTable: TressetteTableView =
+        this.trickRevealActive && Array.isArray(table.currentTrick) && table.currentTrick.length === 0
+          ? { ...table, currentTrick: undefined }
+          : table;
+
+      this.applyAuthoritativePayload(
+        { table: filteredTable },
+        {
+          cancelTrickReveal: !this.trickRevealActive,
+        }
+      );
       this.errorMessage = '';
       this.infoMessage = 'Tavolo aggiornato realtime';
     });
@@ -559,4 +569,5 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.table.players.find((player) => player.username === username)?.position ?? null;
   }
 }
+
 

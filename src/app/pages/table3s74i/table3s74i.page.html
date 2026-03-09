@@ -23,7 +23,7 @@
     <p><strong>Stato tavolo:</strong> {{ table?.status ?? 'waiting' }}</p>
     <p><strong>Turno: {{ currentTurnLabel }}</strong></p>
     <p *ngIf="lastPlayedMessage"><strong>Ultima giocata:</strong> {{ lastPlayedMessage }}</p>
-    <p class="info" *ngIf="trickRevealActive"><strong>{{ trickWinnerMessage }}</strong></p>
+    <div class="trick-winner-alert" *ngIf="trickRevealActive"><span class="label">TRICK VINTA</span><span class="message">{{ trickWinnerMessage }}</span></div>
     <p class="info" *ngIf="infoMessage">{{ infoMessage }}</p>
     <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
   </section>
@@ -104,3 +104,4 @@
     </div>
   </section>
 </ion-content>
+

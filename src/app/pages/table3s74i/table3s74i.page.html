@@ -34,11 +34,21 @@
 
   <section class="table-meta" *ngIf="table as t">
     <p>Owner: <strong>{{ t.owner }}</strong> | Players: <strong>{{ t.players.length }}</strong></p>
-    <p>Punti SN/EO: <strong>{{ t.points.teamSN }} / {{ t.points.teamEO }}</strong></p>
   </section>
 
   <section class="table-stage">
     <div class="game-table">
+      <div class="scoreboard-note" *ngIf="table as t">
+        <p class="scoreboard-title">Taccuino punti</p>
+        <div class="scoreboard-row"><span>Team SN</span><strong>{{ t.points.teamSN }}</strong></div>
+        <div class="scoreboard-row"><span>Team EO</span><strong>{{ t.points.teamEO }}</strong></div>
+        <p class="scoreboard-hand">{{ handLabel }}</p>
+      </div>
+
+      <div class="hand-transition" *ngIf="handTransitionActive">
+        {{ handTransitionMessage }}
+      </div>
+
       <div class="seat seat-north" [class.turn]="isTurnPosition('NORD')">
         <div class="player-badge">
           <span class="player-name">{{ getPlayer('NORD')?.username ?? 'NORD' }}</span>
@@ -105,7 +115,3 @@
     </div>
   </section>
 </ion-content>
-
-
-
-

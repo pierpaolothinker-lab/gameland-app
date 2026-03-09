@@ -29,6 +29,8 @@ export interface TressetteTableView {
   status: TressetteStatus;
   myHand?: ICardIT[];
   currentTrick?: TressetteTrickCard[];
+  handIndex?: number;
+  handNumber?: number;
 }
 
 export interface TressetteApiError {
@@ -37,3 +39,4 @@ export interface TressetteApiError {
     message: string;
   };
 }
+

@@ -1,4 +1,6 @@
-﻿export type TressettePosition = 'SUD' | 'NORD' | 'EST' | 'OVEST';
+import { ICardIT } from './cardIT.model';
+
+export type TressettePosition = 'SUD' | 'NORD' | 'EST' | 'OVEST';
 
 export interface TressettePlayer {
   username: string;
@@ -19,6 +21,7 @@ export interface TressetteTableView {
   isComplete: boolean;
   points: TressettePoints;
   status: TressetteStatus;
+  myHand?: ICardIT[];
 }
 
 export interface TressetteApiError {

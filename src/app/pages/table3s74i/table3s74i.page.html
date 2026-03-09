@@ -89,7 +89,7 @@
         <button
           type="button"
           class="hand-card"
-          *ngFor="let card of handCards"
+          *ngFor="let card of effectiveHandCards"
           [disabled]="!canPlayCards"
           (click)="playCard(card)"
         >
@@ -103,3 +103,4 @@
     </div>
   </section>
 </ion-content>
+

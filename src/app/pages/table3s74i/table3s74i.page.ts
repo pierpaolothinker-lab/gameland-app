@@ -154,6 +154,14 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.turnPlayerUsername === this.myUsername;
   }
 
+  get effectiveHandCards(): ICardIT[] {
+    if (Array.isArray(this.table?.myHand) && this.table.myHand.length > 0) {
+      return this.table.myHand;
+    }
+
+    return this.handCards;
+  }
+
   get currentTurnLabel(): string {
     if (!this.turnPlayerUsername) {
       return '--';
@@ -209,6 +217,14 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return { deltaX: 0, deltaY: 0 };
   }
 
+  private buildWatchPayload(): { tableId: string; mode: DataMode; username: string } {
+    return {
+      tableId: this.tableId,
+      mode: this.dataMode,
+      username: this.myUsername,
+    };
+  }
+
   private fetchTable(): void {
     this.loading = true;
 
@@ -251,7 +267,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
         socketUrl: this.socketUrl,
         mode: this.dataMode,
       });
-      this.socket?.emit('tressette:watch-table', { tableId: this.tableId, mode: this.dataMode });
+      this.socket?.emit('tressette:watch-table', this.buildWatchPayload());
     });
 
     this.socket.on('disconnect', (reason: string) => {
@@ -425,5 +441,6 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.table.players.find((player) => player.username === username)?.position ?? null;
   }
 }
+
 
 

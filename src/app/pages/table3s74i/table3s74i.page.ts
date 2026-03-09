@@ -27,6 +27,10 @@ interface TurnEventPayload {
   remainingSeconds?: number;
   countdownSeconds?: number;
   timeoutSeconds?: number;
+  currentPlayer?: {
+    username?: string;
+    position?: TressettePosition;
+  };
 }
 
 interface CardPlayedPayload {
@@ -327,8 +331,12 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       return;
     }
 
-    this.turnPlayerUsername = payload.turnPlayerUsername ?? payload.turnPlayer ?? '';
-    this.turnPlayerPosition = payload.turnPlayerPosition ?? payload.turnPosition ?? this.resolvePositionByUsername(this.turnPlayerUsername);
+    this.turnPlayerUsername = payload.turnPlayerUsername ?? payload.turnPlayer ?? payload.currentPlayer?.username ?? '';
+    this.turnPlayerPosition =
+      payload.turnPlayerPosition ??
+      payload.turnPosition ??
+      payload.currentPlayer?.position ??
+      this.resolvePositionByUsername(this.turnPlayerUsername);
 
     const initial = this.resolveInitialCountdown(payload);
     this.startCountdown(initial);
@@ -417,4 +425,5 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.table.players.find((player) => player.username === username)?.position ?? null;
   }
 }
+
 

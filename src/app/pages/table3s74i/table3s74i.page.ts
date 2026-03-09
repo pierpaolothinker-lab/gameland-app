@@ -110,8 +110,6 @@ export class Table3s74iPage implements OnInit, OnDestroy {
   private countdownInterval?: ReturnType<typeof setInterval>;
   private trickRevealTimeoutId?: ReturnType<typeof setTimeout>;
   private handTransitionTimeoutId?: ReturnType<typeof setTimeout>;
-  private pendingTrickReveal = false;
-  private pendingRevealTrick: TressetteTrickCard[] | null = null;
   private readonly destroyRef = inject(DestroyRef);
 
   constructor(
@@ -347,8 +345,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       }
 
       const filteredTable: TressetteTableView =
-        (this.isAnyTrickRevealActive() && Array.isArray(table.currentTrick) && table.currentTrick.length === 0) ||
-        this.shouldDeferEmptyTrickFromSnapshot(table.currentTrick)
+        (this.isAnyTrickRevealActive() && Array.isArray(table.currentTrick) && table.currentTrick.length === 0)
           ? {
               ...table,
               currentTrick: undefined,
@@ -411,11 +408,10 @@ export class Table3s74iPage implements OnInit, OnDestroy {
 
     this.socket.on('tressette:player-state', (payload: AuthoritativePayload) => {
       this.applyLastWinnerFromPayload(payload);
-      const deferEmptyTrick = this.shouldDeferEmptyTrickFromSnapshot(payload.currentTrick);
       const filteredPayload: AuthoritativePayload = {
         ...payload,
         currentTrick:
-          (this.isAnyTrickRevealActive() || deferEmptyTrick) && Array.isArray(payload.currentTrick) && payload.currentTrick.length === 0
+          this.isAnyTrickRevealActive() && Array.isArray(payload.currentTrick) && payload.currentTrick.length === 0
             ? undefined
             : payload.currentTrick,
         myHand:
@@ -433,13 +429,10 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     this.socket.on('tressette:card-played', (payload: CardPlayedPayload) => {
       this.lastPlayedMessage =
         payload.source === 'timeout_auto' ? 'Carta giocata automaticamente per timeout' : 'Carta giocata';
-
-      this.capturePotentialClosingTrick(payload);
-      const deferEmptyTrick = this.shouldDeferEmptyTrickFromSnapshot(payload.currentTrick);
       const filteredPayload: AuthoritativePayload = {
         ...payload,
         currentTrick:
-          (this.isAnyTrickRevealActive() || deferEmptyTrick) && Array.isArray(payload.currentTrick) && payload.currentTrick.length === 0
+          this.isAnyTrickRevealActive() && Array.isArray(payload.currentTrick) && payload.currentTrick.length === 0
             ? undefined
             : payload.currentTrick,
         myHand:
@@ -460,7 +453,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
 
     this.socket.on('tressette:trick-ended', (payload: TrickEndedPayload) => {
       const previousTrick = this.table?.currentTrick ?? [];
-      const revealTrick = payload.trickCards ?? payload.currentTrick ?? this.pendingRevealTrick ?? previousTrick;
+      const revealTrick = payload.trickCards ?? payload.currentTrick ?? previousTrick;
 
 
       this.applyLastWinnerFromPayload(payload);
@@ -468,8 +461,6 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       const winnerFromState = this.lastTrickWinnerName.trim();
       this.setLastTrickWinner(winnerFromEvent || winnerFromState || '-');
       this.trickRevealActive = true;
-      this.pendingTrickReveal = false;
-      this.pendingRevealTrick = null;
 
       const payloadWithoutTrick: AuthoritativePayload = {
         ...payload,
@@ -687,8 +678,6 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       }
       this.trickRevealActive = false;
       this.resetTrickWinnerState();
-      this.pendingTrickReveal = false;
-      this.pendingRevealTrick = null;
       this.trickRevealTimeoutId = undefined;
     }, 2000);
   }
@@ -704,8 +693,6 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       if (resetWinnerState) {
         this.resetTrickWinnerState();
       }
-      this.pendingTrickReveal = false;
-      this.pendingRevealTrick = null;
     }
   }
 
@@ -763,50 +750,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
   }
 
   private isAnyTrickRevealActive(): boolean {
-    return this.trickRevealActive || this.pendingTrickReveal;
-  }
-
-  private shouldDeferEmptyTrickFromSnapshot(currentTrick?: TressetteTrickCard[]): boolean {
-    if (!Array.isArray(currentTrick) || currentTrick.length !== 0) {
-      return false;
-    }
-
-    const localTrickLen = this.table?.currentTrick?.length ?? 0;
-    return this.trickRevealActive || this.pendingTrickReveal || localTrickLen >= 3;
-  }
-
-  private capturePotentialClosingTrick(payload: CardPlayedPayload): void {
-    if (!payload.card || (Array.isArray(payload.currentTrick) && payload.currentTrick.length > 0)) {
-      return;
-    }
-
-    const localTrick = this.table?.currentTrick ?? [];
-    if (localTrick.length !== 3) {
-      return;
-    }
-
-    const position =
-      payload.position ??
-      payload.playerPosition ??
-      this.resolvePositionByUsername(payload.username ?? payload.playerUsername ?? '') ??
-      this.turnPlayerPosition;
-    if (!position) {
-      return;
-    }
-
-    const username =
-      payload.username ??
-      payload.playerUsername ??
-      this.table?.players.find((player) => player.position === position)?.username ??
-      this.turnPlayerUsername;
-
-    const nextTrick: TressetteTrickCard[] = [...localTrick, { position, username, card: payload.card }];
-    this.pendingTrickReveal = true;
-    this.pendingRevealTrick = nextTrick;
-
-    if (this.table) {
-      this.table = { ...this.table, currentTrick: nextTrick };
-    }
+    return this.trickRevealActive;
   }
 
   private compareCardsForHandDisplay(left: ICardIT, right: ICardIT): number {

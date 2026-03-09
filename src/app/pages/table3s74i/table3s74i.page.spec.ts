@@ -348,8 +348,7 @@ describe('Table3s74iPage', () => {
       myHand: [],
     });
 
-    expect(component.table?.currentTrick?.length).toBe(4);
-    expect(component.table?.myHand?.length).toBe(2);
+    expect(component.table?.currentTrick?.length).toBe(0);
 
     latestSocketHandlers()['tressette:table-updated']?.({
       ...tableMock,
@@ -361,20 +360,39 @@ describe('Table3s74iPage', () => {
     latestSocketHandlers()['tressette:hand-ended']?.({ status: 'in_game', points: { teamSN: 2, teamEO: 1 }, currentTrick: [] });
     latestSocketHandlers()['tressette:score-updated']?.({ points: { teamSN: 3, teamEO: 1 }, currentTrick: [] });
 
-    expect(component.table?.currentTrick?.length).toBe(4);
-    expect(component.table?.myHand?.length).toBe(2);
+    expect(component.table?.currentTrick?.length).toBe(0);
     expect(component.table?.points).toEqual({ teamSN: 3, teamEO: 1 });
 
-    latestSocketHandlers()['tressette:trick-ended']?.({ winner: 'Sara' });
+    latestSocketHandlers()['tressette:trick-ended']?.({
+      winner: 'Sara',
+      trickCards: [
+        { position: 'NORD', username: 'Marta', card: new CardIT(Suit.Coppe, 3) },
+        { position: 'EST', username: 'Diego', card: new CardIT(Suit.Denari, 4) },
+        { position: 'SUD', username: 'Luca', card: new CardIT(Suit.Spade, 5) },
+        { position: 'OVEST', username: 'Sara', card: new CardIT(Suit.Bastoni, 6) },
+      ],
+    });
+
+    latestSocketHandlers()['tressette:table-updated']?.({
+      ...tableMock,
+      currentTrick: [],
+      myHand: [],
+    });
+    latestSocketHandlers()['tressette:player-state']?.({ currentTrick: [], myHand: [] });
+    latestSocketHandlers()['tressette:score-updated']?.({ points: { teamSN: 4, teamEO: 1 }, currentTrick: [] });
 
     expect(component.trickRevealActive).toBeTrue();
     expect(component.trickWinnerMessage).toBe('Prende Sara');
     expect(component.table?.currentTrick?.length).toBe(4);
+    expect(component.table?.points).toEqual({ teamSN: 4, teamEO: 1 });
 
-    tick(2000);
+    tick(1999);
+    expect(component.trickRevealActive).toBeTrue();
+    expect(component.table?.currentTrick?.length).toBe(4);
+
+    tick(1);
     expect(component.trickRevealActive).toBeFalse();
     expect(component.table?.currentTrick?.length).toBe(0);
-    expect(component.table?.myHand?.length).toBe(2);
   }));
   it('renderizza turno da payload canonico currentPlayer', () => {
     latestSocketHandlers()['tressette:turn-updated']?.({

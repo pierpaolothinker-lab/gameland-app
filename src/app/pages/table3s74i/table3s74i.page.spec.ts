@@ -159,6 +159,31 @@ describe('Table3s74iPage', () => {
     expect(handCards.length).toBe(3);
   });
 
+  it('turn-bootstrap idrata hand/trick e aggiorna turno/timer', () => {
+    latestSocketHandlers()['tressette:turn-bootstrap']?.({
+      currentPlayer: { username: 'Diego', position: 'EST' },
+      secondsRemaining: 18,
+      myHand: [new CardIT(Suit.Coppe, 7)],
+      currentTrick: [{ position: 'NORD', username: 'Marta', card: new CardIT(Suit.Bastoni, 1) }],
+    });
+
+    expect(component.currentTurnLabel).toBe('Diego (EST)');
+    expect(component.countdownSeconds).toBe(18);
+    expect(component.effectiveHandCards.length).toBe(1);
+    expect(component.getTrickCard('NORD')?.value).toBe(1);
+  });
+
+  it('player-state aggiorna hand/trick autoritativi dopo una giocata', () => {
+    latestSocketHandlers()['tressette:player-state']?.({
+      myHand: [new CardIT(Suit.Denari, 9)],
+      currentTrick: [{ position: 'SUD', username: 'Luca', card: new CardIT(Suit.Spade, 2) }],
+    });
+
+    expect(component.effectiveHandCards.length).toBe(1);
+    expect(component.effectiveHandCards[0].value).toBe(9);
+    expect(component.getTrickCard('SUD')?.value).toBe(2);
+  });
+
   it('renderizza trick dal payload backend currentTrick', () => {
     latestSocketHandlers()['tressette:card-played']?.({
       card: new CardIT(Suit.Denari, 4),

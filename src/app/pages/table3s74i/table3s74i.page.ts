@@ -18,6 +18,13 @@ import {
 import { CardNAComponent } from 'src/app/shared/ui/card-na/card-na.component';
 import { environment } from 'src/environments/environment';
 
+interface AuthoritativePayload {
+  table?: TressetteTableView;
+  myHand?: ICardIT[];
+  currentTrick?: TressetteTrickCard[];
+  points?: { teamSN: number; teamEO: number };
+}
+
 interface TurnEventPayload {
   tableId?: string;
   turnPlayer?: string;
@@ -37,22 +44,15 @@ interface TurnEventPayload {
   };
 }
 
-interface CardPlayedPayload {
+interface CardPlayedPayload extends AuthoritativePayload {
   card: ICardIT;
   source?: 'manual' | 'timeout_auto' | string;
   nextTurn?: TurnEventPayload;
-  table?: TressetteTableView;
-  myHand?: ICardIT[];
-  currentTrick?: TressetteTrickCard[];
-  points?: { teamSN: number; teamEO: number };
 }
 
-interface TrickEndedPayload {
-  table?: TressetteTableView;
+interface TrickEndedPayload extends AuthoritativePayload {
   winner?: string;
   winnerPosition?: TressettePosition;
-  currentTrick?: TressetteTrickCard[];
-  points?: { teamSN: number; teamEO: number };
 }
 
 @Component({
@@ -302,12 +302,20 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       this.applyTurnPayload(payload);
     });
 
-    this.socket.on('tressette:turn-bootstrap', (payload: TurnEventPayload) => {
+    this.socket.on('tressette:turn-bootstrap', (payload: TurnEventPayload & AuthoritativePayload) => {
+      this.applyAuthoritativePayload(payload);
       this.applyTurnPayload(payload);
     });
 
     this.socket.on('tressette:turn-updated', (payload: TurnEventPayload) => {
       this.applyTurnPayload(payload);
+    });
+
+    this.socket.on('tressette:player-state', (payload: AuthoritativePayload) => {
+      const applied = this.applyAuthoritativePayload(payload);
+      if (!applied) {
+        this.fetchTable();
+      }
     });
 
     this.socket.on('tressette:card-played', (payload: CardPlayedPayload) => {
@@ -338,12 +346,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     });
   }
 
-  private applyAuthoritativePayload(payload?: {
-    table?: TressetteTableView;
-    myHand?: ICardIT[];
-    currentTrick?: TressetteTrickCard[];
-    points?: { teamSN: number; teamEO: number };
-  }): boolean {
+  private applyAuthoritativePayload(payload?: AuthoritativePayload): boolean {
     if (!payload) {
       return false;
     }

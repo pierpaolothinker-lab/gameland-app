@@ -8,7 +8,7 @@ import { Socket } from 'socket.io-client';
 import { AuthSessionService } from 'src/app/services/auth/auth-session.service';
 import { DataMode, DataModeService } from 'src/app/services/data-mode/data-mode.service';
 import { TressetteTableService } from 'src/app/services/tressette/tressette-table.service';
-import { ICardIT } from 'src/app/shared/domain/models/cardIT.model';
+import { ICardIT, Suit } from 'src/app/shared/domain/models/cardIT.model';
 import {
   TressettePlayer,
   TressettePosition,
@@ -18,7 +18,17 @@ import {
 import { CardNAComponent } from 'src/app/shared/ui/card-na/card-na.component';
 import { environment } from 'src/environments/environment';
 
-interface AuthoritativePayload {
+interface HandMetadataPayload {
+  handIndex?: number;
+  handNumber?: number;
+  currentHandIndex?: number;
+  hand?: {
+    index?: number;
+    number?: number;
+  };
+}
+
+interface AuthoritativePayload extends HandMetadataPayload {
   table?: TressetteTableView;
   myHand?: ICardIT[];
   currentTrick?: TressetteTrickCard[];
@@ -48,12 +58,20 @@ interface CardPlayedPayload extends AuthoritativePayload {
   card: ICardIT;
   source?: 'manual' | 'timeout_auto' | string;
   nextTurn?: TurnEventPayload;
+  username?: string;
+  playerUsername?: string;
+  position?: TressettePosition;
+  playerPosition?: TressettePosition;
 }
 
 interface TrickEndedPayload extends AuthoritativePayload {
   winner?: string;
   winnerPosition?: TressettePosition;
   trickCards?: TressetteTrickCard[];
+}
+
+interface HandLifecyclePayload extends AuthoritativePayload {
+  status?: 'in_game' | 'waiting' | 'ended';
 }
 
 @Component({
@@ -79,6 +97,10 @@ export class Table3s74iPage implements OnInit, OnDestroy {
   lastPlayedMessage = '';
   trickRevealActive = false;
   trickWinnerMessage = '';
+  lastTrickWinnerName = '';
+  handTransitionActive = false;
+  handTransitionMessage = '';
+  currentHandIndex: number | null = null;
 
   readonly positions: TressettePosition[] = ['NORD', 'EST', 'SUD', 'OVEST'];
   readonly socketUrl = environment.backend.socketUrl;
@@ -86,6 +108,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
   private socket?: Socket;
   private countdownInterval?: ReturnType<typeof setInterval>;
   private trickRevealTimeoutId?: ReturnType<typeof setTimeout>;
+  private handTransitionTimeoutId?: ReturnType<typeof setTimeout>;
   private readonly destroyRef = inject(DestroyRef);
 
   constructor(
@@ -126,7 +149,8 @@ export class Table3s74iPage implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.clearCountdown();
-    this.cancelTrickRevealTimer(true);
+    this.cancelTrickRevealTimer(true, true);
+    this.clearHandTransition();
     this.socket?.disconnect();
   }
 
@@ -163,7 +187,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
   }
 
   get effectiveHandCards(): ICardIT[] {
-    return this.table?.myHand ?? [];
+    return [...(this.table?.myHand ?? [])].sort((a, b) => this.compareCardsForHandDisplay(a, b));
   }
 
   get currentTurnLabel(): string {
@@ -173,6 +197,18 @@ export class Table3s74iPage implements OnInit, OnDestroy {
 
     const position = this.turnPlayerPosition ?? this.resolvePositionByUsername(this.turnPlayerUsername);
     return `${this.turnPlayerUsername} (${position ?? '-'})`;
+  }
+
+  get handLabel(): string {
+    if (typeof this.currentHandIndex === 'number') {
+      return `Mano ${this.currentHandIndex + 1}`;
+    }
+
+    return this.table?.status === 'in_game' ? 'Mano 1' : 'Mano in corso';
+  }
+
+  get winnerOverlayVisible(): boolean {
+    return this.trickRevealActive;
   }
 
   onDataModeChange(mode: DataMode): void {
@@ -217,7 +253,6 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.table?.currentTrick?.find((trickCard) => trickCard.position === position)?.card ?? null;
   }
 
-
   isCardPlayable(card: ICardIT): boolean {
     if (!this.canPlayCards) {
       return false;
@@ -258,6 +293,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     this.tableService.getTableRealtime(this.tableId).subscribe({
       next: (table) => {
         this.table = table;
+        this.updateCurrentHandIndex({ table }, table);
         this.loading = false;
         this.errorMessage = '';
         this.infoMessage = `Snapshot tavolo ${table.tableId} caricato`;
@@ -308,28 +344,52 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       }
 
       const filteredTable: TressetteTableView =
-        this.trickRevealActive && Array.isArray(table.currentTrick) && table.currentTrick.length === 0
-          ? { ...table, currentTrick: undefined }
+        (this.isAnyTrickRevealActive() && Array.isArray(table.currentTrick) && table.currentTrick.length === 0)
+          ? {
+              ...table,
+              currentTrick: undefined,
+              myHand: this.isAnyTrickRevealActive() && Array.isArray(table.myHand) && table.myHand.length === 0 ? undefined : table.myHand,
+            }
           : table;
 
       this.applyAuthoritativePayload(
         { table: filteredTable },
         {
-          cancelTrickReveal: !this.trickRevealActive,
+          cancelTrickReveal: !this.isAnyTrickRevealActive(),
         }
       );
       this.errorMessage = '';
       this.infoMessage = 'Tavolo aggiornato realtime';
     });
 
-    this.socket.on('tressette:hand-started', (payload?: { table?: TressetteTableView }) => {
-      const applied = this.applyAuthoritativePayload(payload);
+    this.socket.on('tressette:hand-started', (payload?: HandLifecyclePayload) => {
+      const previousHandIndex = this.currentHandIndex;
+      const filteredPayload = this.filterPayloadDuringReveal(payload);
+      const applied = this.applyAuthoritativePayload(filteredPayload, {
+        cancelTrickReveal: !this.isAnyTrickRevealActive(),
+      });
       if (!applied && this.table) {
         this.table = { ...this.table, status: 'in_game' };
       }
 
+      this.showHandTransitionIfChanged(previousHandIndex, filteredPayload);
       this.errorMessage = '';
       this.infoMessage = 'Mano avviata';
+    });
+
+    this.socket.on('tressette:hand-ended', (payload?: HandLifecyclePayload) => {
+      const filteredPayload = this.filterPayloadDuringReveal(payload);
+      this.applyAuthoritativePayload(filteredPayload, {
+        cancelTrickReveal: !this.isAnyTrickRevealActive(),
+      });
+      this.infoMessage = 'Mano terminata, in attesa della successiva';
+    });
+
+    this.socket.on('tressette:score-updated', (payload?: AuthoritativePayload) => {
+      const filteredPayload = this.filterPayloadDuringReveal(payload);
+      this.applyAuthoritativePayload(filteredPayload, {
+        cancelTrickReveal: !this.isAnyTrickRevealActive(),
+      });
     });
 
     this.socket.on('tressette:turn-started', (payload: TurnEventPayload) => {
@@ -349,15 +409,17 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       const filteredPayload: AuthoritativePayload = {
         ...payload,
         currentTrick:
-          this.trickRevealActive && Array.isArray(payload.currentTrick) && payload.currentTrick.length === 0
+          this.isAnyTrickRevealActive() && Array.isArray(payload.currentTrick) && payload.currentTrick.length === 0
             ? undefined
             : payload.currentTrick,
+        myHand:
+          this.isAnyTrickRevealActive() && Array.isArray(payload.myHand) && payload.myHand.length === 0 ? undefined : payload.myHand,
       };
 
       const applied = this.applyAuthoritativePayload(filteredPayload, {
-        cancelTrickReveal: !this.trickRevealActive,
+        cancelTrickReveal: !this.isAnyTrickRevealActive(),
       });
-      if (!applied && !this.trickRevealActive) {
+      if (!applied && !this.isAnyTrickRevealActive()) {
         this.fetchTable();
       }
     });
@@ -365,19 +427,20 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     this.socket.on('tressette:card-played', (payload: CardPlayedPayload) => {
       this.lastPlayedMessage =
         payload.source === 'timeout_auto' ? 'Carta giocata automaticamente per timeout' : 'Carta giocata';
-
       const filteredPayload: AuthoritativePayload = {
         ...payload,
         currentTrick:
-          this.trickRevealActive && Array.isArray(payload.currentTrick) && payload.currentTrick.length === 0
+          this.isAnyTrickRevealActive() && Array.isArray(payload.currentTrick) && payload.currentTrick.length === 0
             ? undefined
             : payload.currentTrick,
+        myHand:
+          this.isAnyTrickRevealActive() && Array.isArray(payload.myHand) && payload.myHand.length === 0 ? undefined : payload.myHand,
       };
 
       const applied = this.applyAuthoritativePayload(filteredPayload, {
-        cancelTrickReveal: !this.trickRevealActive,
+        cancelTrickReveal: !this.isAnyTrickRevealActive(),
       });
-      if (!applied) {
+      if (!applied && !this.isAnyTrickRevealActive()) {
         this.fetchTable();
       }
 
@@ -390,9 +453,9 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       const previousTrick = this.table?.currentTrick ?? [];
       const revealTrick = payload.trickCards ?? payload.currentTrick ?? previousTrick;
 
-      const winner = payload.winner ?? '-';
-      const position = payload.winnerPosition ? ` (${payload.winnerPosition})` : '';
-      this.trickWinnerMessage = `Trick presa da: ${winner}${position}`;
+
+      const winnerFromEvent = payload.winner?.trim();
+      this.setLastTrickWinner(winnerFromEvent || '-');
       this.trickRevealActive = true;
 
       const payloadWithoutTrick: AuthoritativePayload = {
@@ -418,6 +481,11 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     });
 
     this.socket.on('tressette:error', (payload: { error?: { code?: string; message?: string } }) => {
+      if (payload?.error?.code === 'INVALID_SUIT_RESPONSE') {
+        this.errorMessage = 'Carta non valida: devi rispondere al seme di uscita.';
+        return;
+      }
+
       this.errorMessage = payload?.error?.message ?? 'Errore socket';
     });
   }
@@ -427,7 +495,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       return false;
     }
 
-    const shouldCancelTrickReveal = options?.cancelTrickReveal ?? true;
+    const shouldCancelTrickReveal = (options?.cancelTrickReveal ?? true) && !this.trickRevealActive;
 
     if (payload.table) {
       if (payload.table.tableId !== this.tableId) {
@@ -439,13 +507,28 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       }
 
       const previousTable = this.table;
+      const ignoreEmptyTrick =
+        this.isAnyTrickRevealActive() && Array.isArray(payload.table.currentTrick) && payload.table.currentTrick.length === 0;
+      const ignoreEmptyHand =
+        this.isAnyTrickRevealActive() && Array.isArray(payload.table.myHand) && payload.table.myHand.length === 0;
+
+      if (!environment.production && ignoreEmptyTrick) {
+        console.debug('[reveal-guard] ignored empty table.currentTrick during reveal');
+      }
+      if (!environment.production && ignoreEmptyHand) {
+        console.debug('[reveal-guard] ignored empty table.myHand during reveal');
+      }
+
       const nextTable: TressetteTableView = {
         ...payload.table,
-        myHand: payload.table.myHand ?? previousTable?.myHand ?? [],
-        currentTrick: payload.table.currentTrick ?? previousTable?.currentTrick ?? [],
+        myHand: ignoreEmptyHand ? previousTable?.myHand ?? [] : payload.table.myHand ?? previousTable?.myHand ?? [],
+        currentTrick: ignoreEmptyTrick
+          ? previousTable?.currentTrick ?? []
+          : payload.table.currentTrick ?? previousTable?.currentTrick ?? [],
       };
 
       this.table = nextTable;
+      this.updateCurrentHandIndex(payload, nextTable);
       return true;
     }
 
@@ -457,13 +540,25 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     let nextTable = this.table;
 
     if (Array.isArray(payload.myHand)) {
-      nextTable = { ...nextTable, myHand: payload.myHand };
-      changed = true;
+      if (this.isAnyTrickRevealActive() && payload.myHand.length === 0) {
+        if (!environment.production) {
+          console.debug('[reveal-guard] ignored empty payload.myHand during reveal');
+        }
+      } else {
+        nextTable = { ...nextTable, myHand: payload.myHand };
+        changed = true;
+      }
     }
 
     if (Array.isArray(payload.currentTrick)) {
-      nextTable = { ...nextTable, currentTrick: payload.currentTrick };
-      changed = true;
+      if (this.isAnyTrickRevealActive() && payload.currentTrick.length === 0) {
+        if (!environment.production) {
+          console.debug('[reveal-guard] ignored empty payload.currentTrick during reveal');
+        }
+      } else {
+        nextTable = { ...nextTable, currentTrick: payload.currentTrick };
+        changed = true;
+      }
     }
 
     if (payload.points) {
@@ -478,7 +573,97 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       this.table = nextTable;
     }
 
+    this.updateCurrentHandIndex(payload, nextTable);
     return changed;
+  }
+
+
+  private updateCurrentHandIndex(
+    payload?: HandMetadataPayload | { table?: TressetteTableView },
+    fallbackTable?: TressetteTableView
+  ): void {
+    const parsedHandIndex = this.extractHandIndex(payload);
+    if (parsedHandIndex !== null) {
+      this.currentHandIndex = parsedHandIndex;
+      return;
+    }
+
+    if (this.currentHandIndex !== null) {
+      return;
+    }
+
+    const tableFromPayload = payload && 'table' in payload ? payload.table : undefined;
+    const tableForFallback = fallbackTable ?? tableFromPayload ?? this.table;
+    if (tableForFallback?.status === 'in_game') {
+      // Robust fallback only for missing initial hand metadata: first hand is Mano 1.
+      this.currentHandIndex = 0;
+    }
+  }
+  private extractHandIndex(payload?: HandMetadataPayload | { table?: TressetteTableView }): number | null {
+    const table = payload && 'table' in payload ? payload.table : undefined;
+
+    const handNumberCandidates = [
+      (payload as HandMetadataPayload | undefined)?.handNumber,
+      (payload as HandMetadataPayload | undefined)?.hand?.number,
+      table?.handNumber,
+    ];
+
+    for (const value of handNumberCandidates) {
+      if (typeof value === 'number' && Number.isFinite(value) && value > 0) {
+        // handNumber is 1-based (Mano 1, Mano 2, ...). Convert once to internal 0-based index.
+        return value - 1;
+      }
+    }
+
+    const indexCandidates = [
+      (payload as HandMetadataPayload | undefined)?.handIndex,
+      (payload as HandMetadataPayload | undefined)?.currentHandIndex,
+      (payload as HandMetadataPayload | undefined)?.hand?.index,
+      table?.handIndex,
+    ];
+
+    for (const value of indexCandidates) {
+      if (typeof value === 'number' && Number.isFinite(value)) {
+        return Math.max(0, value);
+      }
+    }
+
+    return null;
+  }
+
+  private showHandTransitionIfChanged(previousHandIndex: number | null, payload?: HandLifecyclePayload): void {
+    const nextHandIndex = this.extractHandIndex(payload) ?? this.currentHandIndex;
+    if (nextHandIndex === null) {
+      this.handTransitionMessage = 'Nuova mano iniziata';
+      this.handTransitionActive = true;
+      this.scheduleHandTransitionHide();
+      return;
+    }
+
+    if (previousHandIndex === nextHandIndex) {
+      return;
+    }
+
+    this.handTransitionMessage = `Nuova mano iniziata: Mano ${nextHandIndex + 1}`;
+    this.handTransitionActive = true;
+    this.scheduleHandTransitionHide();
+  }
+
+  private scheduleHandTransitionHide(): void {
+    this.clearHandTransition();
+    this.handTransitionActive = true;
+    this.handTransitionTimeoutId = setTimeout(() => {
+      this.handTransitionActive = false;
+      this.handTransitionMessage = '';
+      this.handTransitionTimeoutId = undefined;
+    }, 3000);
+  }
+
+  private clearHandTransition(): void {
+    if (this.handTransitionTimeoutId) {
+      clearTimeout(this.handTransitionTimeoutId);
+      this.handTransitionTimeoutId = undefined;
+    }
   }
 
   private scheduleTrickRevealClear(): void {
@@ -488,12 +673,12 @@ export class Table3s74iPage implements OnInit, OnDestroy {
         this.table = { ...this.table, currentTrick: [] };
       }
       this.trickRevealActive = false;
-      this.trickWinnerMessage = '';
+      this.resetTrickWinnerState();
       this.trickRevealTimeoutId = undefined;
     }, 2000);
   }
 
-  private cancelTrickRevealTimer(resetMessage: boolean): void {
+  private cancelTrickRevealTimer(resetMessage: boolean, resetWinnerState = false): void {
     if (this.trickRevealTimeoutId) {
       clearTimeout(this.trickRevealTimeoutId);
       this.trickRevealTimeoutId = undefined;
@@ -501,10 +686,74 @@ export class Table3s74iPage implements OnInit, OnDestroy {
 
     if (resetMessage) {
       this.trickRevealActive = false;
-      this.trickWinnerMessage = '';
+      if (resetWinnerState) {
+        this.resetTrickWinnerState();
+      }
     }
   }
 
+
+
+  private filterPayloadDuringReveal<T extends AuthoritativePayload | HandLifecyclePayload | undefined>(payload: T): T {
+    if (!payload || !this.isAnyTrickRevealActive()) {
+      return payload;
+    }
+
+    const filteredPayload: AuthoritativePayload = {
+      ...payload,
+      currentTrick:
+        Array.isArray(payload.currentTrick) && payload.currentTrick.length === 0 ? undefined : payload.currentTrick,
+      myHand: Array.isArray(payload.myHand) && payload.myHand.length === 0 ? undefined : payload.myHand,
+      table: payload.table
+        ? {
+            ...payload.table,
+            currentTrick:
+              Array.isArray(payload.table.currentTrick) && payload.table.currentTrick.length === 0
+                ? undefined
+                : payload.table.currentTrick,
+            myHand:
+              Array.isArray(payload.table.myHand) && payload.table.myHand.length === 0
+                ? undefined
+                : payload.table.myHand,
+          }
+        : undefined,
+    };
+
+    return filteredPayload as T;
+  }
+
+  private setLastTrickWinner(winnerName?: string): void {
+    this.lastTrickWinnerName = winnerName?.trim() || '-';
+    this.syncTrickWinnerMessage();
+  }
+
+  private syncTrickWinnerMessage(): void {
+    const winnerName = this.lastTrickWinnerName.trim() || '-';
+    this.trickWinnerMessage = `Prende ${winnerName}`;
+  }
+  private resetTrickWinnerState(): void {
+    this.trickWinnerMessage = '';
+    this.lastTrickWinnerName = '';
+  }
+
+  private isAnyTrickRevealActive(): boolean {
+    return this.trickRevealActive;
+  }
+
+  private compareCardsForHandDisplay(left: ICardIT, right: ICardIT): number {
+    const suitOrder: Suit[] = [Suit.Denari, Suit.Spade, Suit.Coppe, Suit.Bastoni];
+    const sovereigntyOrder = [3, 2, 1, 10, 9, 8, 7, 6, 5, 4];
+
+    const leftSuitIndex = suitOrder.indexOf(left.suit);
+    const rightSuitIndex = suitOrder.indexOf(right.suit);
+    if (leftSuitIndex !== rightSuitIndex) {
+      return leftSuitIndex - rightSuitIndex;
+    }
+
+    const leftValueIndex = sovereigntyOrder.indexOf(left.value);
+    const rightValueIndex = sovereigntyOrder.indexOf(right.value);
+    return leftValueIndex - rightValueIndex;
+  }
   private applyTurnPayload(payload: TurnEventPayload): void {
     if (payload.tableId && payload.tableId !== this.tableId) {
       return;
@@ -579,6 +828,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       this.countdownInterval = undefined;
     }
   }
+
   private getLeadSuit(): number | null {
     if (this.trickRevealActive) {
       return null;

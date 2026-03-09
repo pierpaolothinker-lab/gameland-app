@@ -267,29 +267,21 @@
 
 
 .trick-winner-alert {
-  margin: 8px 0;
-  padding: 10px 12px;
+  margin: 0;
+  padding: 8px 14px;
   border-radius: 10px;
   background: linear-gradient(180deg, #ffe08a, #f4b942);
   border: 1px solid #8a5a00;
   color: #2a1b00;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.trick-winner-alert .label {
-  border-radius: 999px;
-  background: rgba(42, 27, 0, 0.12);
-  padding: 3px 10px;
-  letter-spacing: 0.3px;
-  font-size: 12px;
-}
-
-.trick-winner-alert .message {
+  font-weight: 800;
   font-size: 16px;
   line-height: 1.2;
+  width: fit-content;
+  max-width: min(360px, calc(100% - 24px));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .hand-card.non-playable {
@@ -308,3 +300,97 @@
   border-radius: 10px;
   box-shadow: 0 0 0 2px rgba(255, 224, 138, 0.9);
 }
+
+.scoreboard-note {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 3;
+  width: 180px;
+  max-width: calc(100% - 32px);
+  padding: 12px;
+  border-radius: 8px 14px 8px 14px;
+  background: linear-gradient(180deg, #fff4d6, #f7dfab);
+  border: 2px solid #8c6b2d;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
+  color: #2f2207;
+}
+
+.scoreboard-title {
+  margin: 0 0 6px;
+  font-weight: 800;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.scoreboard-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.scoreboard-row strong {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.scoreboard-hand {
+  margin: 6px 0 0;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(47, 34, 7, 0.45);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.hand-transition {
+  position: absolute;
+  top: 148px;
+  left: 16px;
+  z-index: 3;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(9, 37, 73, 0.85);
+  color: #f6fbff;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+
+@media (max-width: 900px) {
+  .scoreboard-note {
+    top: 12px;
+    left: 12px;
+    width: 150px;
+    padding: 10px;
+  }
+
+  .hand-transition {
+    top: 126px;
+    left: 12px;
+    font-size: 12px;
+  }
+
+  .trick-winner-overlay {
+    top: 12px;
+  }
+}
+
+
+
+
+.game-table .trick-winner-overlay {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 8;
+  margin: 0;
+  width: min(560px, calc(100% - 32px));
+}
+
+
+
+

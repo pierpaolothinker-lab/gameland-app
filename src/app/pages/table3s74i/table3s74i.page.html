@@ -48,9 +48,7 @@
         {{ handTransitionMessage }}
       </div>
 
-      <div class="trick-winner-alert trick-winner-overlay" *ngIf="trickRevealActive">
-        <span class="label">TRICK VINTA</span>
-        <span class="message">{{ trickWinnerMessage }}</span>
+      <div class="trick-winner-alert trick-winner-overlay" *ngIf="trickRevealActive"> {{ trickWinnerMessage }}
       </div>
 
       <div class="seat seat-north" [class.turn]="isTurnPosition('NORD')">
@@ -121,3 +119,5 @@
     </div>
   </section>
 </ion-content>
+
+

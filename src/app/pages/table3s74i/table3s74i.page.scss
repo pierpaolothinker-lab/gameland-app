@@ -267,29 +267,20 @@
 
 
 .trick-winner-alert {
-  margin: 8px 0;
-  padding: 10px 12px;
+  margin: 0;
+  padding: 8px 14px;
   border-radius: 10px;
   background: linear-gradient(180deg, #ffe08a, #f4b942);
   border: 1px solid #8a5a00;
   color: #2a1b00;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.trick-winner-alert .label {
-  border-radius: 999px;
-  background: rgba(42, 27, 0, 0.12);
-  padding: 3px 10px;
-  letter-spacing: 0.3px;
-  font-size: 12px;
-}
-
-.trick-winner-alert .message {
+  font-weight: 800;
   font-size: 16px;
   line-height: 1.2;
+  width: fit-content;
+  max-width: min(360px, calc(100% - 24px));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .hand-card.non-playable {
@@ -383,7 +374,6 @@
 
   .trick-winner-overlay {
     top: 12px;
-    width: calc(100% - 24px);
   }
 }
 
@@ -399,3 +389,5 @@
   margin: 0;
   width: min(560px, calc(100% - 32px));
 }
+
+

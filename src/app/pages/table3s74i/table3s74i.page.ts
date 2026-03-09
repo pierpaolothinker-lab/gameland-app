@@ -8,7 +8,7 @@ import { Socket } from 'socket.io-client';
 import { AuthSessionService } from 'src/app/services/auth/auth-session.service';
 import { DataMode, DataModeService } from 'src/app/services/data-mode/data-mode.service';
 import { TressetteTableService } from 'src/app/services/tressette/tressette-table.service';
-import { ICardIT } from 'src/app/shared/domain/models/cardIT.model';
+import { ICardIT, Suit } from 'src/app/shared/domain/models/cardIT.model';
 import {
   TressettePlayer,
   TressettePosition,
@@ -58,6 +58,10 @@ interface CardPlayedPayload extends AuthoritativePayload {
   card: ICardIT;
   source?: 'manual' | 'timeout_auto' | string;
   nextTurn?: TurnEventPayload;
+  username?: string;
+  playerUsername?: string;
+  position?: TressettePosition;
+  playerPosition?: TressettePosition;
 }
 
 interface TrickEndedPayload extends AuthoritativePayload {
@@ -104,6 +108,8 @@ export class Table3s74iPage implements OnInit, OnDestroy {
   private countdownInterval?: ReturnType<typeof setInterval>;
   private trickRevealTimeoutId?: ReturnType<typeof setTimeout>;
   private handTransitionTimeoutId?: ReturnType<typeof setTimeout>;
+  private pendingTrickReveal = false;
+  private pendingRevealTrick: TressetteTrickCard[] | null = null;
   private readonly destroyRef = inject(DestroyRef);
 
   constructor(
@@ -182,7 +188,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
   }
 
   get effectiveHandCards(): ICardIT[] {
-    return this.table?.myHand ?? [];
+    return [...(this.table?.myHand ?? [])].sort((a, b) => this.compareCardsForHandDisplay(a, b));
   }
 
   get currentTurnLabel(): string {
@@ -335,14 +341,19 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       }
 
       const filteredTable: TressetteTableView =
-        this.trickRevealActive && Array.isArray(table.currentTrick) && table.currentTrick.length === 0
-          ? { ...table, currentTrick: undefined }
+        (this.isAnyTrickRevealActive() && Array.isArray(table.currentTrick) && table.currentTrick.length === 0) ||
+        this.shouldDeferEmptyTrickFromSnapshot(table.currentTrick)
+          ? {
+              ...table,
+              currentTrick: undefined,
+              myHand: this.isAnyTrickRevealActive() && Array.isArray(table.myHand) && table.myHand.length === 0 ? undefined : table.myHand,
+            }
           : table;
 
       this.applyAuthoritativePayload(
         { table: filteredTable },
         {
-          cancelTrickReveal: !this.trickRevealActive,
+          cancelTrickReveal: !this.isAnyTrickRevealActive(),
         }
       );
       this.errorMessage = '';
@@ -384,18 +395,21 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     });
 
     this.socket.on('tressette:player-state', (payload: AuthoritativePayload) => {
+      const deferEmptyTrick = this.shouldDeferEmptyTrickFromSnapshot(payload.currentTrick);
       const filteredPayload: AuthoritativePayload = {
         ...payload,
         currentTrick:
-          this.trickRevealActive && Array.isArray(payload.currentTrick) && payload.currentTrick.length === 0
+          (this.isAnyTrickRevealActive() || deferEmptyTrick) && Array.isArray(payload.currentTrick) && payload.currentTrick.length === 0
             ? undefined
             : payload.currentTrick,
+        myHand:
+          this.isAnyTrickRevealActive() && Array.isArray(payload.myHand) && payload.myHand.length === 0 ? undefined : payload.myHand,
       };
 
       const applied = this.applyAuthoritativePayload(filteredPayload, {
-        cancelTrickReveal: !this.trickRevealActive,
+        cancelTrickReveal: !this.isAnyTrickRevealActive(),
       });
-      if (!applied && !this.trickRevealActive) {
+      if (!applied && !this.isAnyTrickRevealActive()) {
         this.fetchTable();
       }
     });
@@ -404,18 +418,22 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       this.lastPlayedMessage =
         payload.source === 'timeout_auto' ? 'Carta giocata automaticamente per timeout' : 'Carta giocata';
 
+      this.capturePotentialClosingTrick(payload);
+      const deferEmptyTrick = this.shouldDeferEmptyTrickFromSnapshot(payload.currentTrick);
       const filteredPayload: AuthoritativePayload = {
         ...payload,
         currentTrick:
-          this.trickRevealActive && Array.isArray(payload.currentTrick) && payload.currentTrick.length === 0
+          (this.isAnyTrickRevealActive() || deferEmptyTrick) && Array.isArray(payload.currentTrick) && payload.currentTrick.length === 0
             ? undefined
             : payload.currentTrick,
+        myHand:
+          this.isAnyTrickRevealActive() && Array.isArray(payload.myHand) && payload.myHand.length === 0 ? undefined : payload.myHand,
       };
 
       const applied = this.applyAuthoritativePayload(filteredPayload, {
-        cancelTrickReveal: !this.trickRevealActive,
+        cancelTrickReveal: !this.isAnyTrickRevealActive(),
       });
-      if (!applied) {
+      if (!applied && !this.isAnyTrickRevealActive()) {
         this.fetchTable();
       }
 
@@ -426,11 +444,13 @@ export class Table3s74iPage implements OnInit, OnDestroy {
 
     this.socket.on('tressette:trick-ended', (payload: TrickEndedPayload) => {
       const previousTrick = this.table?.currentTrick ?? [];
-      const revealTrick = payload.trickCards ?? payload.currentTrick ?? previousTrick;
+      const revealTrick = payload.trickCards ?? payload.currentTrick ?? this.pendingRevealTrick ?? previousTrick;
 
       const winner = payload.winner ?? '-';
       this.trickWinnerMessage = `Prende ${winner}`;
       this.trickRevealActive = true;
+      this.pendingTrickReveal = false;
+      this.pendingRevealTrick = null;
 
       const payloadWithoutTrick: AuthoritativePayload = {
         ...payload,
@@ -622,6 +642,8 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       }
       this.trickRevealActive = false;
       this.trickWinnerMessage = '';
+      this.pendingTrickReveal = false;
+      this.pendingRevealTrick = null;
       this.trickRevealTimeoutId = undefined;
     }, 2000);
   }
@@ -635,9 +657,73 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     if (resetMessage) {
       this.trickRevealActive = false;
       this.trickWinnerMessage = '';
+      this.pendingTrickReveal = false;
+      this.pendingRevealTrick = null;
     }
   }
 
+
+  private isAnyTrickRevealActive(): boolean {
+    return this.trickRevealActive || this.pendingTrickReveal;
+  }
+
+  private shouldDeferEmptyTrickFromSnapshot(currentTrick?: TressetteTrickCard[]): boolean {
+    if (!Array.isArray(currentTrick) || currentTrick.length !== 0) {
+      return false;
+    }
+
+    const localTrickLen = this.table?.currentTrick?.length ?? 0;
+    return this.trickRevealActive || this.pendingTrickReveal || localTrickLen >= 3;
+  }
+
+  private capturePotentialClosingTrick(payload: CardPlayedPayload): void {
+    if (!payload.card || (Array.isArray(payload.currentTrick) && payload.currentTrick.length > 0)) {
+      return;
+    }
+
+    const localTrick = this.table?.currentTrick ?? [];
+    if (localTrick.length !== 3) {
+      return;
+    }
+
+    const position =
+      payload.position ??
+      payload.playerPosition ??
+      this.resolvePositionByUsername(payload.username ?? payload.playerUsername ?? '') ??
+      this.turnPlayerPosition;
+    if (!position) {
+      return;
+    }
+
+    const username =
+      payload.username ??
+      payload.playerUsername ??
+      this.table?.players.find((player) => player.position === position)?.username ??
+      this.turnPlayerUsername;
+
+    const nextTrick: TressetteTrickCard[] = [...localTrick, { position, username, card: payload.card }];
+    this.pendingTrickReveal = true;
+    this.pendingRevealTrick = nextTrick;
+
+    if (this.table) {
+      this.table = { ...this.table, currentTrick: nextTrick };
+    }
+  }
+
+  private compareCardsForHandDisplay(left: ICardIT, right: ICardIT): number {
+    const suitOrder: Suit[] = [Suit.Denari, Suit.Spade, Suit.Coppe, Suit.Bastoni];
+    const sovereigntyOrder = [3, 2, 1, 10, 9, 8, 7, 6, 5, 4];
+
+    const leftSuitIndex = suitOrder.indexOf(left.suit);
+    const rightSuitIndex = suitOrder.indexOf(right.suit);
+    if (leftSuitIndex !== rightSuitIndex) {
+      return leftSuitIndex - rightSuitIndex;
+    }
+
+    const leftValueIndex = sovereigntyOrder.indexOf(left.value);
+    const rightValueIndex = sovereigntyOrder.indexOf(right.value);
+    return leftValueIndex - rightValueIndex;
+  }
   private applyTurnPayload(payload: TurnEventPayload): void {
     if (payload.tableId && payload.tableId !== this.tableId) {
       return;
@@ -734,6 +820,14 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.table.players.find((player) => player.username === username)?.position ?? null;
   }
 }
+
+
+
+
+
+
+
+
 
 
 

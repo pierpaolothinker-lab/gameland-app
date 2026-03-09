@@ -282,6 +282,30 @@ describe('Table3s74iPage', () => {
     expect(overlay).not.toBeNull();
     expect(overlay?.textContent ?? '').toContain('Prende -');
   });
+
+  it('usa lastTrickWinner da player-state durante reveal se winner manca su trick-ended', () => {
+    latestSocketHandlers()['tressette:trick-ended']?.({
+      trickCards: [
+        { position: 'NORD', username: 'Marta', card: new CardIT(Suit.Coppe, 3) },
+        { position: 'EST', username: 'Diego', card: new CardIT(Suit.Denari, 4) },
+        { position: 'SUD', username: 'Luca', card: new CardIT(Suit.Spade, 5) },
+        { position: 'OVEST', username: 'Sara', card: new CardIT(Suit.Bastoni, 6) },
+      ],
+    });
+
+    latestSocketHandlers()['tressette:player-state']?.({
+      currentTrick: [],
+      lastTrickWinner: 'Sara',
+    });
+
+    fixture.detectChanges();
+    expect(component.trickRevealActive).toBeTrue();
+    expect(component.trickWinnerMessage).toBe('Prende Sara');
+    const overlay = fixture.nativeElement.querySelector('.game-table .trick-winner-overlay') as HTMLElement | null;
+    expect(overlay).not.toBeNull();
+    expect(overlay?.textContent ?? '').toContain('Prende Sara');
+  });
+
   it('ordina la mano per seme e sovranita in visualizzazione', () => {
     component.table = {
       ...tableMock,
@@ -396,12 +420,4 @@ describe('Table3s74iPage', () => {
     expect(localComponent.errorMessage).toContain('Tavolo non trovato');
   });
 });
-
-
-
-
-
-
-
-
 

@@ -7,12 +7,23 @@ import { Socket } from 'socket.io-client';
 
 import { AuthSessionService } from 'src/app/services/auth/auth-session.service';
 import { DataMode, DataModeService } from 'src/app/services/data-mode/data-mode.service';
-import { DeckITService } from 'src/app/services/fakes/deck-it.service';
 import { TressetteTableService } from 'src/app/services/tressette/tressette-table.service';
 import { ICardIT } from 'src/app/shared/domain/models/cardIT.model';
-import { TressettePlayer, TressettePosition, TressetteTableView } from 'src/app/shared/domain/models/tressette-table.model';
+import {
+  TressettePlayer,
+  TressettePosition,
+  TressetteTableView,
+  TressetteTrickCard,
+} from 'src/app/shared/domain/models/tressette-table.model';
 import { CardNAComponent } from 'src/app/shared/ui/card-na/card-na.component';
 import { environment } from 'src/environments/environment';
+
+interface AuthoritativePayload {
+  table?: TressetteTableView;
+  myHand?: ICardIT[];
+  currentTrick?: TressetteTrickCard[];
+  points?: { teamSN: number; teamEO: number };
+}
 
 interface TurnEventPayload {
   tableId?: string;
@@ -33,13 +44,16 @@ interface TurnEventPayload {
   };
 }
 
-interface CardPlayedPayload {
-  position?: TressettePosition;
-  turnPlayerPosition?: TressettePosition;
-  username?: string;
+interface CardPlayedPayload extends AuthoritativePayload {
   card: ICardIT;
   source?: 'manual' | 'timeout_auto' | string;
   nextTurn?: TurnEventPayload;
+}
+
+interface TrickEndedPayload extends AuthoritativePayload {
+  winner?: string;
+  winnerPosition?: TressettePosition;
+  trickCards?: TressetteTrickCard[];
 }
 
 @Component({
@@ -63,31 +77,24 @@ export class Table3s74iPage implements OnInit, OnDestroy {
   turnPlayerPosition: TressettePosition | null = null;
   countdownSeconds: number | null = null;
   lastPlayedMessage = '';
+  trickRevealActive = false;
+  trickWinnerMessage = '';
 
   readonly positions: TressettePosition[] = ['NORD', 'EST', 'SUD', 'OVEST'];
-  readonly handCards: ICardIT[];
   readonly socketUrl = environment.backend.socketUrl;
-
-  playedCards: Record<TressettePosition, ICardIT | null> = {
-    NORD: null,
-    EST: null,
-    SUD: null,
-    OVEST: null,
-  };
 
   private socket?: Socket;
   private countdownInterval?: ReturnType<typeof setInterval>;
+  private trickRevealTimeoutId?: ReturnType<typeof setTimeout>;
   private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private readonly tableService: TressetteTableService,
     private readonly authSessionService: AuthSessionService,
     private readonly dataModeService: DataModeService,
-    private readonly deckService: DeckITService,
     private readonly route: ActivatedRoute,
     private readonly router: Router
   ) {
-    this.handCards = this.deckService.getPlayerCards();
     this.dataMode = this.dataModeService.mode;
   }
 
@@ -119,6 +126,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.clearCountdown();
+    this.cancelTrickRevealTimer(true);
     this.socket?.disconnect();
   }
 
@@ -152,6 +160,10 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     }
 
     return this.turnPlayerUsername === this.myUsername;
+  }
+
+  get effectiveHandCards(): ICardIT[] {
+    return this.table?.myHand ?? [];
   }
 
   get currentTurnLabel(): string {
@@ -193,6 +205,10 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.turnPlayerPosition === position;
   }
 
+  getTrickCard(position: TressettePosition): ICardIT | null {
+    return this.table?.currentTrick?.find((trickCard) => trickCard.position === position)?.card ?? null;
+  }
+
   getSeatCountdown(position: TressettePosition): number | null {
     if (!this.isTurnPosition(position) || this.countdownSeconds === null) {
       return null;
@@ -207,6 +223,14 @@ export class Table3s74iPage implements OnInit, OnDestroy {
 
   calculateOffset(_: HTMLElement): { deltaX: number; deltaY: number } {
     return { deltaX: 0, deltaY: 0 };
+  }
+
+  private buildWatchPayload(): { tableId: string; mode: DataMode; username: string } {
+    return {
+      tableId: this.tableId,
+      mode: this.dataMode,
+      username: this.myUsername,
+    };
   }
 
   private fetchTable(): void {
@@ -251,7 +275,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
         socketUrl: this.socketUrl,
         mode: this.dataMode,
       });
-      this.socket?.emit('tressette:watch-table', { tableId: this.tableId, mode: this.dataMode });
+      this.socket?.emit('tressette:watch-table', this.buildWatchPayload());
     });
 
     this.socket.on('disconnect', (reason: string) => {
@@ -264,30 +288,37 @@ export class Table3s74iPage implements OnInit, OnDestroy {
         return;
       }
 
-      this.table = table;
+      const filteredTable: TressetteTableView =
+        this.trickRevealActive && Array.isArray(table.currentTrick) && table.currentTrick.length === 0
+          ? { ...table, currentTrick: undefined }
+          : table;
+
+      this.applyAuthoritativePayload(
+        { table: filteredTable },
+        {
+          cancelTrickReveal: !this.trickRevealActive,
+        }
+      );
       this.errorMessage = '';
       this.infoMessage = 'Tavolo aggiornato realtime';
     });
 
     this.socket.on('tressette:hand-started', (payload?: { table?: TressetteTableView }) => {
-      if (payload?.table?.tableId === this.tableId) {
-        this.table = payload.table;
-      }
-
-      if (this.table) {
-        this.table.status = 'in_game';
+      const applied = this.applyAuthoritativePayload(payload);
+      if (!applied && this.table) {
+        this.table = { ...this.table, status: 'in_game' };
       }
 
       this.errorMessage = '';
       this.infoMessage = 'Mano avviata';
-      this.playedCards = { NORD: null, EST: null, SUD: null, OVEST: null };
     });
 
     this.socket.on('tressette:turn-started', (payload: TurnEventPayload) => {
       this.applyTurnPayload(payload);
     });
 
-    this.socket.on('tressette:turn-bootstrap', (payload: TurnEventPayload) => {
+    this.socket.on('tressette:turn-bootstrap', (payload: TurnEventPayload & AuthoritativePayload) => {
+      this.applyAuthoritativePayload(payload);
       this.applyTurnPayload(payload);
     });
 
@@ -295,35 +326,164 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       this.applyTurnPayload(payload);
     });
 
-    this.socket.on('tressette:card-played', (payload: CardPlayedPayload) => {
-      const position = this.resolvePlayedCardPosition(payload);
-      if (!position) {
-        return;
-      }
+    this.socket.on('tressette:player-state', (payload: AuthoritativePayload) => {
+      const filteredPayload: AuthoritativePayload = {
+        ...payload,
+        currentTrick:
+          this.trickRevealActive && Array.isArray(payload.currentTrick) && payload.currentTrick.length === 0
+            ? undefined
+            : payload.currentTrick,
+      };
 
-      this.playedCards[position] = payload.card;
+      const applied = this.applyAuthoritativePayload(filteredPayload, {
+        cancelTrickReveal: !this.trickRevealActive,
+      });
+      if (!applied && !this.trickRevealActive) {
+        this.fetchTable();
+      }
+    });
+
+    this.socket.on('tressette:card-played', (payload: CardPlayedPayload) => {
       this.lastPlayedMessage =
         payload.source === 'timeout_auto' ? 'Carta giocata automaticamente per timeout' : 'Carta giocata';
+
+      const filteredPayload: AuthoritativePayload = {
+        ...payload,
+        currentTrick:
+          this.trickRevealActive && Array.isArray(payload.currentTrick) && payload.currentTrick.length === 0
+            ? undefined
+            : payload.currentTrick,
+      };
+
+      const applied = this.applyAuthoritativePayload(filteredPayload, {
+        cancelTrickReveal: !this.trickRevealActive,
+      });
+      if (!applied) {
+        this.fetchTable();
+      }
 
       if (payload.nextTurn) {
         this.applyTurnPayload(payload.nextTurn);
       }
     });
 
-    this.socket.on(
-      'tressette:trick-ended',
-      (payload: { winner?: string; winnerPosition?: TressettePosition; points?: { teamSN: number; teamEO: number } }) => {
-        if (payload?.points && this.table) {
-          this.table.points = payload.points;
-        }
+    this.socket.on('tressette:trick-ended', (payload: TrickEndedPayload) => {
+      const previousTrick = this.table?.currentTrick ?? [];
+      const revealTrick = payload.trickCards ?? payload.currentTrick ?? previousTrick;
 
-        this.infoMessage = `Trick chiuso: ${payload.winnerPosition ?? payload.winner ?? '-'}`;
+      const winner = payload.winner ?? '-';
+      const position = payload.winnerPosition ? ` (${payload.winnerPosition})` : '';
+      this.trickWinnerMessage = `Trick presa da: ${winner}${position}`;
+      this.trickRevealActive = true;
+
+      const payloadWithoutTrick: AuthoritativePayload = {
+        ...payload,
+        currentTrick: undefined,
+        table: payload.table
+          ? {
+              ...payload.table,
+              currentTrick: undefined,
+            }
+          : undefined,
+      };
+
+      const applied = this.applyAuthoritativePayload(payloadWithoutTrick, { cancelTrickReveal: false });
+      if (this.table) {
+        this.table = { ...this.table, currentTrick: revealTrick };
+      } else if (!applied && !this.table) {
+        this.fetchTable();
       }
-    );
+
+      this.scheduleTrickRevealClear();
+      this.infoMessage = this.trickWinnerMessage;
+    });
 
     this.socket.on('tressette:error', (payload: { error?: { code?: string; message?: string } }) => {
       this.errorMessage = payload?.error?.message ?? 'Errore socket';
     });
+  }
+
+  private applyAuthoritativePayload(payload?: AuthoritativePayload, options?: { cancelTrickReveal?: boolean }): boolean {
+    if (!payload) {
+      return false;
+    }
+
+    const shouldCancelTrickReveal = options?.cancelTrickReveal ?? true;
+
+    if (payload.table) {
+      if (payload.table.tableId !== this.tableId) {
+        return false;
+      }
+
+      if (shouldCancelTrickReveal) {
+        this.cancelTrickRevealTimer(true);
+      }
+
+      const previousTable = this.table;
+      const nextTable: TressetteTableView = {
+        ...payload.table,
+        myHand: payload.table.myHand ?? previousTable?.myHand ?? [],
+        currentTrick: payload.table.currentTrick ?? previousTable?.currentTrick ?? [],
+      };
+
+      this.table = nextTable;
+      return true;
+    }
+
+    if (!this.table) {
+      return false;
+    }
+
+    let changed = false;
+    let nextTable = this.table;
+
+    if (Array.isArray(payload.myHand)) {
+      nextTable = { ...nextTable, myHand: payload.myHand };
+      changed = true;
+    }
+
+    if (Array.isArray(payload.currentTrick)) {
+      nextTable = { ...nextTable, currentTrick: payload.currentTrick };
+      changed = true;
+    }
+
+    if (payload.points) {
+      nextTable = { ...nextTable, points: payload.points };
+      changed = true;
+    }
+
+    if (changed) {
+      if (shouldCancelTrickReveal) {
+        this.cancelTrickRevealTimer(true);
+      }
+      this.table = nextTable;
+    }
+
+    return changed;
+  }
+
+  private scheduleTrickRevealClear(): void {
+    this.cancelTrickRevealTimer(false);
+    this.trickRevealTimeoutId = setTimeout(() => {
+      if (this.table) {
+        this.table = { ...this.table, currentTrick: [] };
+      }
+      this.trickRevealActive = false;
+      this.trickWinnerMessage = '';
+      this.trickRevealTimeoutId = undefined;
+    }, 2000);
+  }
+
+  private cancelTrickRevealTimer(resetMessage: boolean): void {
+    if (this.trickRevealTimeoutId) {
+      clearTimeout(this.trickRevealTimeoutId);
+      this.trickRevealTimeoutId = undefined;
+    }
+
+    if (resetMessage) {
+      this.trickRevealActive = false;
+      this.trickWinnerMessage = '';
+    }
   }
 
   private applyTurnPayload(payload: TurnEventPayload): void {
@@ -399,22 +559,6 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       clearInterval(this.countdownInterval);
       this.countdownInterval = undefined;
     }
-  }
-
-  private resolvePlayedCardPosition(payload: { position?: TressettePosition; turnPlayerPosition?: TressettePosition; username?: string }): TressettePosition | null {
-    if (payload.position) {
-      return payload.position;
-    }
-
-    if (payload.turnPlayerPosition) {
-      return payload.turnPlayerPosition;
-    }
-
-    if (payload.username) {
-      return this.resolvePositionByUsername(payload.username);
-    }
-
-    return null;
   }
 
   private resolvePositionByUsername(username: string): TressettePosition | null {

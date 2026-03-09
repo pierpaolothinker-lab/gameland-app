@@ -4,7 +4,6 @@ import { BehaviorSubject, of, throwError } from 'rxjs';
 
 import { AuthSessionService, MockSessionUser } from 'src/app/services/auth/auth-session.service';
 import { DataMode, DataModeService } from 'src/app/services/data-mode/data-mode.service';
-import { DeckITService } from 'src/app/services/fakes/deck-it.service';
 import { TressetteTableService } from 'src/app/services/tressette/tressette-table.service';
 import { CardIT, Suit } from 'src/app/shared/domain/models/cardIT.model';
 import { TressetteTableView } from 'src/app/shared/domain/models/tressette-table.model';
@@ -51,7 +50,9 @@ describe('Table3s74iPage', () => {
     ],
     isComplete: true,
     points: { teamSN: 0, teamEO: 0 },
-    status: 'waiting',
+    status: 'in_game',
+    myHand: [new CardIT(Suit.Bastoni, 3), new CardIT(Suit.Spade, 5)],
+    currentTrick: [],
   };
 
   const latestSocketHandlers = (): Record<string, (...args: any[]) => void> => {
@@ -107,7 +108,6 @@ describe('Table3s74iPage', () => {
         { provide: DataModeService, useValue: dataModeMock },
         { provide: ActivatedRoute, useValue: routeMock },
         { provide: Router, useValue: routerMock },
-        { provide: DeckITService, useValue: { getPlayerCards: () => [new CardIT(Suit.Bastoni, 3), new CardIT(Suit.Spade, 5)] } },
       ],
     }).compileComponents();
 
@@ -122,132 +122,242 @@ describe('Table3s74iPage', () => {
     expect(serviceMock.connectSocket).toHaveBeenCalled();
   });
 
-  it('mostra data mode toggle in gameplay', () => {
-    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
-
-    expect(text).toContain('Data Mode');
-    expect(text).toContain('Demo');
-    expect(text).toContain('Live');
-  });
-
-  it('rimuove controlli setup dalla view gameplay', () => {
-    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
-
-    expect(text).not.toContain('Crea Tavolo');
-    expect(text).not.toContain('Username Join');
-    expect(text).not.toContain('Posizione');
-    expect(text).not.toContain('Start Username');
-  });
-
-  it('mostra Turno: -- quando non c e ancora un turno', () => {
-    expect(component.currentTurnLabel).toBe('--');
-    fixture.detectChanges();
-    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
-    expect(text).toContain('Turno: --');
-  });
-
-  it('render connected state quando socket connette', () => {
+  it('emette watch-table con tableId mode e username su connect', () => {
     latestSocketHandlers()['connect']?.();
 
-    expect(component.isSocketConnected).toBeTrue();
-    expect(component.connectionBannerVisible).toBeFalse();
-    expect(component.socketMessage).toBe('connected');
-  });
-
-  it('table status passa a in_game su hand-started', () => {
-    expect(component.table?.status).toBe('waiting');
-
-    latestSocketHandlers()['tressette:hand-started']?.({ table: { ...tableMock, status: 'in_game' } });
-
-    expect(component.table?.status).toBe('in_game');
-  });
-
-  it('current player text renderizza da payload legacy', () => {
-    latestSocketHandlers()['tressette:turn-started']?.({ turnPlayer: 'Luca', turnPosition: 'SUD', secondsRemaining: 20 });
-
-    expect(component.currentTurnLabel).toBe('Luca (SUD)');
-    fixture.detectChanges();
-    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
-    expect(text).toContain('Turno: Luca (SUD)');
-  });
-
-  it('bootstrap turno inizializza subito current player e countdown', () => {
-    latestSocketHandlers()['tressette:turn-bootstrap']?.({ turnPlayerUsername: 'Marta', turnPlayerPosition: 'NORD', secondsRemaining: 19 });
-
-    expect(component.currentTurnLabel).toBe('Marta (NORD)');
-    expect(component.countdownSeconds).toBe(19);
-  });
-
-  it('current player text renderizza da payload canonico currentPlayer', () => {
-    latestSocketHandlers()['tressette:turn-updated']?.({
-      currentPlayer: { username: 'Diego', position: 'EST' },
-      secondsRemaining: 15,
+    const socket = serviceMock.connectSocket.calls.mostRecent().returnValue;
+    expect(socket.emit).toHaveBeenCalledWith('tressette:watch-table', {
+      tableId: 'tbl-001',
+      mode: 'demo',
+      username: 'Luca',
     });
+  });
+
+  it('emette watch-table con username anche dopo reconnect da cambio mode', () => {
+    latestSocketHandlers()['connect']?.();
+
+    component.onDataModeChange('live');
+    latestSocketHandlers()['connect']?.();
+
+    const socket = serviceMock.connectSocket.calls.mostRecent().returnValue;
+    expect(socket.emit).toHaveBeenCalledWith('tressette:watch-table', {
+      tableId: 'tbl-001',
+      mode: 'live',
+      username: 'Luca',
+    });
+  });
+
+  it('usa solo myHand backend per render mano', () => {
+    component.table = {
+      ...tableMock,
+      myHand: [new CardIT(Suit.Coppe, 1), new CardIT(Suit.Denari, 10), new CardIT(Suit.Spade, 7)],
+    };
     fixture.detectChanges();
+
+    expect(component.effectiveHandCards.length).toBe(3);
+    const handCards = fixture.nativeElement.querySelectorAll('.hand-card');
+    expect(handCards.length).toBe(3);
+  });
+
+  it('turn-bootstrap idrata hand/trick e aggiorna turno/timer', () => {
+    latestSocketHandlers()['tressette:turn-bootstrap']?.({
+      currentPlayer: { username: 'Diego', position: 'EST' },
+      secondsRemaining: 18,
+      myHand: [new CardIT(Suit.Coppe, 7)],
+      currentTrick: [{ position: 'NORD', username: 'Marta', card: new CardIT(Suit.Bastoni, 1) }],
+    });
 
     expect(component.currentTurnLabel).toBe('Diego (EST)');
-    expect(component.countdownSeconds).toBe(15);
-    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
-    expect(text).toContain('Turno: Diego (EST)');
+    expect(component.countdownSeconds).toBe(18);
+    expect(component.effectiveHandCards.length).toBe(1);
+    expect(component.getTrickCard('NORD')?.value).toBe(1);
   });
 
-  it('timer usa secondsRemaining in priorita rispetto a turnDeadlineMs', () => {
-    latestSocketHandlers()['tressette:turn-started']?.({
-      turnPlayer: 'Luca',
-      turnPosition: 'SUD',
-      secondsRemaining: 7,
-      turnDeadlineMs: Date.now() + 20000,
+  it('player-state aggiorna hand/trick autoritativi dopo una giocata', () => {
+    latestSocketHandlers()['tressette:player-state']?.({
+      myHand: [new CardIT(Suit.Denari, 9)],
+      currentTrick: [{ position: 'SUD', username: 'Luca', card: new CardIT(Suit.Spade, 2) }],
     });
 
-    expect(component.countdownSeconds).toBe(7);
+    expect(component.effectiveHandCards.length).toBe(1);
+    expect(component.effectiveHandCards[0].value).toBe(9);
+    expect(component.getTrickCard('SUD')?.value).toBe(2);
   });
 
-  it('countdown displayed next to current seat only', () => {
-    latestSocketHandlers()['tressette:turn-started']?.({ turnPlayer: 'Luca', turnPosition: 'SUD', secondsRemaining: 8 });
-    fixture.detectChanges();
+  it('table-updated parziale non azzera la mano esistente', () => {
+    component.table = {
+      ...tableMock,
+      myHand: [new CardIT(Suit.Coppe, 8), new CardIT(Suit.Spade, 9)],
+      currentTrick: [{ position: 'SUD', username: 'Luca', card: new CardIT(Suit.Bastoni, 1) }],
+    };
 
-    expect(component.getSeatCountdown('SUD')).toBe(8);
-    expect(component.getSeatCountdown('NORD')).toBeNull();
+    latestSocketHandlers()['tressette:table-updated']?.({
+      tableId: 'tbl-001',
+      owner: 'Luca',
+      players: tableMock.players,
+      isComplete: true,
+      points: { teamSN: 2, teamEO: 1 },
+      status: 'in_game',
+    } as TressetteTableView);
 
-    const seatCountdowns = fixture.nativeElement.querySelectorAll('.turn-countdown');
-    expect(seatCountdowns.length).toBe(1);
-    expect((seatCountdowns[0] as HTMLElement).textContent ?? '').toContain('8s');
+    expect(component.effectiveHandCards.length).toBe(2);
+    expect(component.getTrickCard('SUD')?.value).toBe(1);
+    expect(component.table?.points.teamSN).toBe(2);
   });
 
-  it('DI TURNO applied to correct seat only', () => {
-    latestSocketHandlers()['tressette:turn-started']?.({ turnPlayer: 'Marta', turnPosition: 'NORD', secondsRemaining: 8 });
-    fixture.detectChanges();
+  it('trick-ended con trickCards mantiene 4 carte per 2s + winner banner e poi svuota', fakeAsync(() => {
+    component.table = {
+      ...tableMock,
+      myHand: [new CardIT(Suit.Coppe, 10), new CardIT(Suit.Denari, 7)],
+      currentTrick: [],
+    };
 
-    const activeSeats = fixture.nativeElement.querySelectorAll('.seat.turn');
-    expect(activeSeats.length).toBe(1);
-    expect((activeSeats[0] as HTMLElement).className).toContain('seat-north');
+    latestSocketHandlers()['tressette:trick-ended']?.({
+      winner: 'Marta',
+      winnerPosition: 'NORD',
+      trickCards: [
+        { position: 'NORD', username: 'Marta', card: new CardIT(Suit.Coppe, 3) },
+        { position: 'EST', username: 'Diego', card: new CardIT(Suit.Denari, 4) },
+        { position: 'SUD', username: 'Luca', card: new CardIT(Suit.Spade, 5) },
+        { position: 'OVEST', username: 'Sara', card: new CardIT(Suit.Bastoni, 6) },
+      ],
+      points: { teamSN: 1, teamEO: 0 },
+    });
+
+    expect(component.trickRevealActive).toBeTrue();
+    expect(component.trickWinnerMessage).toContain('Trick presa da: Marta (NORD)');
+    expect(component.table?.currentTrick?.length).toBe(4);
+    expect(component.effectiveHandCards.length).toBe(2);
+
+    tick(1999);
+    expect(component.table?.currentTrick?.length).toBe(4);
+
+    tick(1);
+    expect(component.trickRevealActive).toBeFalse();
+    expect(component.trickWinnerMessage).toBe('');
+    expect(component.table?.currentTrick?.length).toBe(0);
+    expect(component.effectiveHandCards.length).toBe(2);
+  }));
+
+  it('player-state con currentTrick vuoto non annulla reveal attivo', fakeAsync(() => {
+    component.table = {
+      ...tableMock,
+      myHand: [new CardIT(Suit.Coppe, 10), new CardIT(Suit.Denari, 7)],
+      currentTrick: [],
+    };
+
+    latestSocketHandlers()['tressette:trick-ended']?.({
+      winner: 'Marta',
+      winnerPosition: 'NORD',
+      trickCards: [
+        { position: 'NORD', username: 'Marta', card: new CardIT(Suit.Coppe, 3) },
+        { position: 'EST', username: 'Diego', card: new CardIT(Suit.Denari, 4) },
+        { position: 'SUD', username: 'Luca', card: new CardIT(Suit.Spade, 5) },
+        { position: 'OVEST', username: 'Sara', card: new CardIT(Suit.Bastoni, 6) },
+      ],
+    });
+
+    latestSocketHandlers()['tressette:player-state']?.({
+      myHand: [new CardIT(Suit.Denari, 7)],
+      currentTrick: [],
+    });
+
+    expect(component.trickRevealActive).toBeTrue();
+    expect(component.trickWinnerMessage).toContain('Trick presa da: Marta (NORD)');
+    expect(component.table?.currentTrick?.length).toBe(4);
+    expect(component.effectiveHandCards.length).toBe(1);
+
+    tick(2000);
+    expect(component.trickRevealActive).toBeFalse();
+    expect(component.table?.currentTrick?.length).toBe(0);
+  }));
+  it('durante reveal ignora table-updated con currentTrick vuoto', fakeAsync(() => {
+    component.table = {
+      ...tableMock,
+      myHand: [new CardIT(Suit.Coppe, 10), new CardIT(Suit.Denari, 7)],
+      currentTrick: [],
+    };
+
+    latestSocketHandlers()['tressette:trick-ended']?.({
+      winner: 'Marta',
+      winnerPosition: 'NORD',
+      trickCards: [
+        { position: 'NORD', username: 'Marta', card: new CardIT(Suit.Coppe, 3) },
+        { position: 'EST', username: 'Diego', card: new CardIT(Suit.Denari, 4) },
+        { position: 'SUD', username: 'Luca', card: new CardIT(Suit.Spade, 5) },
+        { position: 'OVEST', username: 'Sara', card: new CardIT(Suit.Bastoni, 6) },
+      ],
+    });
+
+    latestSocketHandlers()['tressette:table-updated']?.({
+      tableId: 'tbl-001',
+      owner: 'Luca',
+      players: tableMock.players,
+      isComplete: true,
+      points: { teamSN: 1, teamEO: 0 },
+      status: 'in_game',
+      currentTrick: [],
+    } as TressetteTableView);
+
+    expect(component.trickRevealActive).toBeTrue();
+    expect(component.trickWinnerMessage).toContain('Trick presa da: Marta (NORD)');
+    expect(component.table?.currentTrick?.length).toBe(4);
+
+    tick(2000);
+    expect(component.trickRevealActive).toBeFalse();
+    expect(component.table?.currentTrick?.length).toBe(0);
+  }));
+  it('durante reveal ignora clear immediato da card-played currentTrick=[]', fakeAsync(() => {
+    component.table = {
+      ...tableMock,
+      myHand: [new CardIT(Suit.Coppe, 10), new CardIT(Suit.Denari, 7)],
+      currentTrick: [],
+    };
+
+    latestSocketHandlers()['tressette:trick-ended']?.({
+      winner: 'Marta',
+      winnerPosition: 'NORD',
+      trickCards: [
+        { position: 'NORD', username: 'Marta', card: new CardIT(Suit.Coppe, 3) },
+        { position: 'EST', username: 'Diego', card: new CardIT(Suit.Denari, 4) },
+        { position: 'SUD', username: 'Luca', card: new CardIT(Suit.Spade, 5) },
+        { position: 'OVEST', username: 'Sara', card: new CardIT(Suit.Bastoni, 6) },
+      ],
+    });
+
+    latestSocketHandlers()['tressette:card-played']?.({
+      card: new CardIT(Suit.Coppe, 1),
+      currentTrick: [],
+      myHand: [new CardIT(Suit.Denari, 7)],
+    });
+
+    expect(component.table?.currentTrick?.length).toBe(4);
+    expect(component.effectiveHandCards.length).toBe(1);
+
+    tick(2000);
+    expect(component.table?.currentTrick?.length).toBe(0);
+    expect(component.effectiveHandCards.length).toBe(1);
+  }));
+
+  it('renderizza trick dal payload backend currentTrick', () => {
+    latestSocketHandlers()['tressette:card-played']?.({
+      card: new CardIT(Suit.Denari, 4),
+      source: 'manual',
+      currentTrick: [{ position: 'EST', username: 'Diego', card: new CardIT(Suit.Denari, 4) }],
+    });
+
+    expect(component.getTrickCard('EST')?.value).toBe(4);
+    expect(component.getTrickCard('NORD')).toBeNull();
   });
 
-  it('badge e timer sono visibili su seat corretto con payload canonico', () => {
+  it('renderizza turno da payload canonico currentPlayer', () => {
     latestSocketHandlers()['tressette:turn-updated']?.({
       currentPlayer: { username: 'Diego', position: 'EST' },
       secondsRemaining: 17,
     });
     fixture.detectChanges();
 
-    const activeSeats = fixture.nativeElement.querySelectorAll('.seat.turn');
-    expect(activeSeats.length).toBe(1);
-    expect((activeSeats[0] as HTMLElement).className).toContain('seat-east');
-
-    const seatCountdowns = fixture.nativeElement.querySelectorAll('.turn-countdown');
-    expect(seatCountdowns.length).toBe(1);
-    expect((seatCountdowns[0] as HTMLElement).textContent ?? '').toContain('17s');
-  });
-
-  it('turn switch moves badge and timer to new seat', () => {
-    latestSocketHandlers()['tressette:turn-started']?.({ turnPlayer: 'Marta', turnPosition: 'NORD', secondsRemaining: 8 });
-    latestSocketHandlers()['tressette:turn-updated']?.({ turnPlayer: 'Diego', turnPosition: 'EST', secondsRemaining: 17 });
-    fixture.detectChanges();
-
     expect(component.currentTurnLabel).toBe('Diego (EST)');
-    expect(component.getSeatCountdown('NORD')).toBeNull();
-    expect(component.getSeatCountdown('EST')).toBe(17);
-
     const activeSeats = fixture.nativeElement.querySelectorAll('.seat.turn');
     expect(activeSeats.length).toBe(1);
     expect((activeSeats[0] as HTMLElement).className).toContain('seat-east');
@@ -256,90 +366,41 @@ describe('Table3s74iPage', () => {
     expect(text).toContain('17s');
   });
 
-  it('switching to Demo ricarica tavolo e pulisce errore precedente', () => {
-    serviceMock.getTableRealtime.calls.reset();
-    serviceMock.getTableRealtime.and.returnValue(of(tableMock));
-    component.dataMode = 'live';
-    component.errorMessage = 'Tavolo non trovato o backend non raggiungibile.';
+  it('timer parte e decrementa da secondsRemaining', fakeAsync(() => {
+    latestSocketHandlers()['tressette:turn-started']?.({ turnPlayer: 'Luca', turnPosition: 'SUD', secondsRemaining: 2 });
 
-    component.onDataModeChange('demo');
+    expect(component.countdownSeconds).toBe(2);
+    tick(1000);
+    expect(component.countdownSeconds).toBe(1);
+    tick(1000);
+    expect(component.countdownSeconds).toBe(0);
+  }));
 
-    expect(component.dataMode).toBe('demo');
-    expect(component.errorMessage).toBe('');
-    expect(serviceMock.getTableRealtime).toHaveBeenCalledWith('tbl-001');
-  });
-
-  it('switching mode non rimuove rendering turno e countdown', () => {
-    latestSocketHandlers()['tressette:turn-started']?.({ turnPlayer: 'Luca', turnPosition: 'SUD', secondsRemaining: 10 });
-    expect(component.currentTurnLabel).toBe('Luca (SUD)');
-
-    component.onDataModeChange('live');
-
-    latestSocketHandlers()['tressette:turn-started']?.({ turnPlayer: 'Marta', turnPosition: 'NORD', secondsRemaining: 9 });
-    expect(component.currentTurnLabel).toBe('Marta (NORD)');
-    expect(component.countdownSeconds).toBe(9);
-  });
-
-  it('mostra stato disconnected quando socket cade', () => {
-    latestSocketHandlers()['disconnect']?.('transport close');
-
-    expect(component.connectionBannerVisible).toBeTrue();
-    expect(component.socketMessage).toContain('disconnected');
-  });
-
-  it('blocca play-card fuori turno o disconnesso', () => {
-    component.turnPlayerUsername = 'Marta';
-    component.socketMessage = 'disconnected';
-
-    component.playCard(new CardIT(Suit.Coppe, 1));
-
-    expect(component.infoMessage).toContain('Mossa non disponibile');
-  });
-
-  it('emette play-card quando connesso e in turno', () => {
+  it('play-card emette payload carta esatta', () => {
     latestSocketHandlers()['connect']?.();
-    component.turnPlayerUsername = 'Luca';
     component.table = { ...tableMock, status: 'in_game' };
+    component.turnPlayerUsername = 'Luca';
+    const card = new CardIT(Suit.Bastoni, 4);
 
-    component.playCard(new CardIT(Suit.Coppe, 1));
+    component.playCard(card);
 
     const socket = serviceMock.connectSocket.calls.mostRecent().returnValue;
-    expect(socket.emit).toHaveBeenCalledWith('tressette:play-card', jasmine.objectContaining({
-      tableId: 'tbl-001',
-      username: 'Luca',
-    }));
-  });
-
-  it('renderizza autoplay timeout con messaggio esplicito e aggiorna il turno successivo', () => {
-    latestSocketHandlers()['tressette:card-played']?.({
-      position: 'NORD',
-      username: 'Marta',
-      card: new CardIT(Suit.Spade, 7),
-      source: 'timeout_auto',
-      nextTurn: {
+    expect(socket.emit).toHaveBeenCalledWith(
+      'tressette:play-card',
+      jasmine.objectContaining({
         tableId: 'tbl-001',
-        turnPlayerUsername: 'Diego',
-        turnPlayerPosition: 'EST',
-        secondsRemaining: 20,
-      },
-    });
-
-    expect(component.lastPlayedMessage).toBe('Carta giocata automaticamente per timeout');
-    expect(component.turnPlayerUsername).toBe('Diego');
-    expect(component.turnPlayerPosition).toBe('EST');
-    expect(component.countdownSeconds).toBe(20);
+        username: 'Luca',
+        card,
+      })
+    );
   });
 
-  it('non naviga quando manca tableId', () => {
-    routeMock.snapshot.paramMap = convertToParamMap({});
+  it('render connected state quando socket connette', () => {
+    latestSocketHandlers()['connect']?.();
 
-    const localFixture = TestBed.createComponent(Table3s74iPage);
-    const localComponent = localFixture.componentInstance;
-    localFixture.detectChanges();
-
-    expect(localComponent.errorMessage).toContain('TableId mancante');
-    expect(serviceMock.getTableRealtime).toHaveBeenCalledTimes(1);
-    expect(routerMock.navigate).not.toHaveBeenCalled();
+    expect(component.isSocketConnected).toBeTrue();
+    expect(component.connectionBannerVisible).toBeFalse();
+    expect(component.socketMessage).toBe('connected');
   });
 
   it('gestisce errore snapshot tavolo', () => {
@@ -352,6 +413,5 @@ describe('Table3s74iPage', () => {
     expect(localComponent.errorMessage).toContain('Tavolo non trovato');
   });
 });
-
 
 

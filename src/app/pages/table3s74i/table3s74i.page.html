@@ -23,6 +23,7 @@
     <p><strong>Stato tavolo:</strong> {{ table?.status ?? 'waiting' }}</p>
     <p><strong>Turno: {{ currentTurnLabel }}</strong></p>
     <p *ngIf="lastPlayedMessage"><strong>Ultima giocata:</strong> {{ lastPlayedMessage }}</p>
+    <div class="trick-winner-alert" *ngIf="trickRevealActive"><span class="label">TRICK VINTA</span><span class="message">{{ trickWinnerMessage }}</span></div>
     <p class="info" *ngIf="infoMessage">{{ infoMessage }}</p>
     <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
   </section>
@@ -69,16 +70,16 @@
 
       <div class="trick-center">
         <div class="trick-slot trick-north">
-          <app-card-na *ngIf="playedCards.NORD" [card]="playedCards.NORD"></app-card-na>
+          <app-card-na *ngIf="getTrickCard('NORD') as card" [card]="card"></app-card-na>
         </div>
         <div class="trick-slot trick-east">
-          <app-card-na *ngIf="playedCards.EST" [card]="playedCards.EST"></app-card-na>
+          <app-card-na *ngIf="getTrickCard('EST') as card" [card]="card"></app-card-na>
         </div>
         <div class="trick-slot trick-south">
-          <app-card-na *ngIf="playedCards.SUD" [card]="playedCards.SUD"></app-card-na>
+          <app-card-na *ngIf="getTrickCard('SUD') as card" [card]="card"></app-card-na>
         </div>
         <div class="trick-slot trick-west">
-          <app-card-na *ngIf="playedCards.OVEST" [card]="playedCards.OVEST"></app-card-na>
+          <app-card-na *ngIf="getTrickCard('OVEST') as card" [card]="card"></app-card-na>
         </div>
       </div>
     </div>
@@ -89,7 +90,7 @@
         <button
           type="button"
           class="hand-card"
-          *ngFor="let card of handCards"
+          *ngFor="let card of effectiveHandCards"
           [disabled]="!canPlayCards"
           (click)="playCard(card)"
         >
@@ -103,3 +104,4 @@
     </div>
   </section>
 </ion-content>
+

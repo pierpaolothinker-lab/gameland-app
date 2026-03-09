@@ -33,7 +33,6 @@ interface AuthoritativePayload extends HandMetadataPayload {
   myHand?: ICardIT[];
   currentTrick?: TressetteTrickCard[];
   points?: { teamSN: number; teamEO: number };
-  lastTrickWinner?: string;
 }
 
 interface TurnEventPayload {
@@ -407,7 +406,6 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     });
 
     this.socket.on('tressette:player-state', (payload: AuthoritativePayload) => {
-      this.applyLastWinnerFromPayload(payload);
       const filteredPayload: AuthoritativePayload = {
         ...payload,
         currentTrick:
@@ -456,10 +454,8 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       const revealTrick = payload.trickCards ?? payload.currentTrick ?? previousTrick;
 
 
-      this.applyLastWinnerFromPayload(payload);
       const winnerFromEvent = payload.winner?.trim();
-      const winnerFromState = this.lastTrickWinnerName.trim();
-      this.setLastTrickWinner(winnerFromEvent || winnerFromState || '-');
+      this.setLastTrickWinner(winnerFromEvent || '-');
       this.trickRevealActive = true;
 
       const payloadWithoutTrick: AuthoritativePayload = {
@@ -499,7 +495,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       return false;
     }
 
-    const shouldCancelTrickReveal = options?.cancelTrickReveal ?? true;
+    const shouldCancelTrickReveal = (options?.cancelTrickReveal ?? true) && !this.trickRevealActive;
 
     if (payload.table) {
       if (payload.table.tableId !== this.tableId) {
@@ -735,15 +731,6 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     const winnerName = this.lastTrickWinnerName.trim() || '-';
     this.trickWinnerMessage = `Prende ${winnerName}`;
   }
-
-  private applyLastWinnerFromPayload(payload?: AuthoritativePayload): void {
-    const winnerFromPayload = payload?.lastTrickWinner?.trim();
-    const winnerFromTable = (payload?.table as TressetteTableView & { lastTrickWinner?: string } | undefined)?.lastTrickWinner?.trim();
-    const winner = winnerFromPayload || winnerFromTable;
-    if (winner) {
-      this.setLastTrickWinner(winner);
-    }
-  }
   private resetTrickWinnerState(): void {
     this.trickWinnerMessage = '';
     this.lastTrickWinnerName = '';
@@ -863,4 +850,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.table.players.find((player) => player.username === username)?.position ?? null;
   }
 }
+
+
+
 

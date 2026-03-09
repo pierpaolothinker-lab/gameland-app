@@ -283,8 +283,9 @@ describe('Table3s74iPage', () => {
     expect(overlay?.textContent ?? '').toContain('Prende -');
   });
 
-  it('usa lastTrickWinner da player-state durante reveal se winner manca su trick-ended', () => {
+  it('non sovrascrive winner message durante reveal con player-state successivi', () => {
     latestSocketHandlers()['tressette:trick-ended']?.({
+      winner: 'Marta',
       trickCards: [
         { position: 'NORD', username: 'Marta', card: new CardIT(Suit.Coppe, 3) },
         { position: 'EST', username: 'Diego', card: new CardIT(Suit.Denari, 4) },
@@ -300,10 +301,10 @@ describe('Table3s74iPage', () => {
 
     fixture.detectChanges();
     expect(component.trickRevealActive).toBeTrue();
-    expect(component.trickWinnerMessage).toBe('Prende Sara');
+    expect(component.trickWinnerMessage).toBe('Prende Marta');
     const overlay = fixture.nativeElement.querySelector('.game-table .trick-winner-overlay') as HTMLElement | null;
     expect(overlay).not.toBeNull();
-    expect(overlay?.textContent ?? '').toContain('Prende Sara');
+    expect(overlay?.textContent ?? '').toContain('Prende Marta');
   });
 
   it('ordina la mano per seme e sovranita in visualizzazione', () => {
@@ -383,6 +384,10 @@ describe('Table3s74iPage', () => {
 
     expect(component.trickRevealActive).toBeTrue();
     expect(component.trickWinnerMessage).toBe('Prende Sara');
+    fixture.detectChanges();
+    const overlayManual = fixture.nativeElement.querySelector('.game-table .trick-winner-overlay') as HTMLElement | null;
+    expect(overlayManual).not.toBeNull();
+    expect(overlayManual?.textContent ?? '').toContain('Prende Sara');
     expect(component.table?.currentTrick?.length).toBe(4);
     expect(component.table?.points).toEqual({ teamSN: 4, teamEO: 1 });
 
@@ -438,4 +443,10 @@ describe('Table3s74iPage', () => {
     expect(localComponent.errorMessage).toContain('Tavolo non trovato');
   });
 });
+
+
+
+
+
+
 

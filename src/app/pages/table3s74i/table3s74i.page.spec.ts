@@ -184,6 +184,27 @@ describe('Table3s74iPage', () => {
     expect(component.getTrickCard('SUD')?.value).toBe(2);
   });
 
+  it('table-updated parziale non azzera la mano esistente', () => {
+    component.table = {
+      ...tableMock,
+      myHand: [new CardIT(Suit.Coppe, 8), new CardIT(Suit.Spade, 9)],
+      currentTrick: [{ position: 'SUD', username: 'Luca', card: new CardIT(Suit.Bastoni, 1) }],
+    };
+
+    latestSocketHandlers()['tressette:table-updated']?.({
+      tableId: 'tbl-001',
+      owner: 'Luca',
+      players: tableMock.players,
+      isComplete: true,
+      points: { teamSN: 2, teamEO: 1 },
+      status: 'in_game',
+    } as TressetteTableView);
+
+    expect(component.effectiveHandCards.length).toBe(2);
+    expect(component.getTrickCard('SUD')?.value).toBe(1);
+    expect(component.table?.points.teamSN).toBe(2);
+  });
+
   it('renderizza trick dal payload backend currentTrick', () => {
     latestSocketHandlers()['tressette:card-played']?.({
       card: new CardIT(Suit.Denari, 4),
@@ -193,6 +214,28 @@ describe('Table3s74iPage', () => {
 
     expect(component.getTrickCard('EST')?.value).toBe(4);
     expect(component.getTrickCard('NORD')).toBeNull();
+  });
+
+  it('trick-ended senza currentTrick esplicito svuota centro ma preserva mano', () => {
+    component.table = {
+      ...tableMock,
+      myHand: [new CardIT(Suit.Coppe, 10), new CardIT(Suit.Denari, 7)],
+      currentTrick: [
+        { position: 'NORD', username: 'Marta', card: new CardIT(Suit.Coppe, 3) },
+        { position: 'EST', username: 'Diego', card: new CardIT(Suit.Denari, 4) },
+        { position: 'SUD', username: 'Luca', card: new CardIT(Suit.Spade, 5) },
+        { position: 'OVEST', username: 'Sara', card: new CardIT(Suit.Bastoni, 6) },
+      ],
+    };
+
+    latestSocketHandlers()['tressette:trick-ended']?.({
+      winnerPosition: 'NORD',
+      points: { teamSN: 1, teamEO: 0 },
+    });
+
+    expect(component.table?.currentTrick?.length).toBe(0);
+    expect(component.effectiveHandCards.length).toBe(2);
+    expect(component.table?.points.teamSN).toBe(1);
   });
 
   it('svuota trick quando backend invia currentTrick vuoto su trick-ended', () => {

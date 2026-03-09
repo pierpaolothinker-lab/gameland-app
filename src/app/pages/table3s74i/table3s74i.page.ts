@@ -283,7 +283,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
         return;
       }
 
-      this.table = table;
+      this.applyAuthoritativePayload({ table });
       this.errorMessage = '';
       this.infoMessage = 'Tavolo aggiornato realtime';
     });
@@ -333,8 +333,21 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     });
 
     this.socket.on('tressette:trick-ended', (payload: TrickEndedPayload) => {
+      const hasExplicitTrick = Array.isArray(payload.currentTrick);
       const applied = this.applyAuthoritativePayload(payload);
-      if (!applied) {
+
+      if (applied) {
+        if (!hasExplicitTrick && this.table) {
+          this.table = { ...this.table, currentTrick: [] };
+        }
+      } else if (this.table) {
+        const nextTable: TressetteTableView = {
+          ...this.table,
+          currentTrick: hasExplicitTrick ? payload.currentTrick ?? [] : [],
+          points: payload.points ?? this.table.points,
+        };
+        this.table = nextTable;
+      } else {
         this.fetchTable();
       }
 
@@ -356,7 +369,14 @@ export class Table3s74iPage implements OnInit, OnDestroy {
         return false;
       }
 
-      this.table = payload.table;
+      const previousTable = this.table;
+      const nextTable: TressetteTableView = {
+        ...payload.table,
+        myHand: payload.table.myHand ?? previousTable?.myHand ?? [],
+        currentTrick: payload.table.currentTrick ?? previousTable?.currentTrick ?? [],
+      };
+
+      this.table = nextTable;
       return true;
     }
 

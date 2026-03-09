@@ -317,8 +317,18 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     });
 
     this.socket.on('tressette:player-state', (payload: AuthoritativePayload) => {
-      const applied = this.applyAuthoritativePayload(payload);
-      if (!applied) {
+      const filteredPayload: AuthoritativePayload = {
+        ...payload,
+        currentTrick:
+          this.trickRevealActive && Array.isArray(payload.currentTrick) && payload.currentTrick.length === 0
+            ? undefined
+            : payload.currentTrick,
+      };
+
+      const applied = this.applyAuthoritativePayload(filteredPayload, {
+        cancelTrickReveal: !this.trickRevealActive,
+      });
+      if (!applied && !this.trickRevealActive) {
         this.fetchTable();
       }
     });
@@ -549,3 +559,4 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.table.players.find((player) => player.username === username)?.position ?? null;
   }
 }
+

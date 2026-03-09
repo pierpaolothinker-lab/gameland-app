@@ -239,6 +239,38 @@ describe('Table3s74iPage', () => {
     expect(component.effectiveHandCards.length).toBe(2);
   }));
 
+  it('player-state con currentTrick vuoto non annulla reveal attivo', fakeAsync(() => {
+    component.table = {
+      ...tableMock,
+      myHand: [new CardIT(Suit.Coppe, 10), new CardIT(Suit.Denari, 7)],
+      currentTrick: [],
+    };
+
+    latestSocketHandlers()['tressette:trick-ended']?.({
+      winner: 'Marta',
+      winnerPosition: 'NORD',
+      trickCards: [
+        { position: 'NORD', username: 'Marta', card: new CardIT(Suit.Coppe, 3) },
+        { position: 'EST', username: 'Diego', card: new CardIT(Suit.Denari, 4) },
+        { position: 'SUD', username: 'Luca', card: new CardIT(Suit.Spade, 5) },
+        { position: 'OVEST', username: 'Sara', card: new CardIT(Suit.Bastoni, 6) },
+      ],
+    });
+
+    latestSocketHandlers()['tressette:player-state']?.({
+      myHand: [new CardIT(Suit.Denari, 7)],
+      currentTrick: [],
+    });
+
+    expect(component.trickRevealActive).toBeTrue();
+    expect(component.trickWinnerMessage).toContain('Trick presa da: Marta (NORD)');
+    expect(component.table?.currentTrick?.length).toBe(4);
+    expect(component.effectiveHandCards.length).toBe(1);
+
+    tick(2000);
+    expect(component.trickRevealActive).toBeFalse();
+    expect(component.table?.currentTrick?.length).toBe(0);
+  }));
   it('durante reveal ignora clear immediato da card-played currentTrick=[]', fakeAsync(() => {
     component.table = {
       ...tableMock,
@@ -345,3 +377,4 @@ describe('Table3s74iPage', () => {
     expect(localComponent.errorMessage).toContain('Tavolo non trovato');
   });
 });
+

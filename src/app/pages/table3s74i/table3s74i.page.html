@@ -48,6 +48,13 @@
         {{ handTransitionMessage }}
       </div>
 
+      <div class="pregame-overlay" *ngIf="preGameOverlayVisible">
+        <div class="pregame-overlay-content">
+          <p class="pregame-label">La partita sta per cominciare</p>
+          <p class="pregame-seconds">{{ preGameSecondsRemaining }}</p>
+        </div>
+      </div>
+
       <div class="trick-winner-alert trick-winner-overlay" *ngIf="winnerOverlayVisible">{{ trickWinnerMessage }}
       </div>
 
@@ -119,6 +126,7 @@
     </div>
   </section>
 </ion-content>
+
 
 
 

@@ -166,6 +166,25 @@ describe('Table3s74iPage', () => {
     expect(component.table?.points.teamEO).toBe(2);
   });
 
+  it('bootstrap iniziale senza handNumber mostra Mano 1', () => {
+    component.currentHandIndex = null;
+    component.table = {
+      ...tableMock,
+      status: 'in_game',
+      handNumber: undefined,
+      handIndex: undefined,
+    };
+
+    latestSocketHandlers()['tressette:table-updated']?.({
+      ...tableMock,
+      status: 'in_game',
+      handNumber: undefined,
+      handIndex: undefined,
+      currentTrick: [],
+    });
+
+    expect(component.handLabel).toBe('Mano 1');
+  });
   it('transizione multi-mano mantiene in_game e usa handNumber backend senza doppio incremento', () => {
     latestSocketHandlers()['tressette:hand-ended']?.({ status: 'in_game', points: { teamSN: 2, teamEO: 1 }, handNumber: 1 });
     latestSocketHandlers()['tressette:hand-started']?.({
@@ -229,7 +248,7 @@ describe('Table3s74iPage', () => {
     });
 
     expect(component.trickRevealActive).toBeTrue();
-    expect(component.trickWinnerMessage).toContain('Trick presa da: Marta (NORD)');
+    expect(component.trickWinnerMessage).toBe('Prende Marta');
     expect(component.table?.currentTrick?.length).toBe(4);
 
     fixture.detectChanges();
@@ -286,3 +305,4 @@ describe('Table3s74iPage', () => {
     expect(localComponent.errorMessage).toContain('Tavolo non trovato');
   });
 });
+

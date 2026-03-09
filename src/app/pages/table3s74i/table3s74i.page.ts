@@ -199,7 +199,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       return `Mano ${this.currentHandIndex + 1}`;
     }
 
-    return 'Mano in corso';
+    return this.table?.status === 'in_game' ? 'Mano 1' : 'Mano in corso';
   }
 
   onDataModeChange(mode: DataMode): void {
@@ -284,7 +284,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     this.tableService.getTableRealtime(this.tableId).subscribe({
       next: (table) => {
         this.table = table;
-        this.currentHandIndex = this.extractHandIndex({ table }) ?? this.currentHandIndex;
+        this.updateCurrentHandIndex({ table }, table);
         this.loading = false;
         this.errorMessage = '';
         this.infoMessage = `Snapshot tavolo ${table.tableId} caricato`;
@@ -429,8 +429,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       const revealTrick = payload.trickCards ?? payload.currentTrick ?? previousTrick;
 
       const winner = payload.winner ?? '-';
-      const position = payload.winnerPosition ? ` (${payload.winnerPosition})` : '';
-      this.trickWinnerMessage = `Trick presa da: ${winner}${position}`;
+      this.trickWinnerMessage = `Prende ${winner}`;
       this.trickRevealActive = true;
 
       const payloadWithoutTrick: AuthoritativePayload = {
@@ -489,7 +488,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       };
 
       this.table = nextTable;
-      this.currentHandIndex = this.extractHandIndex(payload) ?? this.currentHandIndex;
+      this.updateCurrentHandIndex(payload, nextTable);
       return true;
     }
 
@@ -522,10 +521,32 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       this.table = nextTable;
     }
 
-    this.currentHandIndex = this.extractHandIndex(payload) ?? this.currentHandIndex;
+    this.updateCurrentHandIndex(payload, nextTable);
     return changed;
   }
 
+
+  private updateCurrentHandIndex(
+    payload?: HandMetadataPayload | { table?: TressetteTableView },
+    fallbackTable?: TressetteTableView
+  ): void {
+    const parsedHandIndex = this.extractHandIndex(payload);
+    if (parsedHandIndex !== null) {
+      this.currentHandIndex = parsedHandIndex;
+      return;
+    }
+
+    if (this.currentHandIndex !== null) {
+      return;
+    }
+
+    const tableFromPayload = payload && 'table' in payload ? payload.table : undefined;
+    const tableForFallback = fallbackTable ?? tableFromPayload ?? this.table;
+    if (tableForFallback?.status === 'in_game') {
+      // Robust fallback only for missing initial hand metadata: first hand is Mano 1.
+      this.currentHandIndex = 0;
+    }
+  }
   private extractHandIndex(payload?: HandMetadataPayload | { table?: TressetteTableView }): number | null {
     const table = payload && 'table' in payload ? payload.table : undefined;
 
@@ -713,3 +734,8 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.table.players.find((player) => player.username === username)?.position ?? null;
   }
 }
+
+
+
+
+

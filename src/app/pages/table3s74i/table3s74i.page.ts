@@ -208,6 +208,10 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.table?.status === 'in_game' ? 'Mano 1' : 'Mano in corso';
   }
 
+  get winnerOverlayVisible(): boolean {
+    return this.isAnyTrickRevealActive() && this.trickWinnerMessage.trim().length > 0;
+  }
+
   onDataModeChange(mode: DataMode): void {
     this.dataModeService.setMode(mode);
   }
@@ -455,7 +459,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       const previousTrick = this.table?.currentTrick ?? [];
       const revealTrick = payload.trickCards ?? payload.currentTrick ?? this.pendingRevealTrick ?? previousTrick;
 
-      const winner = payload.winner ?? '-';
+      const winner = payload.winner?.trim() ? payload.winner : '-';
       this.trickWinnerMessage = `Prende ${winner}`;
       this.trickRevealActive = true;
       this.pendingTrickReveal = false;
@@ -883,6 +887,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.table.players.find((player) => player.username === username)?.position ?? null;
   }
 }
+
 
 
 

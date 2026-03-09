@@ -86,12 +86,13 @@
 
     <div class="hand-panel" [class.disabled]="!canPlayCards">
       <p class="hand-title">La tua mano (click per giocare)</p>
+      <p class="hand-hint" *ngIf="canPlayCards">Carte giocabili evidenziate in oro.</p>
       <div class="hand-cards">
         <button
           type="button"
-          class="hand-card"
+          class="hand-card" [class.non-playable]="canPlayCards && !isCardPlayable(card)" [class.playable]="canPlayCards && isCardPlayable(card)"
           *ngFor="let card of effectiveHandCards"
-          [disabled]="!canPlayCards"
+          [disabled]="!isCardPlayable(card)"
           (click)="playCard(card)"
         >
           <app-card-na [card]="card"></app-card-na>
@@ -104,4 +105,7 @@
     </div>
   </section>
 </ion-content>
+
+
+
 

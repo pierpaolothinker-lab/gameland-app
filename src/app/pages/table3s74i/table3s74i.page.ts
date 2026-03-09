@@ -53,6 +53,7 @@ interface CardPlayedPayload extends AuthoritativePayload {
 interface TrickEndedPayload extends AuthoritativePayload {
   winner?: string;
   winnerPosition?: TressettePosition;
+  trickCards?: TressetteTrickCard[];
 }
 
 @Component({
@@ -326,7 +327,17 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       this.lastPlayedMessage =
         payload.source === 'timeout_auto' ? 'Carta giocata automaticamente per timeout' : 'Carta giocata';
 
-      const applied = this.applyAuthoritativePayload(payload);
+      const filteredPayload: AuthoritativePayload = {
+        ...payload,
+        currentTrick:
+          this.trickRevealActive && Array.isArray(payload.currentTrick) && payload.currentTrick.length === 0
+            ? undefined
+            : payload.currentTrick,
+      };
+
+      const applied = this.applyAuthoritativePayload(filteredPayload, {
+        cancelTrickReveal: !this.trickRevealActive,
+      });
       if (!applied) {
         this.fetchTable();
       }
@@ -338,6 +349,8 @@ export class Table3s74iPage implements OnInit, OnDestroy {
 
     this.socket.on('tressette:trick-ended', (payload: TrickEndedPayload) => {
       const previousTrick = this.table?.currentTrick ?? [];
+      const revealTrick = payload.trickCards ?? payload.currentTrick ?? previousTrick;
+
       const winner = payload.winner ?? '-';
       const position = payload.winnerPosition ? ` (${payload.winnerPosition})` : '';
       this.trickWinnerMessage = `Trick presa da: ${winner}${position}`;
@@ -355,8 +368,8 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       };
 
       const applied = this.applyAuthoritativePayload(payloadWithoutTrick, { cancelTrickReveal: false });
-      if (this.table && previousTrick.length > 0) {
-        this.table = { ...this.table, currentTrick: previousTrick };
+      if (this.table) {
+        this.table = { ...this.table, currentTrick: revealTrick };
       } else if (!applied && !this.table) {
         this.fetchTable();
       }

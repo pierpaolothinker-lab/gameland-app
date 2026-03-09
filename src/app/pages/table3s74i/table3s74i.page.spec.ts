@@ -162,7 +162,7 @@ describe('Table3s74iPage', () => {
     expect(component.table?.status).toBe('in_game');
   });
 
-  it('current player text renderizza da payload turno', () => {
+  it('current player text renderizza da payload legacy', () => {
     latestSocketHandlers()['tressette:turn-started']?.({ turnPlayer: 'Luca', turnPosition: 'SUD', secondsRemaining: 20 });
 
     expect(component.currentTurnLabel).toBe('Luca (SUD)');
@@ -176,6 +176,19 @@ describe('Table3s74iPage', () => {
 
     expect(component.currentTurnLabel).toBe('Marta (NORD)');
     expect(component.countdownSeconds).toBe(19);
+  });
+
+  it('current player text renderizza da payload canonico currentPlayer', () => {
+    latestSocketHandlers()['tressette:turn-updated']?.({
+      currentPlayer: { username: 'Diego', position: 'EST' },
+      secondsRemaining: 15,
+    });
+    fixture.detectChanges();
+
+    expect(component.currentTurnLabel).toBe('Diego (EST)');
+    expect(component.countdownSeconds).toBe(15);
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Turno: Diego (EST)');
   });
 
   it('timer usa secondsRemaining in priorita rispetto a turnDeadlineMs', () => {
@@ -208,6 +221,22 @@ describe('Table3s74iPage', () => {
     const activeSeats = fixture.nativeElement.querySelectorAll('.seat.turn');
     expect(activeSeats.length).toBe(1);
     expect((activeSeats[0] as HTMLElement).className).toContain('seat-north');
+  });
+
+  it('badge e timer sono visibili su seat corretto con payload canonico', () => {
+    latestSocketHandlers()['tressette:turn-updated']?.({
+      currentPlayer: { username: 'Diego', position: 'EST' },
+      secondsRemaining: 17,
+    });
+    fixture.detectChanges();
+
+    const activeSeats = fixture.nativeElement.querySelectorAll('.seat.turn');
+    expect(activeSeats.length).toBe(1);
+    expect((activeSeats[0] as HTMLElement).className).toContain('seat-east');
+
+    const seatCountdowns = fixture.nativeElement.querySelectorAll('.turn-countdown');
+    expect(seatCountdowns.length).toBe(1);
+    expect((seatCountdowns[0] as HTMLElement).textContent ?? '').toContain('17s');
   });
 
   it('turn switch moves badge and timer to new seat', () => {
@@ -323,4 +352,6 @@ describe('Table3s74iPage', () => {
     expect(localComponent.errorMessage).toContain('Tavolo non trovato');
   });
 });
+
+
 

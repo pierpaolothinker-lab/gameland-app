@@ -312,9 +312,10 @@
 .scoreboard-note {
   position: absolute;
   top: 16px;
-  right: 16px;
+  left: 16px;
   z-index: 3;
   width: 180px;
+  max-width: calc(100% - 32px);
   padding: 12px;
   border-radius: 8px 14px 8px 14px;
   background: linear-gradient(180deg, #fff4d6, #f7dfab);
@@ -354,7 +355,7 @@
 
 .hand-transition {
   position: absolute;
-  top: 16px;
+  top: 148px;
   left: 16px;
   z-index: 3;
   padding: 8px 12px;
@@ -363,4 +364,38 @@
   color: #f6fbff;
   font-weight: 700;
   border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+
+@media (max-width: 900px) {
+  .scoreboard-note {
+    top: 12px;
+    left: 12px;
+    width: 150px;
+    padding: 10px;
+  }
+
+  .hand-transition {
+    top: 126px;
+    left: 12px;
+    font-size: 12px;
+  }
+
+  .trick-winner-overlay {
+    top: 12px;
+    width: calc(100% - 24px);
+  }
+}
+
+
+
+
+.game-table .trick-winner-overlay {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  margin: 0;
+  width: min(560px, calc(100% - 32px));
 }

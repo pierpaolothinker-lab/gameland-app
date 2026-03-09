@@ -529,19 +529,29 @@ export class Table3s74iPage implements OnInit, OnDestroy {
   private extractHandIndex(payload?: HandMetadataPayload | { table?: TressetteTableView }): number | null {
     const table = payload && 'table' in payload ? payload.table : undefined;
 
-    const candidates = [
-      (payload as HandMetadataPayload | undefined)?.handIndex,
+    const handNumberCandidates = [
       (payload as HandMetadataPayload | undefined)?.handNumber,
-      (payload as HandMetadataPayload | undefined)?.currentHandIndex,
-      (payload as HandMetadataPayload | undefined)?.hand?.index,
       (payload as HandMetadataPayload | undefined)?.hand?.number,
-      table?.handIndex,
       table?.handNumber,
     ];
 
-    for (const value of candidates) {
+    for (const value of handNumberCandidates) {
+      if (typeof value === 'number' && Number.isFinite(value) && value > 0) {
+        // handNumber is 1-based (Mano 1, Mano 2, ...). Convert once to internal 0-based index.
+        return value - 1;
+      }
+    }
+
+    const indexCandidates = [
+      (payload as HandMetadataPayload | undefined)?.handIndex,
+      (payload as HandMetadataPayload | undefined)?.currentHandIndex,
+      (payload as HandMetadataPayload | undefined)?.hand?.index,
+      table?.handIndex,
+    ];
+
+    for (const value of indexCandidates) {
       if (typeof value === 'number' && Number.isFinite(value)) {
-        return value;
+        return Math.max(0, value);
       }
     }
 

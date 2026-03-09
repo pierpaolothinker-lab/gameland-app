@@ -166,11 +166,16 @@ describe('Table3s74iPage', () => {
     expect(component.table?.points.teamEO).toBe(2);
   });
 
-  it('transizione multi-mano mantiene in_game e aggiorna nuova mano backend', () => {
-    latestSocketHandlers()['tressette:hand-ended']?.({ status: 'in_game', points: { teamSN: 2, teamEO: 1 } });
+  it('transizione multi-mano mantiene in_game e usa handNumber backend senza doppio incremento', () => {
+    latestSocketHandlers()['tressette:hand-ended']?.({ status: 'in_game', points: { teamSN: 2, teamEO: 1 }, handNumber: 1 });
     latestSocketHandlers()['tressette:hand-started']?.({
       status: 'in_game',
-      handIndex: 1,
+      handNumber: 2,
+      myHand: buildHand(),
+    });
+    latestSocketHandlers()['tressette:hand-started']?.({
+      status: 'in_game',
+      handNumber: 2,
       myHand: buildHand(),
     });
 
@@ -227,6 +232,11 @@ describe('Table3s74iPage', () => {
     expect(component.trickWinnerMessage).toContain('Trick presa da: Marta (NORD)');
     expect(component.table?.currentTrick?.length).toBe(4);
 
+    fixture.detectChanges();
+    const overlay = fixture.nativeElement.querySelector('.game-table .trick-winner-overlay') as HTMLElement | null;
+    expect(overlay).not.toBeNull();
+    expect(overlay?.textContent ?? '').toContain('TRICK VINTA');
+
     tick(2000);
     expect(component.trickRevealActive).toBeFalse();
     expect(component.table?.currentTrick?.length).toBe(0);
@@ -276,4 +286,3 @@ describe('Table3s74iPage', () => {
     expect(localComponent.errorMessage).toContain('Tavolo non trovato');
   });
 });
-

@@ -180,7 +180,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
   }
 
   playCard(card: ICardIT): void {
-    if (!this.canPlayCards || !this.socket) {
+    if (!this.isCardPlayable(card) || !this.socket) {
       this.infoMessage = 'Mossa non disponibile: attendi il tuo turno o riconnessione socket.';
       return;
     }
@@ -205,16 +205,35 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.turnPlayerPosition === position;
   }
 
-  getTrickCard(position: TressettePosition): ICardIT | null {
-    return this.table?.currentTrick?.find((trickCard) => trickCard.position === position)?.card ?? null;
-  }
-
   getSeatCountdown(position: TressettePosition): number | null {
-    if (!this.isTurnPosition(position) || this.countdownSeconds === null) {
+    if (!this.isTurnPosition(position)) {
       return null;
     }
 
     return this.countdownSeconds;
+  }
+
+  getTrickCard(position: TressettePosition): ICardIT | null {
+    return this.table?.currentTrick?.find((trickCard) => trickCard.position === position)?.card ?? null;
+  }
+
+
+  isCardPlayable(card: ICardIT): boolean {
+    if (!this.canPlayCards) {
+      return false;
+    }
+
+    const leadSuit = this.getLeadSuit();
+    if (leadSuit === null) {
+      return true;
+    }
+
+    const hasLeadSuitInHand = this.effectiveHandCards.some((entry) => entry.suit === leadSuit);
+    if (!hasLeadSuitInHand) {
+      return true;
+    }
+
+    return card.suit === leadSuit;
   }
 
   trackByPosition(_: number, position: TressettePosition): TressettePosition {
@@ -560,6 +579,18 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       this.countdownInterval = undefined;
     }
   }
+  private getLeadSuit(): number | null {
+    if (this.trickRevealActive) {
+      return null;
+    }
+
+    const leadCard = this.table?.currentTrick?.[0]?.card;
+    if (!leadCard || typeof leadCard.suit !== 'number') {
+      return null;
+    }
+
+    return leadCard.suit;
+  }
 
   private resolvePositionByUsername(username: string): TressettePosition | null {
     if (!username || !this.table) {
@@ -569,5 +600,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.table.players.find((player) => player.username === username)?.position ?? null;
   }
 }
+
+
 
 

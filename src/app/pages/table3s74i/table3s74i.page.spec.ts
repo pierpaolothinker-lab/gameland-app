@@ -425,6 +425,40 @@ describe('Table3s74iPage', () => {
     expect(component.countdownSeconds).toBe(0);
   }));
 
+  it('mostra overlay pre-game su evento countdown e renderizza secondi', () => {
+    latestSocketHandlers()['tressette:game-start-countdown']?.({ tableId: 'tbl-001', secondsRemaining: 5 });
+
+    fixture.detectChanges();
+    const overlay = fixture.nativeElement.querySelector('.pregame-overlay') as HTMLElement | null;
+    expect(overlay).not.toBeNull();
+    expect(component.preGameCountdownActive).toBeTrue();
+    expect(component.preGameSecondsRemaining).toBe(5);
+    expect((overlay?.textContent ?? '')).toContain('La partita sta per cominciare');
+    expect((overlay?.textContent ?? '')).toContain('5');
+  });
+
+  it('decrementa countdown pre-game e sblocca a fine timer', fakeAsync(() => {
+    component.table = { ...tableMock, status: 'in_game' };
+    component.turnPlayerUsername = 'Luca';
+    component.socketMessage = 'connected';
+
+    latestSocketHandlers()['tressette:game-start-countdown']?.({ tableId: 'tbl-001', secondsRemaining: 2 });
+    expect(component.preGameCountdownActive).toBeTrue();
+    expect(component.preGameSecondsRemaining).toBe(2);
+    expect(component.canPlayCards).toBeFalse();
+
+    tick(1000);
+    expect(component.preGameSecondsRemaining).toBe(1);
+    expect(component.canPlayCards).toBeFalse();
+
+    tick(1000);
+    fixture.detectChanges();
+    expect(component.preGameCountdownActive).toBeFalse();
+    expect(component.preGameSecondsRemaining).toBe(0);
+    expect(component.canPlayCards).toBeTrue();
+    const overlay = fixture.nativeElement.querySelector('.pregame-overlay') as HTMLElement | null;
+    expect(overlay).toBeNull();
+  }));
   it('render connected state quando socket connette', () => {
     latestSocketHandlers()['connect']?.();
 
@@ -443,6 +477,7 @@ describe('Table3s74iPage', () => {
     expect(localComponent.errorMessage).toContain('Tavolo non trovato');
   });
 });
+
 
 
 

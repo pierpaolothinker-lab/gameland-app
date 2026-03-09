@@ -74,6 +74,12 @@ interface HandLifecyclePayload extends AuthoritativePayload {
   status?: 'in_game' | 'waiting' | 'ended';
 }
 
+interface PreGameCountdownPayload {
+  tableId?: string;
+  secondsRemaining?: number;
+  remainingSeconds?: number;
+  countdownSeconds?: number;
+}
 @Component({
   selector: 'app-table3s74i',
   templateUrl: './table3s74i.page.html',
@@ -101,6 +107,8 @@ export class Table3s74iPage implements OnInit, OnDestroy {
   handTransitionActive = false;
   handTransitionMessage = '';
   currentHandIndex: number | null = null;
+  preGameCountdownActive = false;
+  preGameSecondsRemaining = 0;
 
   readonly positions: TressettePosition[] = ['NORD', 'EST', 'SUD', 'OVEST'];
   readonly socketUrl = environment.backend.socketUrl;
@@ -109,6 +117,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
   private countdownInterval?: ReturnType<typeof setInterval>;
   private trickRevealTimeoutId?: ReturnType<typeof setTimeout>;
   private handTransitionTimeoutId?: ReturnType<typeof setTimeout>;
+  private preGameCountdownInterval?: ReturnType<typeof setInterval>;
   private readonly destroyRef = inject(DestroyRef);
 
   constructor(
@@ -149,6 +158,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.clearCountdown();
+    this.clearPreGameCountdown();
     this.cancelTrickRevealTimer(true, true);
     this.clearHandTransition();
     this.socket?.disconnect();
@@ -172,6 +182,10 @@ export class Table3s74iPage implements OnInit, OnDestroy {
 
   get canPlayCards(): boolean {
     if (!this.table || this.table.status !== 'in_game') {
+      return false;
+    }
+
+    if (this.preGameCountdownActive) {
       return false;
     }
 
@@ -209,6 +223,10 @@ export class Table3s74iPage implements OnInit, OnDestroy {
 
   get winnerOverlayVisible(): boolean {
     return this.trickRevealActive;
+  }
+
+  get preGameOverlayVisible(): boolean {
+    return this.preGameCountdownActive;
   }
 
   onDataModeChange(mode: DataMode): void {
@@ -403,6 +421,10 @@ export class Table3s74iPage implements OnInit, OnDestroy {
 
     this.socket.on('tressette:turn-updated', (payload: TurnEventPayload) => {
       this.applyTurnPayload(payload);
+    });
+
+    this.socket.on('tressette:game-start-countdown', (payload: PreGameCountdownPayload) => {
+      this.applyPreGameCountdownPayload(payload);
     });
 
     this.socket.on('tressette:player-state', (payload: AuthoritativePayload) => {
@@ -795,6 +817,74 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return Math.max(0, fallback);
   }
 
+  private applyPreGameCountdownPayload(payload?: PreGameCountdownPayload): void {
+    if (!payload) {
+      return;
+    }
+
+    if (payload.tableId && payload.tableId !== this.tableId) {
+      return;
+    }
+
+    const seconds = this.resolvePreGameSeconds(payload);
+    if (seconds <= 0) {
+      this.clearPreGameCountdown();
+      return;
+    }
+
+    this.preGameCountdownActive = true;
+    this.preGameSecondsRemaining = seconds;
+    this.startPreGameCountdown();
+  }
+
+  private resolvePreGameSeconds(payload: PreGameCountdownPayload): number {
+    if (typeof payload.secondsRemaining === 'number') {
+      return Math.max(0, Math.ceil(payload.secondsRemaining));
+    }
+
+    if (typeof payload.remainingSeconds === 'number') {
+      return Math.max(0, Math.ceil(payload.remainingSeconds));
+    }
+
+    if (typeof payload.countdownSeconds === 'number') {
+      return Math.max(0, Math.ceil(payload.countdownSeconds));
+    }
+
+    return 0;
+  }
+
+  private startPreGameCountdown(): void {
+    this.clearPreGameCountdownInterval();
+    this.preGameCountdownInterval = setInterval(() => {
+      if (!this.preGameCountdownActive) {
+        this.clearPreGameCountdownInterval();
+        return;
+      }
+
+      if (this.preGameSecondsRemaining <= 0) {
+        this.clearPreGameCountdown();
+        return;
+      }
+
+      this.preGameSecondsRemaining -= 1;
+      if (this.preGameSecondsRemaining <= 0) {
+        this.clearPreGameCountdown();
+      }
+    }, 1000);
+  }
+
+  private clearPreGameCountdown(): void {
+    this.clearPreGameCountdownInterval();
+    this.preGameCountdownActive = false;
+    this.preGameSecondsRemaining = 0;
+  }
+
+  private clearPreGameCountdownInterval(): void {
+    if (this.preGameCountdownInterval) {
+      clearInterval(this.preGameCountdownInterval);
+      this.preGameCountdownInterval = undefined;
+    }
+  }
   private startCountdown(startFrom: number): void {
     this.clearCountdown();
     this.countdownSeconds = startFrom;
@@ -850,6 +940,11 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.table.players.find((player) => player.username === username)?.position ?? null;
   }
 }
+
+
+
+
+
 
 
 

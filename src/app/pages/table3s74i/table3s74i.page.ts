@@ -362,23 +362,32 @@ export class Table3s74iPage implements OnInit, OnDestroy {
 
     this.socket.on('tressette:hand-started', (payload?: HandLifecyclePayload) => {
       const previousHandIndex = this.currentHandIndex;
-      const applied = this.applyAuthoritativePayload(payload);
+      const filteredPayload = this.filterPayloadDuringReveal(payload);
+      const applied = this.applyAuthoritativePayload(filteredPayload, {
+        cancelTrickReveal: !this.isAnyTrickRevealActive(),
+      });
       if (!applied && this.table) {
         this.table = { ...this.table, status: 'in_game' };
       }
 
-      this.showHandTransitionIfChanged(previousHandIndex, payload);
+      this.showHandTransitionIfChanged(previousHandIndex, filteredPayload);
       this.errorMessage = '';
       this.infoMessage = 'Mano avviata';
     });
 
     this.socket.on('tressette:hand-ended', (payload?: HandLifecyclePayload) => {
-      this.applyAuthoritativePayload(payload);
+      const filteredPayload = this.filterPayloadDuringReveal(payload);
+      this.applyAuthoritativePayload(filteredPayload, {
+        cancelTrickReveal: !this.isAnyTrickRevealActive(),
+      });
       this.infoMessage = 'Mano terminata, in attesa della successiva';
     });
 
     this.socket.on('tressette:score-updated', (payload?: AuthoritativePayload) => {
-      this.applyAuthoritativePayload(payload);
+      const filteredPayload = this.filterPayloadDuringReveal(payload);
+      this.applyAuthoritativePayload(filteredPayload, {
+        cancelTrickReveal: !this.isAnyTrickRevealActive(),
+      });
     });
 
     this.socket.on('tressette:turn-started', (payload: TurnEventPayload) => {
@@ -663,6 +672,34 @@ export class Table3s74iPage implements OnInit, OnDestroy {
   }
 
 
+
+  private filterPayloadDuringReveal<T extends AuthoritativePayload | HandLifecyclePayload | undefined>(payload: T): T {
+    if (!payload || !this.isAnyTrickRevealActive()) {
+      return payload;
+    }
+
+    const filteredPayload: AuthoritativePayload = {
+      ...payload,
+      currentTrick:
+        Array.isArray(payload.currentTrick) && payload.currentTrick.length === 0 ? undefined : payload.currentTrick,
+      myHand: Array.isArray(payload.myHand) && payload.myHand.length === 0 ? undefined : payload.myHand,
+      table: payload.table
+        ? {
+            ...payload.table,
+            currentTrick:
+              Array.isArray(payload.table.currentTrick) && payload.table.currentTrick.length === 0
+                ? undefined
+                : payload.table.currentTrick,
+            myHand:
+              Array.isArray(payload.table.myHand) && payload.table.myHand.length === 0
+                ? undefined
+                : payload.table.myHand,
+          }
+        : undefined,
+    };
+
+    return filteredPayload as T;
+  }
   private isAnyTrickRevealActive(): boolean {
     return this.trickRevealActive || this.pendingTrickReveal;
   }
@@ -820,6 +857,9 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.table.players.find((player) => player.username === username)?.position ?? null;
   }
 }
+
+
+
 
 
 

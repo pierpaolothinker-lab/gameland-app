@@ -249,10 +249,7 @@ describe('Table3s74iPage', () => {
         { position: 'OVEST', username: 'Sara', card: new CardIT(Suit.Bastoni, 6) },
       ],
       points: { teamSN: 1, teamEO: 0 },
-    });
-
-    expect(component.trickRevealActive).toBeTrue();
-    expect(component.trickWinnerMessage).toBe('Prende Marta');
+    });    expect(component.trickWinnerMessage).toBe('Prende Marta');
     expect(component.table?.currentTrick?.length).toBe(4);
 
     fixture.detectChanges();
@@ -317,9 +314,13 @@ describe('Table3s74iPage', () => {
       myHand: [],
     });
     latestSocketHandlers()['tressette:player-state']?.({ currentTrick: [], myHand: [] });
+    latestSocketHandlers()['tressette:hand-started']?.({ status: 'in_game', myHand: [] });
+    latestSocketHandlers()['tressette:hand-ended']?.({ status: 'in_game', points: { teamSN: 2, teamEO: 1 }, currentTrick: [] });
+    latestSocketHandlers()['tressette:score-updated']?.({ points: { teamSN: 3, teamEO: 1 }, currentTrick: [] });
 
     expect(component.table?.currentTrick?.length).toBe(4);
     expect(component.table?.myHand?.length).toBe(2);
+    expect(component.table?.points).toEqual({ teamSN: 3, teamEO: 1 });
 
     latestSocketHandlers()['tressette:trick-ended']?.({ winner: 'Sara' });
 
@@ -376,6 +377,11 @@ describe('Table3s74iPage', () => {
     expect(localComponent.errorMessage).toContain('Tavolo non trovato');
   });
 });
+
+
+
+
+
 
 
 

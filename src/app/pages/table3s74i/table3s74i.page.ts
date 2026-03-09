@@ -510,10 +510,24 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       }
 
       const previousTable = this.table;
+      const ignoreEmptyTrick =
+        this.isAnyTrickRevealActive() && Array.isArray(payload.table.currentTrick) && payload.table.currentTrick.length === 0;
+      const ignoreEmptyHand =
+        this.isAnyTrickRevealActive() && Array.isArray(payload.table.myHand) && payload.table.myHand.length === 0;
+
+      if (!environment.production && ignoreEmptyTrick) {
+        console.debug('[reveal-guard] ignored empty table.currentTrick during reveal');
+      }
+      if (!environment.production && ignoreEmptyHand) {
+        console.debug('[reveal-guard] ignored empty table.myHand during reveal');
+      }
+
       const nextTable: TressetteTableView = {
         ...payload.table,
-        myHand: payload.table.myHand ?? previousTable?.myHand ?? [],
-        currentTrick: payload.table.currentTrick ?? previousTable?.currentTrick ?? [],
+        myHand: ignoreEmptyHand ? previousTable?.myHand ?? [] : payload.table.myHand ?? previousTable?.myHand ?? [],
+        currentTrick: ignoreEmptyTrick
+          ? previousTable?.currentTrick ?? []
+          : payload.table.currentTrick ?? previousTable?.currentTrick ?? [],
       };
 
       this.table = nextTable;
@@ -529,13 +543,25 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     let nextTable = this.table;
 
     if (Array.isArray(payload.myHand)) {
-      nextTable = { ...nextTable, myHand: payload.myHand };
-      changed = true;
+      if (this.isAnyTrickRevealActive() && payload.myHand.length === 0) {
+        if (!environment.production) {
+          console.debug('[reveal-guard] ignored empty payload.myHand during reveal');
+        }
+      } else {
+        nextTable = { ...nextTable, myHand: payload.myHand };
+        changed = true;
+      }
     }
 
     if (Array.isArray(payload.currentTrick)) {
-      nextTable = { ...nextTable, currentTrick: payload.currentTrick };
-      changed = true;
+      if (this.isAnyTrickRevealActive() && payload.currentTrick.length === 0) {
+        if (!environment.production) {
+          console.debug('[reveal-guard] ignored empty payload.currentTrick during reveal');
+        }
+      } else {
+        nextTable = { ...nextTable, currentTrick: payload.currentTrick };
+        changed = true;
+      }
     }
 
     if (payload.points) {
@@ -857,6 +883,8 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.table.players.find((player) => player.username === username)?.position ?? null;
   }
 }
+
+
 
 
 

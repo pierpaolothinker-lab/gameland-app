@@ -76,12 +76,15 @@ export class Table3s74iPage implements OnInit, OnDestroy {
   turnPlayerPosition: TressettePosition | null = null;
   countdownSeconds: number | null = null;
   lastPlayedMessage = '';
+  trickRevealActive = false;
+  trickWinnerMessage = '';
 
   readonly positions: TressettePosition[] = ['NORD', 'EST', 'SUD', 'OVEST'];
   readonly socketUrl = environment.backend.socketUrl;
 
   private socket?: Socket;
   private countdownInterval?: ReturnType<typeof setInterval>;
+  private trickRevealTimeoutId?: ReturnType<typeof setTimeout>;
   private readonly destroyRef = inject(DestroyRef);
 
   constructor(
@@ -122,6 +125,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.clearCountdown();
+    this.cancelTrickRevealTimer(true);
     this.socket?.disconnect();
   }
 
@@ -333,25 +337,32 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     });
 
     this.socket.on('tressette:trick-ended', (payload: TrickEndedPayload) => {
-      const hasExplicitTrick = Array.isArray(payload.currentTrick);
-      const applied = this.applyAuthoritativePayload(payload);
+      const previousTrick = this.table?.currentTrick ?? [];
+      const winner = payload.winner ?? '-';
+      const position = payload.winnerPosition ? ` (${payload.winnerPosition})` : '';
+      this.trickWinnerMessage = `Trick presa da: ${winner}${position}`;
+      this.trickRevealActive = true;
 
-      if (applied) {
-        if (!hasExplicitTrick && this.table) {
-          this.table = { ...this.table, currentTrick: [] };
-        }
-      } else if (this.table) {
-        const nextTable: TressetteTableView = {
-          ...this.table,
-          currentTrick: hasExplicitTrick ? payload.currentTrick ?? [] : [],
-          points: payload.points ?? this.table.points,
-        };
-        this.table = nextTable;
-      } else {
+      const payloadWithoutTrick: AuthoritativePayload = {
+        ...payload,
+        currentTrick: undefined,
+        table: payload.table
+          ? {
+              ...payload.table,
+              currentTrick: undefined,
+            }
+          : undefined,
+      };
+
+      const applied = this.applyAuthoritativePayload(payloadWithoutTrick, { cancelTrickReveal: false });
+      if (this.table && previousTrick.length > 0) {
+        this.table = { ...this.table, currentTrick: previousTrick };
+      } else if (!applied && !this.table) {
         this.fetchTable();
       }
 
-      this.infoMessage = `Trick chiuso: ${payload.winnerPosition ?? payload.winner ?? '-'}`;
+      this.scheduleTrickRevealClear();
+      this.infoMessage = this.trickWinnerMessage;
     });
 
     this.socket.on('tressette:error', (payload: { error?: { code?: string; message?: string } }) => {
@@ -359,14 +370,20 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     });
   }
 
-  private applyAuthoritativePayload(payload?: AuthoritativePayload): boolean {
+  private applyAuthoritativePayload(payload?: AuthoritativePayload, options?: { cancelTrickReveal?: boolean }): boolean {
     if (!payload) {
       return false;
     }
 
+    const shouldCancelTrickReveal = options?.cancelTrickReveal ?? true;
+
     if (payload.table) {
       if (payload.table.tableId !== this.tableId) {
         return false;
+      }
+
+      if (shouldCancelTrickReveal) {
+        this.cancelTrickRevealTimer(true);
       }
 
       const previousTable = this.table;
@@ -403,10 +420,37 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     }
 
     if (changed) {
+      if (shouldCancelTrickReveal) {
+        this.cancelTrickRevealTimer(true);
+      }
       this.table = nextTable;
     }
 
     return changed;
+  }
+
+  private scheduleTrickRevealClear(): void {
+    this.cancelTrickRevealTimer(false);
+    this.trickRevealTimeoutId = setTimeout(() => {
+      if (this.table) {
+        this.table = { ...this.table, currentTrick: [] };
+      }
+      this.trickRevealActive = false;
+      this.trickWinnerMessage = '';
+      this.trickRevealTimeoutId = undefined;
+    }, 2000);
+  }
+
+  private cancelTrickRevealTimer(resetMessage: boolean): void {
+    if (this.trickRevealTimeoutId) {
+      clearTimeout(this.trickRevealTimeoutId);
+      this.trickRevealTimeoutId = undefined;
+    }
+
+    if (resetMessage) {
+      this.trickRevealActive = false;
+      this.trickWinnerMessage = '';
+    }
   }
 
   private applyTurnPayload(payload: TurnEventPayload): void {

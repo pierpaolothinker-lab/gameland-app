@@ -69,16 +69,16 @@
 
       <div class="trick-center">
         <div class="trick-slot trick-north">
-          <app-card-na *ngIf="playedCards.NORD" [card]="playedCards.NORD"></app-card-na>
+          <app-card-na *ngIf="getTrickCard('NORD') as card" [card]="card"></app-card-na>
         </div>
         <div class="trick-slot trick-east">
-          <app-card-na *ngIf="playedCards.EST" [card]="playedCards.EST"></app-card-na>
+          <app-card-na *ngIf="getTrickCard('EST') as card" [card]="card"></app-card-na>
         </div>
         <div class="trick-slot trick-south">
-          <app-card-na *ngIf="playedCards.SUD" [card]="playedCards.SUD"></app-card-na>
+          <app-card-na *ngIf="getTrickCard('SUD') as card" [card]="card"></app-card-na>
         </div>
         <div class="trick-slot trick-west">
-          <app-card-na *ngIf="playedCards.OVEST" [card]="playedCards.OVEST"></app-card-na>
+          <app-card-na *ngIf="getTrickCard('OVEST') as card" [card]="card"></app-card-na>
         </div>
       </div>
     </div>
@@ -103,4 +103,3 @@
     </div>
   </section>
 </ion-content>
-

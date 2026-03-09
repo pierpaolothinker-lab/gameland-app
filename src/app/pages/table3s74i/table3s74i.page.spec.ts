@@ -4,7 +4,6 @@ import { BehaviorSubject, of, throwError } from 'rxjs';
 
 import { AuthSessionService, MockSessionUser } from 'src/app/services/auth/auth-session.service';
 import { DataMode, DataModeService } from 'src/app/services/data-mode/data-mode.service';
-import { DeckITService } from 'src/app/services/fakes/deck-it.service';
 import { TressetteTableService } from 'src/app/services/tressette/tressette-table.service';
 import { CardIT, Suit } from 'src/app/shared/domain/models/cardIT.model';
 import { TressetteTableView } from 'src/app/shared/domain/models/tressette-table.model';
@@ -51,7 +50,9 @@ describe('Table3s74iPage', () => {
     ],
     isComplete: true,
     points: { teamSN: 0, teamEO: 0 },
-    status: 'waiting',
+    status: 'in_game',
+    myHand: [new CardIT(Suit.Bastoni, 3), new CardIT(Suit.Spade, 5)],
+    currentTrick: [],
   };
 
   const latestSocketHandlers = (): Record<string, (...args: any[]) => void> => {
@@ -107,7 +108,6 @@ describe('Table3s74iPage', () => {
         { provide: DataModeService, useValue: dataModeMock },
         { provide: ActivatedRoute, useValue: routeMock },
         { provide: Router, useValue: routerMock },
-        { provide: DeckITService, useValue: { getPlayerCards: () => [new CardIT(Suit.Bastoni, 3), new CardIT(Suit.Spade, 5)] } },
       ],
     }).compileComponents();
 
@@ -147,9 +147,11 @@ describe('Table3s74iPage', () => {
     });
   });
 
-  it('usa myHand backend quando disponibile', () => {
-    const backendHand = [new CardIT(Suit.Coppe, 1), new CardIT(Suit.Denari, 10), new CardIT(Suit.Spade, 7)];
-    component.table = { ...tableMock, myHand: backendHand, status: 'in_game' };
+  it('usa solo myHand backend per render mano', () => {
+    component.table = {
+      ...tableMock,
+      myHand: [new CardIT(Suit.Coppe, 1), new CardIT(Suit.Denari, 10), new CardIT(Suit.Spade, 7)],
+    };
     fixture.detectChanges();
 
     expect(component.effectiveHandCards.length).toBe(3);
@@ -157,10 +159,36 @@ describe('Table3s74iPage', () => {
     expect(handCards.length).toBe(3);
   });
 
-  it('fallback su hand locale se myHand backend assente', () => {
-    component.table = { ...tableMock, myHand: undefined, status: 'in_game' };
+  it('renderizza trick dal payload backend currentTrick', () => {
+    latestSocketHandlers()['tressette:card-played']?.({
+      card: new CardIT(Suit.Denari, 4),
+      source: 'manual',
+      currentTrick: [{ position: 'EST', username: 'Diego', card: new CardIT(Suit.Denari, 4) }],
+    });
 
-    expect(component.effectiveHandCards.length).toBe(2);
+    expect(component.getTrickCard('EST')?.value).toBe(4);
+    expect(component.getTrickCard('NORD')).toBeNull();
+  });
+
+  it('svuota trick quando backend invia currentTrick vuoto su trick-ended', () => {
+    component.table = {
+      ...tableMock,
+      currentTrick: [
+        { position: 'NORD', username: 'Marta', card: new CardIT(Suit.Coppe, 3) },
+        { position: 'EST', username: 'Diego', card: new CardIT(Suit.Denari, 4) },
+        { position: 'SUD', username: 'Luca', card: new CardIT(Suit.Spade, 5) },
+        { position: 'OVEST', username: 'Sara', card: new CardIT(Suit.Bastoni, 6) },
+      ],
+    };
+
+    latestSocketHandlers()['tressette:trick-ended']?.({
+      winnerPosition: 'NORD',
+      currentTrick: [],
+      points: { teamSN: 1, teamEO: 0 },
+    });
+
+    expect(component.table?.currentTrick?.length).toBe(0);
+    expect(component.table?.points.teamSN).toBe(1);
   });
 
   it('renderizza turno da payload canonico currentPlayer', () => {
@@ -198,11 +226,14 @@ describe('Table3s74iPage', () => {
     component.playCard(card);
 
     const socket = serviceMock.connectSocket.calls.mostRecent().returnValue;
-    expect(socket.emit).toHaveBeenCalledWith('tressette:play-card', jasmine.objectContaining({
-      tableId: 'tbl-001',
-      username: 'Luca',
-      card,
-    }));
+    expect(socket.emit).toHaveBeenCalledWith(
+      'tressette:play-card',
+      jasmine.objectContaining({
+        tableId: 'tbl-001',
+        username: 'Luca',
+        card,
+      })
+    );
   });
 
   it('render connected state quando socket connette', () => {

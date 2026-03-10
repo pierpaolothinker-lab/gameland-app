@@ -57,6 +57,12 @@ export class CardNAComponent implements OnInit {
     return Math.round(value * 2) / 2;
   }
 
+  private getFineTuneOffsets(card: ICardIT): { x: number; y: number } {
+    const valueOffsetX = card.value === 5 || card.value === 6 ? 1 : 0;
+    const bastoniOffsetY = card.suit === Suit.Bastoni ? -1 : 0;
+    return { x: valueOffsetX, y: bastoniOffsetY };
+  }
+
   showCard(row: number, col: number): void {
     const scaleX = this.K.CARD_SIZE.DISPLAY_WIDTH / this.K.CARD_SIZE.ORIGINAL_WIDTH;
     const scaleY = this.K.CARD_SIZE.DISPLAY_HEIGHT / this.K.CARD_SIZE.ORIGINAL_HEIGHT;
@@ -64,10 +70,11 @@ export class CardNAComponent implements OnInit {
     const xPosOriginal = this.K.INITIAL_OFFSET.X + col * (this.K.CARD_SIZE.ORIGINAL_WIDTH + this.K.CARD_SPACING.X);
     const yPosOriginal = this.K.INITIAL_OFFSET.Y + row * (this.K.CARD_SIZE.ORIGINAL_HEIGHT + this.K.CARD_SPACING.Y);
 
-    // Minimal centering patch only: snap to half-pixel to reduce sub-pixel drift.
+    // Keep base mapping intact; apply only micro fine-tune for known edge cards.
     const xPos = this.alignHalfPixel(xPosOriginal * scaleX);
     const yPos = this.alignHalfPixel(yPosOriginal * scaleY);
+    const offset = this.getFineTuneOffsets(this.card);
 
-    this.myElement.nativeElement.style.backgroundPosition = `-${xPos}px -${yPos}px`;
+    this.myElement.nativeElement.style.backgroundPosition = `-${xPos - offset.x}px -${yPos + offset.y}px`;
   }
 }

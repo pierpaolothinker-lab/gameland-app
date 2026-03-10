@@ -476,11 +476,99 @@ describe('Table3s74iPage', () => {
 
     expect(localComponent.errorMessage).toContain('Tavolo non trovato');
   });
+  it('mostra badge BOT sui seat in gameplay e normalizza nome Bot', () => {
+    component.table = {
+      ...tableMock,
+      players: [
+        { username: 'Luca', position: 'SUD', isBot: false },
+        { username: 'BOT_1', position: 'NORD', isBot: true },
+        { username: 'Diego', position: 'EST', isBot: false },
+        { username: 'Sara', position: 'OVEST', isBot: false },
+      ],
+    };
+
+    fixture.detectChanges();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).not.toContain('BOT_1');
+  });
+
+  
+  it('renderizza avatar umano e bot nelle seat card', () => {
+    component.table = {
+      ...tableMock,
+      players: [
+        { username: 'Luca', position: 'SUD', isBot: false },
+        { username: 'BOT_1', position: 'NORD', isBot: true },
+        { username: 'Diego', position: 'EST', isBot: false },
+        { username: 'Sara', position: 'OVEST', isBot: false },
+      ],
+    };
+
+    fixture.detectChanges();
+
+    const avatars = fixture.nativeElement.querySelectorAll('.seat-avatar') as NodeListOf<HTMLImageElement>;
+    expect(avatars.length).toBe(4);
+
+    const northAvatar = fixture.nativeElement.querySelector('.seat-north .seat-avatar') as HTMLImageElement | null;
+    const southAvatar = fixture.nativeElement.querySelector('.seat-south .seat-avatar') as HTMLImageElement | null;
+
+    expect(northAvatar?.getAttribute('src')).toContain('assets/avatar-bot.svg');
+    expect(southAvatar?.getAttribute('src')).toContain('assets/avatarExample.png');
+  });
+  
+  it('nasconde badge turno e countdown durante trick reveal attivo', () => {
+    component.turnPlayerPosition = 'NORD';
+    component.turnPlayerUsername = 'Marta';
+    component.countdownSeconds = 12;
+    component.trickRevealActive = true;
+
+    fixture.detectChanges();
+
+    const turnSeats = fixture.nativeElement.querySelectorAll('.seat.turn');
+    const turnBadges = fixture.nativeElement.querySelectorAll('.turn-badge');
+    const turnCountdowns = fixture.nativeElement.querySelectorAll('.turn-countdown');
+
+    expect(turnSeats.length).toBe(0);
+    expect(turnBadges.length).toBe(0);
+    expect(turnCountdowns.length).toBe(0);
+  });
+
+  it('applica variante colore bot deterministica in gameplay', () => {
+    component.table = {
+      ...tableMock,
+      players: [
+        { username: 'Luca', position: 'SUD', isBot: false },
+        { username: 'BOT_1', position: 'NORD', isBot: true },
+        { username: 'Diego', position: 'EST', isBot: false },
+        { username: 'Sara', position: 'OVEST', isBot: false },
+      ],
+    };
+
+    fixture.detectChanges();
+
+    const northAvatar = fixture.nativeElement.querySelector('.seat-north .seat-avatar') as HTMLImageElement | null;
+    expect(northAvatar).not.toBeNull();
+    expect(northAvatar?.className).toContain('bot-avatar');
+    expect(northAvatar?.className).toMatch(/bot-variant-[0-5]/);
+  });
+  it('disabilita play-card quando utente sessione e bot', () => {
+    authMock.currentUser = { userId: 'u-bot', username: 'BOT_1' };
+    component.table = {
+      ...tableMock,
+      players: [
+        { username: 'BOT_1', position: 'SUD', isBot: true },
+        { username: 'Marta', position: 'NORD', isBot: false },
+        { username: 'Diego', position: 'EST', isBot: false },
+        { username: 'Sara', position: 'OVEST', isBot: false },
+      ],
+    };
+    component.turnPlayerUsername = 'BOT_1';
+    component.socketMessage = 'connected';
+
+    expect(component.canPlayCards).toBeFalse();
+  });
 });
-
-
-
-
 
 
 

@@ -61,7 +61,7 @@
 
 .seat {
   position: absolute;
-  z-index: 2;
+  z-index: 3;
 }
 
 .seat.turn .player-badge {
@@ -71,7 +71,7 @@
 }
 
 .seat-north {
-  top: 12px;
+  top: -10px;
   left: 50%;
   transform: translateX(-50%);
 }
@@ -83,7 +83,7 @@
 }
 
 .seat-south {
-  bottom: 12px;
+  bottom: -12px;
   left: 50%;
   transform: translateX(-50%);
 }
@@ -109,6 +109,59 @@
 
 .player-name {
   line-height: 1.2;
+}
+
+ .seat-avatar {
+  width: 34px;
+  height: 34px;
+  object-fit: cover;
+  border-radius: 999px;
+  justify-self: center;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.seat-avatar.human-avatar {
+  filter: none;
+}
+
+.seat-avatar.bot-avatar {
+  filter: saturate(1.1) contrast(1.05);
+}
+
+.seat-avatar.bot-avatar.bot-variant-0 {
+  filter: hue-rotate(0deg) saturate(1.2) brightness(1.02);
+}
+
+.seat-avatar.bot-avatar.bot-variant-1 {
+  filter: hue-rotate(35deg) saturate(1.18) brightness(1.02);
+}
+
+.seat-avatar.bot-avatar.bot-variant-2 {
+  filter: hue-rotate(75deg) saturate(1.16) brightness(1.01);
+}
+
+.seat-avatar.bot-avatar.bot-variant-3 {
+  filter: hue-rotate(125deg) saturate(1.1) brightness(1.03);
+}
+
+.seat-avatar.bot-avatar.bot-variant-4 {
+  filter: hue-rotate(180deg) saturate(1.12) brightness(1.01);
+}
+
+.seat-avatar.bot-avatar.bot-variant-5 {
+  filter: hue-rotate(230deg) saturate(1.15) brightness(1.04);
+}
+
+.bot-seat-badge {
+  justify-self: center;
+  font-size: 10px;
+  letter-spacing: 0.4px;
+  border-radius: 999px;
+  padding: 2px 8px;
+  color: #2a1b00;
+  background: #ffd978;
+  font-weight: 800;
 }
 
 .turn-badge {
@@ -140,6 +193,8 @@
 .trick-center {
   position: absolute;
   inset: 0;
+  z-index: 5;
+  pointer-events: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -158,7 +213,7 @@
 }
 
 .trick-north {
-  top: calc(50% - 150px);
+  top: calc(50% - 128px);
 }
 
 .trick-east {
@@ -166,7 +221,7 @@
 }
 
 .trick-south {
-  top: calc(50% + 40px);
+  top: calc(50% + 10px);
 }
 
 .trick-west {
@@ -181,7 +236,7 @@
 }
 
 .hand-panel.disabled {
-  opacity: 0.55;
+  opacity: 1;
 }
 
 .hand-title {
@@ -193,6 +248,8 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  justify-content: center;
+  align-content: center;
 }
 
 .hand-card {
@@ -222,6 +279,11 @@
     font-size: 12px;
   }
 
+  .seat-avatar {
+    width: 30px;
+    height: 30px;
+  }
+
   .turn-badge {
     font-size: 9px;
     padding: 2px 6px;
@@ -238,7 +300,7 @@
   }
 
   .trick-north {
-    top: calc(50% - 130px);
+    top: calc(50% - 108px);
   }
 
   .trick-east {
@@ -246,13 +308,14 @@
   }
 
   .trick-south {
-    top: calc(50% + 30px);
+    top: calc(50% + 8px);
   }
 
   .trick-west {
     left: calc(50% - 128px);
   }
 }
+
 .data-mode-bar {
   display: flex;
   justify-content: space-between;
@@ -264,7 +327,6 @@
   display: flex;
   gap: 8px;
 }
-
 
 .trick-winner-alert {
   margin: 0;
@@ -285,8 +347,8 @@
 }
 
 .hand-card.non-playable {
-  opacity: 0.35;
-  filter: saturate(0.45);
+  opacity: 1;
+  filter: none;
 }
 
 .hand-hint {
@@ -358,7 +420,6 @@
   border: 1px solid rgba(255, 255, 255, 0.35);
 }
 
-
 @media (max-width: 900px) {
   .scoreboard-note {
     top: 12px;
@@ -376,10 +437,15 @@
   .trick-winner-overlay {
     top: 12px;
   }
+
+  .seat-north {
+    top: -6px;
+  }
+
+  .seat-south {
+    bottom: -8px;
+  }
 }
-
-
-
 
 .pregame-overlay {
   position: absolute;
@@ -416,6 +482,7 @@
   font-weight: 900;
   color: #ffe08a;
 }
+
 .game-table .trick-winner-overlay {
   position: absolute;
   top: 16px;
@@ -425,8 +492,4 @@
   margin: 0;
   width: min(560px, calc(100% - 32px));
 }
-
-
-
-
 

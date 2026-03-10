@@ -45,6 +45,17 @@ export class TressetteTableService {
     );
   }
 
+  addBot(tableId: string, username: string, position: TressettePosition): Observable<TressetteTableView> {
+    return this.backendClient.post<TressetteTableView>(
+      `${this.tableBasePath}/${tableId}/add-bot`,
+      {
+        username,
+        position,
+      },
+      this.requestOptions
+    );
+  }
+
   leaveTable(tableId: string, username: string): Observable<TressetteTableView> {
     return this.backendClient.post<TressetteTableView>(`${this.tableBasePath}/${tableId}/leave`, { username }, this.requestOptions);
   }

@@ -28,6 +28,13 @@
   display: flex;
   gap: 8px;
   margin-top: 8px;
+  align-items: center;
+}
+
+.create-guard {
+  font-size: 13px;
+  color: #3f5f70;
+  align-self: center;
 }
 
 .start-owner-block {
@@ -68,12 +75,14 @@
 .table-list {
   padding: 0 16px 24px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(340px, 360px));
+  justify-content: start;
   gap: 14px;
 }
 
 .table-card {
   margin: 0;
+  width: min(100%, 360px);
   border: 1px solid rgba(134, 177, 214, 0.4);
   background: rgba(12, 31, 53, 0.76);
   color: #ebf5ff;
@@ -95,14 +104,9 @@
   color: #ffd279;
 }
 
-.join-input {
-  --background: rgba(255, 255, 255, 0.92);
-  border-radius: 8px;
-}
-
 .mini-table-wrap {
   margin-top: 12px;
-  min-height: 260px;
+  min-height: 250px;
   position: relative;
 }
 
@@ -110,8 +114,8 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 110px;
-  height: 110px;
+  width: 104px;
+  height: 104px;
   transform: translate(-50%, -50%);
   background: radial-gradient(circle at 35% 35%, #9f7448 0%, #6b4521 70%, #45290d 100%);
   border-radius: 50%;
@@ -120,31 +124,82 @@
 
 .seat {
   position: absolute;
-  width: 120px;
+  width: 110px;
   border-radius: 12px;
   padding: 8px;
   background: linear-gradient(180deg, #209f35, #0f7b22);
   border: 1px solid rgba(255, 255, 255, 0.25);
   text-align: center;
+  display: grid;
+  gap: 6px;
 }
 
 .seat.occupied {
   background: linear-gradient(180deg, #148739, #0f6730);
 }
 
-.seat-label {
-  font-size: 11px;
-  letter-spacing: 0.6px;
-  color: #d5f1d5;
-  margin-bottom: 4px;
+.seat.empty {
+  background: linear-gradient(180deg, rgba(13, 91, 49, 0.58), rgba(8, 58, 31, 0.7));
+  min-height: 54px;
+  place-items: center;
 }
 
 .seat-player {
   min-height: 18px;
   font-weight: 700;
   color: #ffffff;
-  margin-bottom: 8px;
+  margin-bottom: 2px;
   font-size: 13px;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+}
+
+.human-name {
+  display: inline-block;
+}
+
+.empty-seat-trigger {
+  justify-self: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  background: transparent;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  cursor: default;
+}
+
+.empty-seat-trigger.enabled {
+  cursor: pointer;
+  border-color: rgba(255, 217, 120, 0.95);
+  box-shadow: 0 0 0 2px rgba(255, 217, 120, 0.28);
+}
+
+.empty-seat-trigger:disabled {
+  opacity: 0.65;
+}
+
+.seat-glyph {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #9f7448 0%, #6b4521 70%, #45290d 100%);
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.45);
+}
+
+.bot-badge {
+  display: inline-block;
+  margin-left: 0;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  letter-spacing: 0.3px;
+  background: #ffd978;
+  color: #2d2306;
+  font-weight: 800;
 }
 
 .seat-nord {
@@ -174,10 +229,16 @@
 @media (max-width: 800px) {
   .create-actions {
     flex-direction: column;
+    align-items: stretch;
   }
 
   .table-list {
     grid-template-columns: 1fr;
+  }
+
+  .table-card {
+    width: 100%;
+    max-width: none;
   }
 }
 
@@ -193,26 +254,6 @@
   gap: 8px;
 }
 
-.start-global-block {
-  border-color: rgba(57, 150, 84, 0.55);
-}
-
-.start-title {
-  margin: 0;
-  font-weight: 700;
-  color: #123b22;
-}
-
-.start-target {
-  margin: 6px 0 0;
-  color: #23465f;
-}
-
-.start-reason {
-  margin: 6px 0 10px;
-  color: #38566f;
-  font-size: 13px;
-}
 .data-mode-block {
   border-color: rgba(49, 132, 201, 0.55);
 }
@@ -227,3 +268,51 @@
   display: flex;
   gap: 8px;
 }
+
+
+.seat-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.seat-avatar.human-avatar {
+  filter: none;
+}
+
+.seat-avatar.bot-avatar {
+  filter: saturate(1.1) contrast(1.05);
+}
+
+.seat-avatar.bot-avatar.bot-variant-0 {
+  filter: hue-rotate(0deg) saturate(1.2) brightness(1.02);
+}
+
+.seat-avatar.bot-avatar.bot-variant-1 {
+  filter: hue-rotate(35deg) saturate(1.18) brightness(1.02);
+}
+
+.seat-avatar.bot-avatar.bot-variant-2 {
+  filter: hue-rotate(75deg) saturate(1.16) brightness(1.01);
+}
+
+.seat-avatar.bot-avatar.bot-variant-3 {
+  filter: hue-rotate(125deg) saturate(1.1) brightness(1.03);
+}
+
+.seat-avatar.bot-avatar.bot-variant-4 {
+  filter: hue-rotate(180deg) saturate(1.12) brightness(1.01);
+}
+
+.seat-avatar.bot-avatar.bot-variant-5 {
+  filter: hue-rotate(230deg) saturate(1.15) brightness(1.04);
+}
+
+
+.seat-player.has-avatar {
+  grid-template-rows: auto auto;
+}
+

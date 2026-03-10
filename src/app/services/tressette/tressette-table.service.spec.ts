@@ -56,6 +56,15 @@ describe('TressetteTableService', () => {
       position: 'NORD',
     }, { mode: 'demo' });
   });
+  it('addBot usa endpoint e payload corretti', () => {
+    dataModeMock.mode = 'demo';
+    service.addBot('table-1', 'owner', 'OVEST').subscribe();
+
+    expect(backendMock.post).toHaveBeenCalledWith('/api/tressette/tables/table-1/add-bot', {
+      username: 'owner',
+      position: 'OVEST',
+    }, { mode: 'demo' });
+  });
 
   it('getTableRealtime usa backend con mode selezionato', () => {
     dataModeMock.mode = 'live';
@@ -73,3 +82,4 @@ describe('TressetteTableService', () => {
     expect(backendMock.connectSocket).toHaveBeenCalledWith({ mode: 'live' });
   });
 });
+

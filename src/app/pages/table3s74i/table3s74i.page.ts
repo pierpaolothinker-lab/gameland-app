@@ -16,6 +16,7 @@ import {
   TressetteTrickCard,
 } from 'src/app/shared/domain/models/tressette-table.model';
 import { CardNAComponent } from 'src/app/shared/ui/card-na/card-na.component';
+import { resolveBotAvatarVariantClass } from 'src/app/shared/utils/bot-avatar-variant.util';
 import { environment } from 'src/environments/environment';
 
 interface HandMetadataPayload {
@@ -197,6 +198,10 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       return false;
     }
 
+    if (this.myPlayer?.isBot) {
+      return false;
+    }
+
     return this.turnPlayerUsername === this.myUsername;
   }
 
@@ -210,7 +215,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     }
 
     const position = this.turnPlayerPosition ?? this.resolvePositionByUsername(this.turnPlayerUsername);
-    return `${this.turnPlayerUsername} (${position ?? '-'})`;
+    return `${this.displayUsername(this.turnPlayerUsername)} (${position ?? '-'})`;
   }
 
   get handLabel(): string {
@@ -256,15 +261,46 @@ export class Table3s74iPage implements OnInit, OnDestroy {
   }
 
   isTurnPosition(position: TressettePosition): boolean {
+    if (!this.turnVisualsEnabled) {
+      return false;
+    }
+
     return this.turnPlayerPosition === position;
   }
 
   getSeatCountdown(position: TressettePosition): number | null {
-    if (!this.isTurnPosition(position)) {
+    if (!this.turnVisualsEnabled || !this.isTurnPosition(position)) {
       return null;
     }
 
     return this.countdownSeconds;
+  }
+
+
+  isBotPlayer(position: TressettePosition): boolean {
+    return !!this.getPlayer(position)?.isBot;
+  }
+
+  playerDisplayName(position: TressettePosition): string {
+    const player = this.getPlayer(position);
+    if (!player) {
+      return position;
+    }
+
+    return player.isBot ? 'Bot' : player.username;
+  }
+
+  seatAvatarSrc(position: TressettePosition): string {
+    return this.isBotPlayer(position) ? 'assets/avatar-bot.svg' : 'assets/avatarExample.png';
+  }
+
+  seatAvatarClass(position: TressettePosition): string {
+    const player = this.getPlayer(position);
+    if (!player?.isBot) {
+      return 'human-avatar';
+    }
+
+    return `bot-avatar ${this.botAvatarVariantClass(player.username, position)}`;
   }
 
   getTrickCard(position: TressettePosition): ICardIT | null {
@@ -745,10 +781,24 @@ export class Table3s74iPage implements OnInit, OnDestroy {
   }
 
   private setLastTrickWinner(winnerName?: string): void {
-    this.lastTrickWinnerName = winnerName?.trim() || '-';
+    this.lastTrickWinnerName = this.displayUsername(winnerName?.trim() || '-');
     this.syncTrickWinnerMessage();
   }
 
+
+  private displayUsername(username: string): string {
+    const normalized = username?.trim();
+    if (!normalized || normalized === '-') {
+      return '-';
+    }
+
+    const player = this.table?.players.find((entry) => entry.username === normalized);
+    if (player?.isBot) {
+      return 'Bot';
+    }
+
+    return normalized;
+  }
   private syncTrickWinnerMessage(): void {
     const winnerName = this.lastTrickWinnerName.trim() || '-';
     this.trickWinnerMessage = `Prende ${winnerName}`;
@@ -760,6 +810,14 @@ export class Table3s74iPage implements OnInit, OnDestroy {
 
   private isAnyTrickRevealActive(): boolean {
     return this.trickRevealActive;
+  }
+
+  private get turnVisualsEnabled(): boolean {
+    return !this.winnerOverlayVisible;
+  }
+
+  private botAvatarVariantClass(username?: string, position?: TressettePosition): string {
+    return resolveBotAvatarVariantClass([this.tableId, position, username]);
   }
 
   private compareCardsForHandDisplay(left: ICardIT, right: ICardIT): number {
@@ -940,12 +998,4 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.table.players.find((player) => player.username === username)?.position ?? null;
   }
 }
-
-
-
-
-
-
-
-
 

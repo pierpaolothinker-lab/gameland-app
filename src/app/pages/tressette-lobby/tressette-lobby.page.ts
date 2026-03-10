@@ -22,6 +22,7 @@ import { AuthSessionService, MockSessionUser } from 'src/app/services/auth/auth-
 import { DataMode, DataModeService } from 'src/app/services/data-mode/data-mode.service';
 import { TressetteTableService } from 'src/app/services/tressette/tressette-table.service';
 import { TressettePlayer, TressettePosition, TressetteTableView } from 'src/app/shared/domain/models/tressette-table.model';
+import { resolveBotAvatarVariantClass } from 'src/app/shared/utils/bot-avatar-variant.util';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -54,6 +55,7 @@ export class TressetteLobbyPage implements OnInit {
   tables: TressetteTableView[] = [];
   loading = false;
   starting = false;
+  addingBot = false;
 
   errorBanner = '';
   toastOpen = false;
@@ -106,10 +108,10 @@ export class TressetteLobbyPage implements OnInit {
         this.tables = tables;
         this.loading = false;
       },
-      error: () => {
+      error: (error) => {
         this.loading = false;
         this.tables = [];
-        this.errorBanner = 'Errore caricamento lobby tavoli. Verifica backend locale :3500';
+        this.errorBanner = this.normalizeErrorMessage(error, 'Errore caricamento lobby tavoli. Verifica backend locale :3500');
       },
     });
   }
@@ -120,6 +122,10 @@ export class TressetteLobbyPage implements OnInit {
   }
 
   createTable(): void {
+    if (!this.canCreateTable) {
+      return;
+    }
+
     this.loading = true;
     this.errorBanner = '';
 
@@ -128,9 +134,9 @@ export class TressetteLobbyPage implements OnInit {
         this.openToast(`Tavolo creato come ${this.activeUser.username}`);
         this.refreshTables();
       },
-      error: () => {
+      error: (error) => {
         this.loading = false;
-        this.errorBanner = 'Creazione tavolo fallita';
+        this.errorBanner = this.normalizeErrorMessage(error, 'Creazione tavolo fallita');
       },
     });
   }
@@ -144,11 +150,45 @@ export class TressetteLobbyPage implements OnInit {
         this.openToast(`${this.activeUser.username} seduto su ${position}`);
         this.refreshTables();
       },
-      error: () => {
+      error: (error) => {
         this.loading = false;
-        this.errorBanner = `Join fallita su ${position}`;
+        this.errorBanner = this.normalizeErrorMessage(error, `Join fallita su ${position}`);
       },
     });
+  }
+
+  addBot(tableId: string, position: TressettePosition): void {
+    const table = this.tables.find((entry) => entry.tableId === tableId);
+    if (!table || this.emptySeatActionFor(table, position) !== 'add_bot') {
+      return;
+    }
+
+    this.addingBot = true;
+    this.errorBanner = '';
+
+    this.tableService.addBot(tableId, this.activeUser.username, position).subscribe({
+      next: () => {
+        this.addingBot = false;
+        this.openToast(`Bot aggiunto su ${position}`);
+        this.refreshTables();
+      },
+      error: (error) => {
+        this.addingBot = false;
+        this.errorBanner = this.normalizeErrorMessage(error, `Aggiunta bot fallita su ${position}`);
+      },
+    });
+  }
+
+  onEmptySeatClick(table: TressetteTableView, position: TressettePosition): void {
+    const action = this.emptySeatActionFor(table, position);
+    if (action === 'join') {
+      this.joinSeat(table.tableId, position);
+      return;
+    }
+
+    if (action === 'add_bot') {
+      this.addBot(table.tableId, position);
+    }
   }
 
   get selectedOwnerTable(): TressetteTableView | null {
@@ -204,6 +244,14 @@ export class TressetteLobbyPage implements OnInit {
     return '';
   }
 
+  get canCreateTable(): boolean {
+    return !this.activeUserSeatedTable() && !this.loading;
+  }
+
+  get activeSeatTableId(): string | null {
+    return this.activeUserSeatedTable()?.tableId ?? null;
+  }
+
   startMyGame(): void {
     const ownerTable = this.selectedOwnerTable;
     if (!ownerTable || !this.canStartOwnerTable) {
@@ -220,20 +268,45 @@ export class TressetteLobbyPage implements OnInit {
         this.refreshTables();
         void this.router.navigate(['/table3s74i', ownerTable.tableId]);
       },
-      error: () => {
+      error: (error) => {
         this.starting = false;
-        this.errorBanner = 'Avvio partita fallito';
+        this.errorBanner = this.normalizeErrorMessage(error, 'Avvio partita fallito');
       },
     });
   }
 
   seatOccupied(table: TressetteTableView, position: TressettePosition): boolean {
-    return table.players.some((player) => player.position === position);
+    return !!this.playerAt(table, position);
   }
 
-  seatLabel(table: TressetteTableView, position: TressettePosition): string {
+  canInteractEmptySeat(table: TressetteTableView, position: TressettePosition): boolean {
+    return this.emptySeatActionFor(table, position) !== 'none';
+  }
+
+  displayHumanSeatName(table: TressetteTableView, position: TressettePosition): string {
     const player = this.playerAt(table, position);
-    return player ? `${position}: ${player.username}` : `${position}: libero`;
+    if (!player || player.isBot) {
+      return '';
+    }
+
+    return player.username;
+  }
+
+  isBotSeat(table: TressetteTableView, position: TressettePosition): boolean {
+    return !!this.playerAt(table, position)?.isBot;
+  }
+
+  seatAvatarSrc(table: TressetteTableView, position: TressettePosition): string {
+    return this.isBotSeat(table, position) ? 'assets/avatar-bot.svg' : 'assets/avatarExample.png';
+  }
+
+  seatAvatarClass(table: TressetteTableView, position: TressettePosition): string {
+    const player = this.playerAt(table, position);
+    if (!player?.isBot) {
+      return 'human-avatar';
+    }
+
+    return `bot-avatar ${this.botAvatarVariantClass(table.tableId, player.username, position)}`;
   }
 
   playerAt(table: TressetteTableView, position: TressettePosition): TressettePlayer | undefined {
@@ -264,8 +337,48 @@ export class TressetteLobbyPage implements OnInit {
     this.toastOpen = false;
   }
 
+  private activeUserSeatedTable(): TressetteTableView | null {
+    return this.tables.find((table) => table.players.some((player) => player.username === this.activeUser.username)) ?? null;
+  }
+
+  private emptySeatActionFor(table: TressetteTableView, position: TressettePosition): 'join' | 'add_bot' | 'none' {
+    if (this.loading || this.addingBot || this.seatOccupied(table, position) || table.status !== 'waiting') {
+      return 'none';
+    }
+
+    const activeSeatTable = this.activeUserSeatedTable();
+    if (!activeSeatTable) {
+      return 'join';
+    }
+
+    if (activeSeatTable.tableId !== table.tableId) {
+      return 'none';
+    }
+
+    const ownerContextTableId = this.selectedOwnerTable?.tableId;
+    if (ownerContextTableId === table.tableId && table.owner === this.activeUser.username && !this.isTableFull(table)) {
+      return 'add_bot';
+    }
+
+    return 'none';
+  }
+
+  
+  private botAvatarVariantClass(tableId: string, username?: string, position?: TressettePosition): string {
+    return resolveBotAvatarVariantClass([tableId, position, username]);
+  }
+
   private openToast(message: string): void {
     this.toastMessage = message;
     this.toastOpen = true;
   }
+
+  private normalizeErrorMessage(error: unknown, fallback: string): string {
+    const apiMessage =
+      (error as { error?: { error?: { message?: string }; message?: string } })?.error?.error?.message ||
+      (error as { error?: { message?: string } })?.error?.message;
+
+    return apiMessage ? `${fallback}: ${apiMessage}` : fallback;
+  }
 }
+

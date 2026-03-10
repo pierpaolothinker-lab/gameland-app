@@ -493,3 +493,146 @@
   width: min(560px, calc(100% - 32px));
 }
 
+/* MOBILE-FIRST HARDENING START */
+.game-table {
+  min-height: 360px;
+}
+
+.player-badge {
+  min-width: 90px;
+  font-size: 12px;
+}
+
+.seat-avatar {
+  width: 30px;
+  height: 30px;
+}
+
+.turn-badge {
+  font-size: 9px;
+  padding: 2px 6px;
+}
+
+.turn-countdown {
+  min-width: 32px;
+  font-size: 11px;
+}
+
+.trick-slot {
+  width: 62px;
+  height: 98px;
+}
+
+.trick-north {
+  top: calc(50% - 108px);
+}
+
+.trick-east {
+  left: calc(50% + 66px);
+}
+
+.trick-south {
+  top: calc(50% + 8px);
+}
+
+.trick-west {
+  left: calc(50% - 128px);
+}
+
+.scoreboard-note {
+  top: 12px;
+  left: 12px;
+  width: 150px;
+  padding: 10px;
+}
+
+.hand-transition {
+  top: 126px;
+  left: 12px;
+  font-size: 12px;
+}
+
+.game-table .trick-winner-overlay {
+  top: 12px;
+}
+
+.seat-north {
+  top: -6px;
+}
+
+.seat-south {
+  bottom: -8px;
+}
+
+@media (min-width: 901px) {
+  .game-table {
+    min-height: 420px;
+  }
+
+  .player-badge {
+    min-width: 120px;
+    font-size: inherit;
+  }
+
+  .seat-avatar {
+    width: 34px;
+    height: 34px;
+  }
+
+  .turn-badge {
+    font-size: 10px;
+    padding: 2px 8px;
+  }
+
+  .turn-countdown {
+    min-width: 40px;
+    font-size: 12px;
+  }
+
+  .trick-slot {
+    width: 74px;
+    height: 110px;
+  }
+
+  .trick-north {
+    top: calc(50% - 128px);
+  }
+
+  .trick-east {
+    left: calc(50% + 84px);
+  }
+
+  .trick-south {
+    top: calc(50% + 10px);
+  }
+
+  .trick-west {
+    left: calc(50% - 158px);
+  }
+
+  .scoreboard-note {
+    top: 16px;
+    left: 16px;
+    width: 180px;
+    padding: 12px;
+  }
+
+  .hand-transition {
+    top: 148px;
+    left: 16px;
+    font-size: inherit;
+  }
+
+  .game-table .trick-winner-overlay {
+    top: 16px;
+  }
+
+  .seat-north {
+    top: -10px;
+  }
+
+  .seat-south {
+    bottom: -12px;
+  }
+}
+/* MOBILE-FIRST HARDENING END */

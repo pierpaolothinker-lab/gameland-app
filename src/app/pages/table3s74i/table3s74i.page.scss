@@ -111,6 +111,17 @@
   line-height: 1.2;
 }
 
+.bot-seat-badge {
+  justify-self: center;
+  font-size: 10px;
+  letter-spacing: 0.4px;
+  border-radius: 999px;
+  padding: 2px 8px;
+  color: #2a1b00;
+  background: #ffd978;
+  font-weight: 800;
+}
+
 .turn-badge {
   justify-self: center;
   font-size: 10px;
@@ -425,6 +436,7 @@
   margin: 0;
   width: min(560px, calc(100% - 32px));
 }
+
 
 
 

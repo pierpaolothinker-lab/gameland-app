@@ -54,6 +54,7 @@ export class TressetteLobbyPage implements OnInit {
   tables: TressetteTableView[] = [];
   loading = false;
   starting = false;
+  addingBot = false;
 
   errorBanner = '';
   toastOpen = false;
@@ -106,10 +107,10 @@ export class TressetteLobbyPage implements OnInit {
         this.tables = tables;
         this.loading = false;
       },
-      error: () => {
+      error: (error) => {
         this.loading = false;
         this.tables = [];
-        this.errorBanner = 'Errore caricamento lobby tavoli. Verifica backend locale :3500';
+        this.errorBanner = this.normalizeErrorMessage(error, 'Errore caricamento lobby tavoli. Verifica backend locale :3500');
       },
     });
   }
@@ -128,9 +129,9 @@ export class TressetteLobbyPage implements OnInit {
         this.openToast(`Tavolo creato come ${this.activeUser.username}`);
         this.refreshTables();
       },
-      error: () => {
+      error: (error) => {
         this.loading = false;
-        this.errorBanner = 'Creazione tavolo fallita';
+        this.errorBanner = this.normalizeErrorMessage(error, 'Creazione tavolo fallita');
       },
     });
   }
@@ -144,9 +145,26 @@ export class TressetteLobbyPage implements OnInit {
         this.openToast(`${this.activeUser.username} seduto su ${position}`);
         this.refreshTables();
       },
-      error: () => {
+      error: (error) => {
         this.loading = false;
-        this.errorBanner = `Join fallita su ${position}`;
+        this.errorBanner = this.normalizeErrorMessage(error, `Join fallita su ${position}`);
+      },
+    });
+  }
+
+  addBot(tableId: string, position: TressettePosition): void {
+    this.addingBot = true;
+    this.errorBanner = '';
+
+    this.tableService.addBot(tableId, this.activeUser.username, position).subscribe({
+      next: () => {
+        this.addingBot = false;
+        this.openToast(`Bot aggiunto su ${position}`);
+        this.refreshTables();
+      },
+      error: (error) => {
+        this.addingBot = false;
+        this.errorBanner = this.normalizeErrorMessage(error, `Aggiunta bot fallita su ${position}`);
       },
     });
   }
@@ -220,9 +238,9 @@ export class TressetteLobbyPage implements OnInit {
         this.refreshTables();
         void this.router.navigate(['/table3s74i', ownerTable.tableId]);
       },
-      error: () => {
+      error: (error) => {
         this.starting = false;
-        this.errorBanner = 'Avvio partita fallito';
+        this.errorBanner = this.normalizeErrorMessage(error, 'Avvio partita fallito');
       },
     });
   }
@@ -231,9 +249,33 @@ export class TressetteLobbyPage implements OnInit {
     return table.players.some((player) => player.position === position);
   }
 
+  isOwnerTable(table: TressetteTableView): boolean {
+    return table.owner === this.activeUser.username;
+  }
+
+  canAddBotToSeat(table: TressetteTableView, position: TressettePosition): boolean {
+    if (this.addingBot) {
+      return false;
+    }
+
+    if (!this.isOwnerTable(table)) {
+      return false;
+    }
+
+    if (table.status !== 'waiting' || this.isTableFull(table)) {
+      return false;
+    }
+
+    return !this.seatOccupied(table, position);
+  }
+
   seatLabel(table: TressetteTableView, position: TressettePosition): string {
     const player = this.playerAt(table, position);
-    return player ? `${position}: ${player.username}` : `${position}: libero`;
+    if (!player) {
+      return `${position}: libero`;
+    }
+
+    return player.isBot ? `${position}: ${player.username} [BOT]` : `${position}: ${player.username}`;
   }
 
   playerAt(table: TressetteTableView, position: TressettePosition): TressettePlayer | undefined {
@@ -267,5 +309,13 @@ export class TressetteLobbyPage implements OnInit {
   private openToast(message: string): void {
     this.toastMessage = message;
     this.toastOpen = true;
+  }
+
+  private normalizeErrorMessage(error: unknown, fallback: string): string {
+    const apiMessage =
+      (error as { error?: { error?: { message?: string }; message?: string } })?.error?.error?.message ||
+      (error as { error?: { message?: string } })?.error?.message;
+
+    return apiMessage ? `${fallback}: ${apiMessage}` : fallback;
   }
 }

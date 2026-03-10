@@ -5,6 +5,7 @@ export type TressettePosition = 'SUD' | 'NORD' | 'EST' | 'OVEST';
 export interface TressettePlayer {
   username: string;
   position: TressettePosition;
+  isBot?: boolean;
 }
 
 export interface TressettePoints {
@@ -39,4 +40,5 @@ export interface TressetteApiError {
     message: string;
   };
 }
+
 

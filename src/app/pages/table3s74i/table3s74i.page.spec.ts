@@ -476,12 +476,37 @@ describe('Table3s74iPage', () => {
 
     expect(localComponent.errorMessage).toContain('Tavolo non trovato');
   });
+  it('mostra badge BOT sui seat in gameplay', () => {
+    component.table = {
+      ...tableMock,
+      players: [
+        { username: 'Luca', position: 'SUD', isBot: false },
+        { username: 'BOT_1', position: 'NORD', isBot: true },
+        { username: 'Diego', position: 'EST', isBot: false },
+        { username: 'Sara', position: 'OVEST', isBot: false },
+      ],
+    };
+
+    fixture.detectChanges();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('BOT');
+  });
+
+  it('disabilita play-card quando utente sessione e bot', () => {
+    authMock.currentUser = { userId: 'u-bot', username: 'BOT_1' };
+    component.table = {
+      ...tableMock,
+      players: [
+        { username: 'BOT_1', position: 'SUD', isBot: true },
+        { username: 'Marta', position: 'NORD', isBot: false },
+        { username: 'Diego', position: 'EST', isBot: false },
+        { username: 'Sara', position: 'OVEST', isBot: false },
+      ],
+    };
+    component.turnPlayerUsername = 'BOT_1';
+    component.socketMessage = 'connected';
+
+    expect(component.canPlayCards).toBeFalse();
+  });
 });
-
-
-
-
-
-
-
-

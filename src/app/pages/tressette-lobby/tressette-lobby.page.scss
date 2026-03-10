@@ -126,6 +126,8 @@
   background: linear-gradient(180deg, #209f35, #0f7b22);
   border: 1px solid rgba(255, 255, 255, 0.25);
   text-align: center;
+  display: grid;
+  gap: 6px;
 }
 
 .seat.occupied {
@@ -143,8 +145,20 @@
   min-height: 18px;
   font-weight: 700;
   color: #ffffff;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   font-size: 13px;
+}
+
+.bot-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  letter-spacing: 0.3px;
+  background: #ffd978;
+  color: #2d2306;
+  font-weight: 800;
 }
 
 .seat-nord {

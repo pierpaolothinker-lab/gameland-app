@@ -73,7 +73,13 @@
 
           <div class="seat seat-nord" [class.occupied]="seatOccupied(table, 'NORD')">
             <div class="seat-label">NORD</div>
-            <div class="seat-player">{{ playerAt(table, 'NORD')?.username ?? 'libero' }}</div>
+            <div class="seat-player">
+              <ng-container *ngIf="playerAt(table, 'NORD') as player; else seatNordFree">
+                {{ player.username }}
+                <span class="bot-badge" *ngIf="player.isBot">BOT</span>
+              </ng-container>
+              <ng-template #seatNordFree>libero</ng-template>
+            </div>
             <ion-button
               size="small"
               fill="solid"
@@ -82,11 +88,26 @@
             >
               {{ seatOccupied(table, 'NORD') ? 'Occupato' : 'Siediti' }}
             </ion-button>
+            <ion-button
+              size="small"
+              fill="outline"
+              color="warning"
+              *ngIf="canAddBotToSeat(table, 'NORD')"
+              (click)="addBot(table.tableId, 'NORD')"
+            >
+              Aggiungi Bot
+            </ion-button>
           </div>
 
           <div class="seat seat-est" [class.occupied]="seatOccupied(table, 'EST')">
             <div class="seat-label">EST</div>
-            <div class="seat-player">{{ playerAt(table, 'EST')?.username ?? 'libero' }}</div>
+            <div class="seat-player">
+              <ng-container *ngIf="playerAt(table, 'EST') as player; else seatEstFree">
+                {{ player.username }}
+                <span class="bot-badge" *ngIf="player.isBot">BOT</span>
+              </ng-container>
+              <ng-template #seatEstFree>libero</ng-template>
+            </div>
             <ion-button
               size="small"
               fill="solid"
@@ -95,11 +116,26 @@
             >
               {{ seatOccupied(table, 'EST') ? 'Occupato' : 'Siediti' }}
             </ion-button>
+            <ion-button
+              size="small"
+              fill="outline"
+              color="warning"
+              *ngIf="canAddBotToSeat(table, 'EST')"
+              (click)="addBot(table.tableId, 'EST')"
+            >
+              Aggiungi Bot
+            </ion-button>
           </div>
 
           <div class="seat seat-sud" [class.occupied]="seatOccupied(table, 'SUD')">
             <div class="seat-label">SUD</div>
-            <div class="seat-player">{{ playerAt(table, 'SUD')?.username ?? 'libero' }}</div>
+            <div class="seat-player">
+              <ng-container *ngIf="playerAt(table, 'SUD') as player; else seatSudFree">
+                {{ player.username }}
+                <span class="bot-badge" *ngIf="player.isBot">BOT</span>
+              </ng-container>
+              <ng-template #seatSudFree>libero</ng-template>
+            </div>
             <ion-button
               size="small"
               fill="solid"
@@ -108,11 +144,26 @@
             >
               {{ seatOccupied(table, 'SUD') ? 'Occupato' : 'Siediti' }}
             </ion-button>
+            <ion-button
+              size="small"
+              fill="outline"
+              color="warning"
+              *ngIf="canAddBotToSeat(table, 'SUD')"
+              (click)="addBot(table.tableId, 'SUD')"
+            >
+              Aggiungi Bot
+            </ion-button>
           </div>
 
           <div class="seat seat-ovest" [class.occupied]="seatOccupied(table, 'OVEST')">
             <div class="seat-label">OVEST</div>
-            <div class="seat-player">{{ playerAt(table, 'OVEST')?.username ?? 'libero' }}</div>
+            <div class="seat-player">
+              <ng-container *ngIf="playerAt(table, 'OVEST') as player; else seatOvestFree">
+                {{ player.username }}
+                <span class="bot-badge" *ngIf="player.isBot">BOT</span>
+              </ng-container>
+              <ng-template #seatOvestFree>libero</ng-template>
+            </div>
             <ion-button
               size="small"
               fill="solid"
@@ -120,6 +171,15 @@
               (click)="joinSeat(table.tableId, 'OVEST')"
             >
               {{ seatOccupied(table, 'OVEST') ? 'Occupato' : 'Siediti' }}
+            </ion-button>
+            <ion-button
+              size="small"
+              fill="outline"
+              color="warning"
+              *ngIf="canAddBotToSeat(table, 'OVEST')"
+              (click)="addBot(table.tableId, 'OVEST')"
+            >
+              Aggiungi Bot
             </ion-button>
           </div>
         </div>

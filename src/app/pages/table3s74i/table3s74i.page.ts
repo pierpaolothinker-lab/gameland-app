@@ -197,6 +197,10 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       return false;
     }
 
+    if (this.myPlayer?.isBot) {
+      return false;
+    }
+
     return this.turnPlayerUsername === this.myUsername;
   }
 
@@ -265,6 +269,11 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     }
 
     return this.countdownSeconds;
+  }
+
+
+  isBotPlayer(position: TressettePosition): boolean {
+    return !!this.getPlayer(position)?.isBot;
   }
 
   getTrickCard(position: TressettePosition): ICardIT | null {
@@ -940,6 +949,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.table.players.find((player) => player.username === username)?.position ?? null;
   }
 }
+
 
 
 

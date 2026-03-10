@@ -15,6 +15,7 @@ describe('TressetteLobbyPage', () => {
     listTables: jasmine.Spy;
     createTable: jasmine.Spy;
     joinTable: jasmine.Spy;
+    addBot: jasmine.Spy;
     startTable: jasmine.Spy;
   };
   let authMock: {
@@ -61,6 +62,7 @@ describe('TressetteLobbyPage', () => {
       listTables: jasmine.createSpy('listTables').and.returnValue(of(tablesMock)),
       createTable: jasmine.createSpy('createTable').and.returnValue(of(tablesMock[0])),
       joinTable: jasmine.createSpy('joinTable').and.returnValue(of(tablesMock[0])),
+      addBot: jasmine.createSpy('addBot').and.returnValue(of(tablesMock[0])),
       startTable: jasmine.createSpy('startTable').and.returnValue(of(tablesMock[0])),
     };
 
@@ -117,6 +119,39 @@ describe('TressetteLobbyPage', () => {
 
     expect(serviceMock.joinTable).toHaveBeenCalledWith('table-1', 'Luca', 'NORD');
     expect(serviceMock.listTables).toHaveBeenCalledTimes(2);
+  });
+
+  it('add bot usa username da sessione', () => {
+    component.addBot('table-1', 'OVEST');
+
+    expect(serviceMock.addBot).toHaveBeenCalledWith('table-1', 'Luca', 'OVEST');
+    expect(serviceMock.listTables).toHaveBeenCalledTimes(2);
+  });
+
+  it('azione add bot solo su tavolo owner waiting e posto libero', () => {
+    const ownerTable = makeTable('tbl-owner', 'Luca', 'waiting', 2);
+    const nonOwnerTable = makeTable('tbl-other', 'Marta', 'waiting', 2);
+
+    expect(component.canAddBotToSeat(ownerTable, 'EST')).toBeTrue();
+    expect(component.canAddBotToSeat(ownerTable, 'SUD')).toBeFalse();
+    expect(component.canAddBotToSeat(nonOwnerTable, 'EST')).toBeFalse();
+  });
+
+  it('mostra badge BOT in seat lobby', () => {
+    component.tables = [
+      {
+        ...makeTable('tbl-bot', 'Luca', 'waiting', 2),
+        players: [
+          { username: 'Luca', position: 'SUD' },
+          { username: 'BOT_1', position: 'NORD', isBot: true },
+        ],
+      },
+    ];
+
+    fixture.detectChanges();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('BOT');
   });
 
   it('gestione errore API', () => {

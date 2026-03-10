@@ -58,9 +58,9 @@ export class CardNAComponent implements OnInit {
   }
 
   private getFineTuneOffsets(card: ICardIT): { x: number; y: number; bottomCropY: number } {
-    const valueOffsetX = card.value === 6 ? 2 : card.value === 5 ? 1 : card.value === 4 ? 1 : 0;
+    const valueOffsetX = card.value === 6 ? 4 : card.value === 5 ? 2 : card.value === 4 ? 1 : 0;
     const bastoniOffsetY = card.suit === Suit.Bastoni ? 1 : 0;
-    const bastoniBottomCropY = card.suit === Suit.Bastoni ? 1 : 0;
+    const bastoniBottomCropY = card.suit === Suit.Bastoni ? 2 : 0;
     return { x: valueOffsetX, y: bastoniOffsetY, bottomCropY: bastoniBottomCropY };
   }
 
@@ -79,3 +79,4 @@ export class CardNAComponent implements OnInit {
     this.myElement.nativeElement.style.backgroundPosition = `-${xPos - offset.x}px -${yPos + offset.y + offset.bottomCropY}px`;
   }
 }
+

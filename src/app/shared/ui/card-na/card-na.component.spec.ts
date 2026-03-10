@@ -20,4 +20,8 @@ describe('CardNAComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('showCard non lancia errori con coordinate valide', () => {
+    expect(() => component.showCard(0, 0)).not.toThrow();
+  });
 });

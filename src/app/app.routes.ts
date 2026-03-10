@@ -40,8 +40,12 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/table3s74i/table3s74i.page').then((m) => m.Table3s74iPage),
   },
   {
+    path: 'debug/cards-catalog',
+    loadComponent: () => import('./pages/debug-cards-catalog/debug-cards-catalog.page').then((m) => m.DebugCardsCatalogPage),
+  },  {
     path: 'table3s74i',
     redirectTo: 'tressette-lobby',
     pathMatch: 'full',
   },
 ];
+

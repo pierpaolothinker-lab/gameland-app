@@ -1,0 +1,17 @@
+<ion-content [fullscreen]="true" class="catalog-content">
+  <section class="catalog-header">
+    <h1>Debug - Catalogo Carte</h1>
+    <ion-button fill="outline" routerLink="/tressette-lobby">Torna lobby</ion-button>
+  </section>
+
+  <section class="catalog-wrapper">
+    <div class="catalog-grid" *ngFor="let row of rows; trackBy: trackByRow">
+      <div class="catalog-cell" *ngFor="let card of row.cards; let value = index; trackBy: trackByCardValue">
+        <app-card-na [card]="card"></app-card-na>
+        <p class="catalog-label">{{ row.label }}-{{ value + 1 }}</p>
+      </div>
+    </div>
+  </section>
+</ion-content>
+
+

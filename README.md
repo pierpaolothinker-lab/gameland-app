@@ -1,14 +1,37 @@
-﻿# gameland-app
+# gameland-app
+
+## Flow Login Mock (FE)
+
+Nuovo flusso di navigazione applicato:
+
+`LOGIN -> SCELTA GIOCO -> TRESSETTE LOBBY`
+
+Dettagli:
+
+- Landing `/` redireziona a `/login`.
+- Login mock richiede `username` (obbligatorio) e include campo password solo UI.
+- Pulsanti social `Gmail`, `Facebook`, `Twitter` sono mock UI (nessuna OAuth reale).
+- Submit login valido salva sessione mock locale e naviga a `/game-select`.
+- Da `Scelta Gioco`, click su `Tressette` apre `/tressette-lobby`.
+
+Protezione route minima (mock auth):
+
+- Rotte protette: `/game-select`, `/tressette-lobby`, `/table3s74i/:tableId`, `/tressette4-inc`.
+- Se non autenticato -> redirect a `/login`.
+
+Storage sessione mock:
+
+- Legacy key: `gameland.mockAuthSession.userId`
+- Session key JSON: `gameland.mockAuthSession.session`
 
 ## Mock Auth Session (Tressette Lobby)
 
-La lobby Tressette usa una sessione utente mock (nessun login reale).
+La lobby Tressette usa una sessione utente mock (nessun login reale server).
 
 - Utenti disponibili: `Luca`, `Marta`, `Sofia`, `Paolo`
 - Utente attivo visibile in UI: `Utente attivo: <username>`
 - Cambio rapido utente (solo ambiente non-prod) dal pannello dev in lobby
-- Persistenza utente attivo su `localStorage` con chiave:
-  `gameland.mockAuthSession.userId`
+- Persistenza utente attivo su localStorage (chiavi sopra)
 
 ## Data Mode globale (Demo | Live)
 
@@ -36,4 +59,3 @@ Per i giocatori umani senza avatar personale, il FE assegna un avatar placeholde
 - Manifest: src/assets/avatars/players/manifest.json
 - Regola: stesso username -> stesso avatar default
 - I bot continuano a usare solo assets/avatar-bot.svg con varianti colore esistenti (invariato)
-

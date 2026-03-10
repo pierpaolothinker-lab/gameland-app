@@ -1,22 +1,18 @@
 ﻿<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title-a15 desc-a15">
   <title id="title-a15">Animal avatar 15</title>
-  <desc id="desc-a15">Stylized pig animal avatar placeholder for a player seat.</desc>
+  <desc id="desc-a15">Stylized monkey avatar placeholder for a player seat.</desc>
   <defs>
     <linearGradient id="bg-a15" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#E6EE9C"/>
-      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.36"/>
+      <stop offset="0%" stop-color="#F4D3B8"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.35"/>
     </linearGradient>
   </defs>
   <rect width="128" height="128" rx="24" fill="url(#bg-a15)"/>
-  <ellipse cx="44" cy="26" rx="12" ry="14" fill="#607D8B"/>
-  <ellipse cx="84" cy="26" rx="12" ry="14" fill="#607D8B"/>
-  <ellipse cx="44" cy="26" rx="6" ry="7" fill="#FFCA28" fill-opacity="0.78"/>
-  <ellipse cx="84" cy="26" rx="6" ry="7" fill="#FFCA28" fill-opacity="0.78"/>
-  <circle cx="64" cy="66" r="34" fill="#607D8B"/>
-  <ellipse cx="64" cy="83" rx="17" ry="13" fill="#F5E9D8"/>
-  <circle cx="52" cy="65" r="4" fill="#1E2630"/>
-  <circle cx="76" cy="65" r="4" fill="#1E2630"/>
-  <circle cx="64" cy="78" r="4" fill="#FFCA28"/>
-  <path d="M58 85 Q64 90 70 85" stroke="#4A342E" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-  <path d="M44 90 Q64 102 84 90" stroke="#FFCA28" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.82"/>
+  <circle cx="41" cy="59" r="11" fill="#6D4C41" opacity="0.62"/>
+  <circle cx="87" cy="59" r="11" fill="#6D4C41" opacity="0.62"/>  <circle cx="64" cy="67" r="33" fill="#A7744E"/>
+  <ellipse cx="64" cy="83" rx="17" ry="12" fill="#F3E1CF"/>
+  <circle cx="52" cy="64" r="4" fill="#2E2118"/>
+  <circle cx="76" cy="64" r="4" fill="#2E2118"/>
+  <ellipse cx="64" cy="77" rx="4" ry="3" fill="#6D4C41"/>
+  <path d="M58 86 Q64 92 70 86" stroke="#6D4C41" stroke-width="2.6" fill="none" stroke-linecap="round"/>
 </svg>

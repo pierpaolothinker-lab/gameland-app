@@ -1,22 +1,17 @@
 ﻿<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title-a10 desc-a10">
   <title id="title-a10">Animal avatar 10</title>
-  <desc id="desc-a10">Stylized tiger animal avatar placeholder for a player seat.</desc>
+  <desc id="desc-a10">Stylized deer avatar placeholder for a player seat.</desc>
   <defs>
     <linearGradient id="bg-a10" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#DCEDC8"/>
-      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.36"/>
+      <stop offset="0%" stop-color="#F2DFC8"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.35"/>
     </linearGradient>
   </defs>
   <rect width="128" height="128" rx="24" fill="url(#bg-a10)"/>
-  <ellipse cx="44" cy="25" rx="12" ry="14" fill="#795548"/>
-  <ellipse cx="84" cy="25" rx="12" ry="14" fill="#795548"/>
-  <ellipse cx="44" cy="25" rx="6" ry="7" fill="#26C6DA" fill-opacity="0.78"/>
-  <ellipse cx="84" cy="25" rx="6" ry="7" fill="#26C6DA" fill-opacity="0.78"/>
-  <circle cx="64" cy="66" r="34" fill="#795548"/>
-  <ellipse cx="64" cy="83" rx="17" ry="13" fill="#F5E9D8"/>
-  <circle cx="52" cy="63" r="4" fill="#1E2630"/>
-  <circle cx="76" cy="63" r="4" fill="#1E2630"/>
-  <circle cx="64" cy="76" r="4" fill="#26C6DA"/>
-  <path d="M58 83 Q64 88 70 83" stroke="#4A342E" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-  <path d="M44 90 Q64 102 84 90" stroke="#26C6DA" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.82"/>
+  <path d="M44 42 L36 24 M44 42 L30 33 M84 42 L92 24 M84 42 L98 33" stroke="#6D4C41" stroke-width="3" stroke-linecap="round"/>  <circle cx="64" cy="67" r="33" fill="#A9825A"/>
+  <ellipse cx="64" cy="83" rx="17" ry="12" fill="#F5E7D5"/>
+  <circle cx="52" cy="64" r="4" fill="#2A211A"/>
+  <circle cx="76" cy="64" r="4" fill="#2A211A"/>
+  <ellipse cx="64" cy="77" rx="4" ry="3" fill="#6D4C41"/>
+  <path d="M58 86 Q64 92 70 86" stroke="#6D4C41" stroke-width="2.6" fill="none" stroke-linecap="round"/>
 </svg>

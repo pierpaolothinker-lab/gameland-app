@@ -39,7 +39,8 @@
 
   <section class="create-block">
     <div class="create-actions">
-      <ion-button (click)="createTable()">Crea Tavolo</ion-button>
+      <ion-button *ngIf="canCreateTable" (click)="createTable()">Crea Tavolo</ion-button>
+      <div class="create-guard" *ngIf="!canCreateTable">Sei gia seduto al tavolo {{ activeSeatTableId }}.</div>
       <ion-button fill="outline" (click)="refreshTables()">Aggiorna Lista</ion-button>
     </div>
   </section>
@@ -72,7 +73,6 @@
           <div class="mini-table-bg"></div>
 
           <div class="seat seat-nord" [class.occupied]="seatOccupied(table, 'NORD')" [class.empty]="!seatOccupied(table, 'NORD')">
-            <div class="seat-label" *ngIf="seatOccupied(table, 'NORD')">NORD</div>
             <div class="seat-player" *ngIf="seatOccupied(table, 'NORD'); else emptyNord">
               <span class="human-name" *ngIf="!isBotSeat(table, 'NORD')">{{ displayHumanSeatName(table, 'NORD') }}</span>
               <span class="bot-badge" *ngIf="isBotSeat(table, 'NORD')">BOT</span>
@@ -91,7 +91,6 @@
           </div>
 
           <div class="seat seat-est" [class.occupied]="seatOccupied(table, 'EST')" [class.empty]="!seatOccupied(table, 'EST')">
-            <div class="seat-label" *ngIf="seatOccupied(table, 'EST')">EST</div>
             <div class="seat-player" *ngIf="seatOccupied(table, 'EST'); else emptyEst">
               <span class="human-name" *ngIf="!isBotSeat(table, 'EST')">{{ displayHumanSeatName(table, 'EST') }}</span>
               <span class="bot-badge" *ngIf="isBotSeat(table, 'EST')">BOT</span>
@@ -110,7 +109,6 @@
           </div>
 
           <div class="seat seat-sud" [class.occupied]="seatOccupied(table, 'SUD')" [class.empty]="!seatOccupied(table, 'SUD')">
-            <div class="seat-label" *ngIf="seatOccupied(table, 'SUD')">SUD</div>
             <div class="seat-player" *ngIf="seatOccupied(table, 'SUD'); else emptySud">
               <span class="human-name" *ngIf="!isBotSeat(table, 'SUD')">{{ displayHumanSeatName(table, 'SUD') }}</span>
               <span class="bot-badge" *ngIf="isBotSeat(table, 'SUD')">BOT</span>
@@ -129,7 +127,6 @@
           </div>
 
           <div class="seat seat-ovest" [class.occupied]="seatOccupied(table, 'OVEST')" [class.empty]="!seatOccupied(table, 'OVEST')">
-            <div class="seat-label" *ngIf="seatOccupied(table, 'OVEST')">OVEST</div>
             <div class="seat-player" *ngIf="seatOccupied(table, 'OVEST'); else emptyOvest">
               <span class="human-name" *ngIf="!isBotSeat(table, 'OVEST')">{{ displayHumanSeatName(table, 'OVEST') }}</span>
               <span class="bot-badge" *ngIf="isBotSeat(table, 'OVEST')">BOT</span>

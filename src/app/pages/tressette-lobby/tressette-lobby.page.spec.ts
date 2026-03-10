@@ -158,6 +158,34 @@ describe('TressetteLobbyPage', () => {
     expect(text).not.toContain('Siediti');
     expect(text).not.toContain('Aggiungi Bot');
   });
+  it('nasconde crea tavolo quando utente e gia seduto', () => {
+    component.tables = [
+      makeTable('table-a', 'Luca', 'waiting', [{ username: 'Luca', position: 'SUD' }]),
+    ];
+
+    fixture.detectChanges();
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+
+    expect(text).not.toContain('Crea Tavolo');
+    expect(text).toContain('Sei gia seduto al tavolo table-a.');
+
+    component.createTable();
+    expect(serviceMock.createTable).not.toHaveBeenCalled();
+  });
+
+  it('non renderizza label posizione nelle seat card lobby', () => {
+    component.tables = [
+      makeTable('table-a', 'Luca', 'waiting', [
+        { username: 'Luca', position: 'SUD' },
+        { username: 'Marta', position: 'NORD' },
+      ]),
+    ];
+
+    fixture.detectChanges();
+    const seatLabels = fixture.nativeElement.querySelectorAll('.seat-label');
+
+    expect(seatLabels.length).toBe(0);
+  });
 
   it('mostra BOT badge senza username bot', () => {
     component.tables = [
@@ -206,3 +234,4 @@ describe('TressetteLobbyPage', () => {
     expect(routerMock.navigate).toHaveBeenCalledWith(['/table3s74i', 'tbl-owner-ready']);
   });
 });
+

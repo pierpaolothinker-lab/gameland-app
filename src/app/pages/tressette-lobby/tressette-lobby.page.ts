@@ -121,6 +121,10 @@ export class TressetteLobbyPage implements OnInit {
   }
 
   createTable(): void {
+    if (!this.canCreateTable) {
+      return;
+    }
+
     this.loading = true;
     this.errorBanner = '';
 
@@ -237,6 +241,14 @@ export class TressetteLobbyPage implements OnInit {
     }
 
     return '';
+  }
+
+  get canCreateTable(): boolean {
+    return !this.activeUserSeatedTable() && !this.loading;
+  }
+
+  get activeSeatTableId(): string | null {
+    return this.activeUserSeatedTable()?.tableId ?? null;
   }
 
   startMyGame(): void {

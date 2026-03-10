@@ -54,23 +54,13 @@ export class CardNAComponent implements OnInit {
   }
 
   showCard(row: number, col: number): void {
-    const grid = this.K.CARD_GRID;
-    const display = this.K.DISPLAY;
+    const xPosOriginal = this.K.INITIAL_OFFSET.X + col * (this.K.CARD_SIZE.ORIGINAL_WIDTH + this.K.CARD_SPACING.X);
+    const yPosOriginal = this.K.INITIAL_OFFSET.Y + row * (this.K.CARD_SIZE.ORIGINAL_HEIGHT + this.K.CARD_SPACING.Y);
 
-    const scaleX = display.WIDTH / grid.CELL_WIDTH;
-    const scaleY = display.HEIGHT / grid.CELL_HEIGHT;
+    // Keep stable historical sprite extraction and only clamp to integer pixels + tiny inset.
+    const xPos = Math.round(xPosOriginal * this.K.SPRITE_SCALE.X) + this.K.SAFE_INSET_PX;
+    const yPos = Math.round(yPosOriginal * this.K.SPRITE_SCALE.Y) + this.K.SAFE_INSET_PX;
 
-    const xCell = grid.OFFSET_X + col * (grid.CELL_WIDTH + grid.GAP_X);
-    const yCell = grid.OFFSET_Y + row * (grid.CELL_HEIGHT + grid.GAP_Y);
-
-    const xPos = Math.round(xCell * scaleX) + display.SAFE_INSET;
-    const yPos = Math.round(yCell * scaleY) + display.SAFE_INSET;
-
-    const bgWidth = Math.round(this.K.SPRITE_SHEET.WIDTH * scaleX);
-    const bgHeight = Math.round(this.K.SPRITE_SHEET.HEIGHT * scaleY);
-
-    const elementStyle = this.myElement.nativeElement.style;
-    elementStyle.backgroundSize = `${bgWidth}px ${bgHeight}px`;
-    elementStyle.backgroundPosition = `-${xPos}px -${yPos}px`;
+    this.myElement.nativeElement.style.backgroundPosition = `-${xPos}px -${yPos}px`;
   }
 }

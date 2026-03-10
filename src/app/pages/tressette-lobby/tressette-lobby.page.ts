@@ -153,6 +153,11 @@ export class TressetteLobbyPage implements OnInit {
   }
 
   addBot(tableId: string, position: TressettePosition): void {
+    const table = this.tables.find((entry) => entry.tableId === tableId);
+    if (!table || !this.canAddBotToSeat(table, position)) {
+      return;
+    }
+
     this.addingBot = true;
     this.errorBanner = '';
 
@@ -167,6 +172,14 @@ export class TressetteLobbyPage implements OnInit {
         this.errorBanner = this.normalizeErrorMessage(error, `Aggiunta bot fallita su ${position}`);
       },
     });
+  }
+
+  onEmptySeatClick(table: TressetteTableView, position: TressettePosition): void {
+    if (!this.canAddBotToSeat(table, position)) {
+      return;
+    }
+
+    this.addBot(table.tableId, position);
   }
 
   get selectedOwnerTable(): TressetteTableView | null {
@@ -258,6 +271,11 @@ export class TressetteLobbyPage implements OnInit {
       return false;
     }
 
+    const ownerContextTableId = this.selectedOwnerTable?.tableId;
+    if (!ownerContextTableId || ownerContextTableId !== table.tableId) {
+      return false;
+    }
+
     if (!this.isOwnerTable(table)) {
       return false;
     }
@@ -269,13 +287,12 @@ export class TressetteLobbyPage implements OnInit {
     return !this.seatOccupied(table, position);
   }
 
-  seatLabel(table: TressetteTableView, position: TressettePosition): string {
-    const player = this.playerAt(table, position);
+  displayPlayerName(player?: TressettePlayer): string {
     if (!player) {
-      return `${position}: libero`;
+      return 'libero';
     }
 
-    return player.isBot ? `${position}: ${player.username} [BOT]` : `${position}: ${player.username}`;
+    return player.isBot ? 'Bot' : player.username;
   }
 
   playerAt(table: TressetteTableView, position: TressettePosition): TressettePlayer | undefined {

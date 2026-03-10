@@ -476,7 +476,7 @@ describe('Table3s74iPage', () => {
 
     expect(localComponent.errorMessage).toContain('Tavolo non trovato');
   });
-  it('mostra badge BOT sui seat in gameplay', () => {
+  it('mostra badge BOT sui seat in gameplay e normalizza nome Bot', () => {
     component.table = {
       ...tableMock,
       players: [
@@ -491,6 +491,8 @@ describe('Table3s74iPage', () => {
 
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
     expect(text).toContain('BOT');
+    expect(text).toContain('Bot');
+    expect(text).not.toContain('BOT_1');
   });
 
   it('disabilita play-card quando utente sessione e bot', () => {
@@ -510,3 +512,4 @@ describe('Table3s74iPage', () => {
     expect(component.canPlayCards).toBeFalse();
   });
 });
+

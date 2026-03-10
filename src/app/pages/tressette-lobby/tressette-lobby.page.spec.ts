@@ -121,29 +121,42 @@ describe('TressetteLobbyPage', () => {
     expect(serviceMock.listTables).toHaveBeenCalledTimes(2);
   });
 
-  it('add bot usa username da sessione', () => {
+  it('add bot usa username da sessione solo su owner table context', () => {
+    component.tables = [makeTable('table-1', 'Luca', 'waiting', 2)];
+
     component.addBot('table-1', 'OVEST');
 
     expect(serviceMock.addBot).toHaveBeenCalledWith('table-1', 'Luca', 'OVEST');
     expect(serviceMock.listTables).toHaveBeenCalledTimes(2);
   });
 
-  it('azione add bot solo su tavolo owner waiting e posto libero', () => {
-    const ownerTable = makeTable('tbl-owner', 'Luca', 'waiting', 2);
-    const nonOwnerTable = makeTable('tbl-other', 'Marta', 'waiting', 2);
+  it('click empty seat su tabella non owner e no-op', () => {
+    component.tables = [makeTable('table-1', 'Marta', 'waiting', 2)];
 
-    expect(component.canAddBotToSeat(ownerTable, 'EST')).toBeTrue();
-    expect(component.canAddBotToSeat(ownerTable, 'SUD')).toBeFalse();
-    expect(component.canAddBotToSeat(nonOwnerTable, 'EST')).toBeFalse();
+    component.onEmptySeatClick(component.tables[0], 'EST');
+
+    expect(serviceMock.addBot).not.toHaveBeenCalled();
   });
 
-  it('mostra badge BOT in seat lobby', () => {
+  it('azione add bot solo su tavolo owner selezionato e posto libero', () => {
+    component.tables = [
+      makeTable('tbl-owner-ready', 'Luca', 'waiting', 4, true),
+      makeTable('tbl-owner-wait', 'Luca', 'waiting', 2),
+      makeTable('tbl-other', 'Marta', 'waiting', 1),
+    ];
+
+    expect(component.ownerTargetTableId).toBe('tbl-owner-ready');
+    expect(component.canAddBotToSeat(component.tables[1], 'EST')).toBeFalse();
+    expect(component.canAddBotToSeat(component.tables[2], 'EST')).toBeFalse();
+  });
+
+  it('mostra Bot (non Bot-1) in seat lobby', () => {
     component.tables = [
       {
         ...makeTable('tbl-bot', 'Luca', 'waiting', 2),
         players: [
           { username: 'Luca', position: 'SUD' },
-          { username: 'BOT_1', position: 'NORD', isBot: true },
+          { username: 'Bot-1', position: 'NORD', isBot: true },
         ],
       },
     ];
@@ -151,7 +164,9 @@ describe('TressetteLobbyPage', () => {
     fixture.detectChanges();
 
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Bot');
     expect(text).toContain('BOT');
+    expect(text).not.toContain('Bot-1');
   });
 
   it('gestione errore API', () => {

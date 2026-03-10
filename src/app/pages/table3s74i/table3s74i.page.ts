@@ -214,7 +214,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     }
 
     const position = this.turnPlayerPosition ?? this.resolvePositionByUsername(this.turnPlayerUsername);
-    return `${this.turnPlayerUsername} (${position ?? '-'})`;
+    return `${this.displayUsername(this.turnPlayerUsername)} (${position ?? '-'})`;
   }
 
   get handLabel(): string {
@@ -274,6 +274,15 @@ export class Table3s74iPage implements OnInit, OnDestroy {
 
   isBotPlayer(position: TressettePosition): boolean {
     return !!this.getPlayer(position)?.isBot;
+  }
+
+  playerDisplayName(position: TressettePosition): string {
+    const player = this.getPlayer(position);
+    if (!player) {
+      return position;
+    }
+
+    return player.isBot ? 'Bot' : player.username;
   }
 
   getTrickCard(position: TressettePosition): ICardIT | null {
@@ -754,10 +763,24 @@ export class Table3s74iPage implements OnInit, OnDestroy {
   }
 
   private setLastTrickWinner(winnerName?: string): void {
-    this.lastTrickWinnerName = winnerName?.trim() || '-';
+    this.lastTrickWinnerName = this.displayUsername(winnerName?.trim() || '-');
     this.syncTrickWinnerMessage();
   }
 
+
+  private displayUsername(username: string): string {
+    const normalized = username?.trim();
+    if (!normalized || normalized === '-') {
+      return '-';
+    }
+
+    const player = this.table?.players.find((entry) => entry.username === normalized);
+    if (player?.isBot) {
+      return 'Bot';
+    }
+
+    return normalized;
+  }
   private syncTrickWinnerMessage(): void {
     const winnerName = this.lastTrickWinnerName.trim() || '-';
     this.trickWinnerMessage = `Prende ${winnerName}`;
@@ -949,6 +972,8 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.table.players.find((player) => player.username === username)?.position ?? null;
   }
 }
+
+
 
 
 

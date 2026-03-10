@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
@@ -23,6 +23,7 @@ import { DataMode, DataModeService } from 'src/app/services/data-mode/data-mode.
 import { TressetteTableService } from 'src/app/services/tressette/tressette-table.service';
 import { TressettePlayer, TressettePosition, TressetteTableView } from 'src/app/shared/domain/models/tressette-table.model';
 import { resolveBotAvatarVariantClass } from 'src/app/shared/utils/bot-avatar-variant.util';
+import { resolveDefaultPlayerAvatar } from 'src/app/shared/utils/player-avatar.util';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -297,7 +298,12 @@ export class TressetteLobbyPage implements OnInit {
   }
 
   seatAvatarSrc(table: TressetteTableView, position: TressettePosition): string {
-    return this.isBotSeat(table, position) ? 'assets/avatar-bot.svg' : 'assets/avatarExample.png';
+    const player = this.playerAt(table, position);
+    if (player?.isBot) {
+      return 'assets/avatar-bot.svg';
+    }
+
+    return resolveDefaultPlayerAvatar(player?.username);
   }
 
   seatAvatarClass(table: TressetteTableView, position: TressettePosition): string {
@@ -381,4 +387,5 @@ export class TressetteLobbyPage implements OnInit {
     return apiMessage ? `${fallback}: ${apiMessage}` : fallback;
   }
 }
+
 

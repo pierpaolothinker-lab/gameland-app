@@ -1,0 +1,85 @@
+﻿{
+    "version":  1,
+    "avatars":  [
+                    {
+                        "id":  "player-01",
+                        "file":  "assets/avatars/players/player-01.svg"
+                    },
+                    {
+                        "id":  "player-02",
+                        "file":  "assets/avatars/players/player-02.svg"
+                    },
+                    {
+                        "id":  "player-03",
+                        "file":  "assets/avatars/players/player-03.svg"
+                    },
+                    {
+                        "id":  "player-04",
+                        "file":  "assets/avatars/players/player-04.svg"
+                    },
+                    {
+                        "id":  "player-05",
+                        "file":  "assets/avatars/players/player-05.svg"
+                    },
+                    {
+                        "id":  "player-06",
+                        "file":  "assets/avatars/players/player-06.svg"
+                    },
+                    {
+                        "id":  "player-07",
+                        "file":  "assets/avatars/players/player-07.svg"
+                    },
+                    {
+                        "id":  "player-08",
+                        "file":  "assets/avatars/players/player-08.svg"
+                    },
+                    {
+                        "id":  "player-09",
+                        "file":  "assets/avatars/players/player-09.svg"
+                    },
+                    {
+                        "id":  "player-10",
+                        "file":  "assets/avatars/players/player-10.svg"
+                    },
+                    {
+                        "id":  "player-11",
+                        "file":  "assets/avatars/players/player-11.svg"
+                    },
+                    {
+                        "id":  "player-12",
+                        "file":  "assets/avatars/players/player-12.svg"
+                    },
+                    {
+                        "id":  "player-13",
+                        "file":  "assets/avatars/players/player-13.svg"
+                    },
+                    {
+                        "id":  "player-14",
+                        "file":  "assets/avatars/players/player-14.svg"
+                    },
+                    {
+                        "id":  "player-15",
+                        "file":  "assets/avatars/players/player-15.svg"
+                    },
+                    {
+                        "id":  "player-16",
+                        "file":  "assets/avatars/players/player-16.svg"
+                    },
+                    {
+                        "id":  "player-17",
+                        "file":  "assets/avatars/players/player-17.svg"
+                    },
+                    {
+                        "id":  "player-18",
+                        "file":  "assets/avatars/players/player-18.svg"
+                    },
+                    {
+                        "id":  "player-19",
+                        "file":  "assets/avatars/players/player-19.svg"
+                    },
+                    {
+                        "id":  "player-20",
+                        "file":  "assets/avatars/players/player-20.svg"
+                    }
+                ]
+}

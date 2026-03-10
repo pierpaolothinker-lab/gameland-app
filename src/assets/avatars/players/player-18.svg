@@ -1,0 +1,20 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title-18 desc-18">
+  <title id="title-18">Player avatar 18</title>
+  <desc id="desc-18">Abstract human avatar placeholder for a player seat.</desc>
+  <defs>
+    <linearGradient id="bg-18" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#BCAAA4"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.35"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="24" fill="url(#bg-18)"/>
+  <circle cx="64" cy="54" r="30" fill="#F6D2B5"/>
+  <path d="M34 53 C38 28, 90 27, 94 54 L94 43 C87 23, 41 22, 34 43 Z" fill="#7B1FA2"/>
+  <rect x="44" y="84" width="40" height="16" rx="8" fill="#E7BCA1"/>
+  <path d="M22 128 C26 100, 43 92, 64 92 C85 92, 102 100, 106 128 Z" fill="#039BE5"/>
+  <ellipse cx="52" cy="60" rx="4" ry="5" fill="#1F2933"/>
+  <ellipse cx="76" cy="60" rx="4" ry="5" fill="#1F2933"/>
+  <path d="M50 81 Q64 89 78 81" stroke="#8D4A43" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M46 52 L56 50" stroke="#2C1A16" stroke-width="2" stroke-linecap="round"/>
+  <path d="M72 50 L82 52" stroke="#2C1A16" stroke-width="2" stroke-linecap="round"/>
+</svg>

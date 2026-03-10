@@ -1,4 +1,4 @@
-# gameland-app
+﻿# gameland-app
 
 ## Mock Auth Session (Tressette Lobby)
 
@@ -27,3 +27,13 @@ Dettagli tecnici:
 ## License
 
 This project is licensed under a proprietary license. See the [LICENSE](./LICENSE) file for more details.
+
+## Default player avatars
+
+Per i giocatori umani senza avatar personale, il FE assegna un avatar placeholder deterministico usando lo username (hash % 20).
+
+- Asset pack: src/assets/avatars/players/player-01.svg ... player-20.svg
+- Manifest: src/assets/avatars/players/manifest.json
+- Regola: stesso username -> stesso avatar default
+- I bot continuano a usare solo assets/avatar-bot.svg con varianti colore esistenti (invariato)
+

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, OnDestroy, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -17,6 +17,7 @@ import {
 } from 'src/app/shared/domain/models/tressette-table.model';
 import { CardNAComponent } from 'src/app/shared/ui/card-na/card-na.component';
 import { resolveBotAvatarVariantClass } from 'src/app/shared/utils/bot-avatar-variant.util';
+import { resolveDefaultPlayerAvatar } from 'src/app/shared/utils/player-avatar.util';
 import { environment } from 'src/environments/environment';
 
 interface HandMetadataPayload {
@@ -291,7 +292,12 @@ export class Table3s74iPage implements OnInit, OnDestroy {
   }
 
   seatAvatarSrc(position: TressettePosition): string {
-    return this.isBotPlayer(position) ? 'assets/avatar-bot.svg' : 'assets/avatarExample.png';
+    const player = this.getPlayer(position);
+    if (player?.isBot) {
+      return 'assets/avatar-bot.svg';
+    }
+
+    return resolveDefaultPlayerAvatar(player?.username);
   }
 
   seatAvatarClass(position: TressettePosition): string {
@@ -998,4 +1004,5 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.table.players.find((player) => player.username === username)?.position ?? null;
   }
 }
+
 

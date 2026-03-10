@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+﻿import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 
@@ -219,7 +219,8 @@ describe('TressetteLobbyPage', () => {
     expect(northAvatar?.getAttribute('src')).toContain('assets/avatar-bot.svg');
     expect(northAvatar?.className).toContain('bot-avatar');
     expect(northAvatar?.className).toMatch(/bot-variant-[0-5]/);
-    expect(southAvatar?.getAttribute('src')).toContain('assets/avatarExample.png');
+    expect(southAvatar?.getAttribute('src')).toContain('assets/avatars/players/player-');
+    expect(southAvatar?.getAttribute('src')).toContain('.svg');
     expect(southAvatar?.className).toContain('human-avatar');
   });
   it('gestione errore API', () => {
@@ -254,5 +255,7 @@ describe('TressetteLobbyPage', () => {
     expect(routerMock.navigate).toHaveBeenCalledWith(['/table3s74i', 'tbl-owner-ready']);
   });
 });
+
+
 
 

@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+﻿import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 
@@ -514,7 +514,8 @@ describe('Table3s74iPage', () => {
     const southAvatar = fixture.nativeElement.querySelector('.seat-south .seat-avatar') as HTMLImageElement | null;
 
     expect(northAvatar?.getAttribute('src')).toContain('assets/avatar-bot.svg');
-    expect(southAvatar?.getAttribute('src')).toContain('assets/avatarExample.png');
+    expect(southAvatar?.getAttribute('src')).toContain('assets/avatars/players/player-');
+    expect(southAvatar?.getAttribute('src')).toContain('.svg');
   });
   
   it('nasconde badge turno e countdown durante trick reveal attivo', () => {
@@ -569,6 +570,8 @@ describe('Table3s74iPage', () => {
     expect(component.canPlayCards).toBeFalse();
   });
 });
+
+
 
 
 

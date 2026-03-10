@@ -16,6 +16,7 @@ import {
   TressetteTrickCard,
 } from 'src/app/shared/domain/models/tressette-table.model';
 import { CardNAComponent } from 'src/app/shared/ui/card-na/card-na.component';
+import { resolveBotAvatarVariantClass } from 'src/app/shared/utils/bot-avatar-variant.util';
 import { environment } from 'src/environments/environment';
 
 interface HandMetadataPayload {
@@ -260,7 +261,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
   }
 
   isTurnPosition(position: TressettePosition): boolean {
-    if (this.isAnyTrickRevealActive()) {
+    if (!this.turnVisualsEnabled) {
       return false;
     }
 
@@ -268,7 +269,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
   }
 
   getSeatCountdown(position: TressettePosition): number | null {
-    if (this.isAnyTrickRevealActive() || !this.isTurnPosition(position)) {
+    if (!this.turnVisualsEnabled || !this.isTurnPosition(position)) {
       return null;
     }
 
@@ -811,16 +812,12 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.trickRevealActive;
   }
 
-  
-  private botAvatarVariantClass(username?: string, position?: TressettePosition): string {
-    const seed = `${this.tableId}|${position ?? '-'}|${username ?? '-'}`;
-    let hash = 0;
-    for (let index = 0; index < seed.length; index += 1) {
-      hash = (hash * 31 + seed.charCodeAt(index)) % 2147483647;
-    }
+  private get turnVisualsEnabled(): boolean {
+    return !this.winnerOverlayVisible;
+  }
 
-    const variant = Math.abs(hash) % 6;
-    return `bot-variant-${variant}`;
+  private botAvatarVariantClass(username?: string, position?: TressettePosition): string {
+    return resolveBotAvatarVariantClass([this.tableId, position, username]);
   }
 
   private compareCardsForHandDisplay(left: ICardIT, right: ICardIT): number {
@@ -1001,20 +998,4 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.table.players.find((player) => player.username === username)?.position ?? null;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

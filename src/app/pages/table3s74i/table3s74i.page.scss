@@ -70,8 +70,8 @@
   background: linear-gradient(180deg, rgba(22, 114, 22, 0.95), rgba(11, 80, 11, 0.98));
 }
 
- .seat-north {
-  top: -2px;
+.seat-north {
+  top: -10px;
   left: 50%;
   transform: translateX(-50%);
 }
@@ -82,8 +82,8 @@
   transform: translateY(-50%);
 }
 
- .seat-south {
-  bottom: -2px;
+.seat-south {
+  bottom: -12px;
   left: 50%;
   transform: translateX(-50%);
 }
@@ -193,7 +193,7 @@
 .trick-center {
   position: absolute;
   inset: 0;
-  z-index: 4;
+  z-index: 5;
   pointer-events: none;
   display: flex;
   align-items: center;
@@ -213,7 +213,7 @@
 }
 
 .trick-north {
-  top: calc(50% - 138px);
+  top: calc(50% - 128px);
 }
 
 .trick-east {
@@ -221,7 +221,7 @@
 }
 
 .trick-south {
-  top: calc(50% + 24px);
+  top: calc(50% + 10px);
 }
 
 .trick-west {
@@ -300,7 +300,7 @@
   }
 
   .trick-north {
-    top: calc(50% - 118px);
+    top: calc(50% - 108px);
   }
 
   .trick-east {
@@ -308,7 +308,7 @@
   }
 
   .trick-south {
-    top: calc(50% + 16px);
+    top: calc(50% + 8px);
   }
 
   .trick-west {
@@ -437,6 +437,14 @@
   .trick-winner-overlay {
     top: 12px;
   }
+
+  .seat-north {
+    top: -6px;
+  }
+
+  .seat-south {
+    bottom: -8px;
+  }
 }
 
 .pregame-overlay {
@@ -484,5 +492,4 @@
   margin: 0;
   width: min(560px, calc(100% - 32px));
 }
-
 

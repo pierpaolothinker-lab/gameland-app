@@ -22,6 +22,7 @@ import { AuthSessionService, MockSessionUser } from 'src/app/services/auth/auth-
 import { DataMode, DataModeService } from 'src/app/services/data-mode/data-mode.service';
 import { TressetteTableService } from 'src/app/services/tressette/tressette-table.service';
 import { TressettePlayer, TressettePosition, TressetteTableView } from 'src/app/shared/domain/models/tressette-table.model';
+import { resolveBotAvatarVariantClass } from 'src/app/shared/utils/bot-avatar-variant.util';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -364,14 +365,7 @@ export class TressetteLobbyPage implements OnInit {
 
   
   private botAvatarVariantClass(tableId: string, username?: string, position?: TressettePosition): string {
-    const seed = `${tableId}|${position ?? '-'}|${username ?? '-'}`;
-    let hash = 0;
-    for (let index = 0; index < seed.length; index += 1) {
-      hash = (hash * 31 + seed.charCodeAt(index)) % 2147483647;
-    }
-
-    const variant = Math.abs(hash) % 6;
-    return `bot-variant-${variant}`;
+    return resolveBotAvatarVariantClass([tableId, position, username]);
   }
 
   private openToast(message: string): void {
@@ -387,6 +381,4 @@ export class TressetteLobbyPage implements OnInit {
     return apiMessage ? `${fallback}: ${apiMessage}` : fallback;
   }
 }
-
-
 

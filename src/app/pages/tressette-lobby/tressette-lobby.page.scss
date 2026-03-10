@@ -311,3 +311,8 @@
   filter: hue-rotate(230deg) saturate(1.15) brightness(1.04);
 }
 
+
+.seat-player.has-avatar {
+  grid-template-rows: auto auto;
+}
+

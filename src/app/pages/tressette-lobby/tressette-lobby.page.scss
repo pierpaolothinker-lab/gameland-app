@@ -68,7 +68,7 @@
 .table-list {
   padding: 0 16px 24px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
   gap: 14px;
 }
 
@@ -97,7 +97,7 @@
 
 .mini-table-wrap {
   margin-top: 12px;
-  min-height: 260px;
+  min-height: 250px;
   position: relative;
 }
 
@@ -105,8 +105,8 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 110px;
-  height: 110px;
+  width: 104px;
+  height: 104px;
   transform: translate(-50%, -50%);
   background: radial-gradient(circle at 35% 35%, #9f7448 0%, #6b4521 70%, #45290d 100%);
   border-radius: 50%;
@@ -115,7 +115,7 @@
 
 .seat {
   position: absolute;
-  width: 120px;
+  width: 110px;
   border-radius: 12px;
   padding: 8px;
   background: linear-gradient(180deg, #209f35, #0f7b22);
@@ -130,7 +130,9 @@
 }
 
 .seat.empty {
-  background: linear-gradient(180deg, rgba(13, 91, 49, 0.65), rgba(8, 58, 31, 0.74));
+  background: linear-gradient(180deg, rgba(13, 91, 49, 0.58), rgba(8, 58, 31, 0.7));
+  min-height: 54px;
+  place-items: center;
 }
 
 .seat-label {
@@ -148,42 +150,65 @@
   font-size: 13px;
 }
 
-.empty-seat-trigger {
-  justify-self: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  border: 1px dashed rgba(255, 255, 255, 0.35);
-  background: rgba(255, 255, 255, 0.1);
-  display: grid;
-  place-items: center;
-  cursor: default;
-  padding: 0;
+.human-name {
+  display: inline-block;
 }
 
-.empty-seat-trigger.owner-enabled {
-  border-style: solid;
-  border-color: rgba(255, 217, 120, 0.9);
-  background: rgba(255, 217, 120, 0.2);
+.empty-seat-trigger {
+  justify-self: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  background: transparent;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  cursor: default;
+}
+
+.empty-seat-trigger.enabled {
   cursor: pointer;
+  border-color: rgba(255, 217, 120, 0.95);
+  box-shadow: 0 0 0 2px rgba(255, 217, 120, 0.28);
 }
 
 .empty-seat-trigger:disabled {
-  opacity: 0.7;
+  opacity: 0.65;
 }
 
 .seat-glyph {
-  width: 14px;
-  height: 10px;
+  position: relative;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #9f7448 0%, #6b4521 70%, #45290d 100%);
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.45);
+}
+
+.seat-glyph::before,
+.seat-glyph::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 6px;
+  height: 8px;
   border-radius: 3px;
-  border: 2px solid rgba(227, 242, 255, 0.85);
-  border-top-width: 4px;
-  display: inline-block;
+  background: #6b4521;
+  transform: translateY(-50%);
+}
+
+.seat-glyph::before {
+  left: -7px;
+}
+
+.seat-glyph::after {
+  right: -7px;
 }
 
 .bot-badge {
   display: inline-block;
-  margin-left: 6px;
+  margin-left: 0;
   padding: 1px 6px;
   border-radius: 999px;
   font-size: 10px;

@@ -154,7 +154,7 @@ export class TressetteLobbyPage implements OnInit {
 
   addBot(tableId: string, position: TressettePosition): void {
     const table = this.tables.find((entry) => entry.tableId === tableId);
-    if (!table || !this.canAddBotToSeat(table, position)) {
+    if (!table || this.emptySeatActionFor(table, position) !== 'add_bot') {
       return;
     }
 
@@ -175,11 +175,15 @@ export class TressetteLobbyPage implements OnInit {
   }
 
   onEmptySeatClick(table: TressetteTableView, position: TressettePosition): void {
-    if (!this.canAddBotToSeat(table, position)) {
+    const action = this.emptySeatActionFor(table, position);
+    if (action === 'join') {
+      this.joinSeat(table.tableId, position);
       return;
     }
 
-    this.addBot(table.tableId, position);
+    if (action === 'add_bot') {
+      this.addBot(table.tableId, position);
+    }
   }
 
   get selectedOwnerTable(): TressetteTableView | null {
@@ -259,40 +263,24 @@ export class TressetteLobbyPage implements OnInit {
   }
 
   seatOccupied(table: TressetteTableView, position: TressettePosition): boolean {
-    return table.players.some((player) => player.position === position);
+    return !!this.playerAt(table, position);
   }
 
-  isOwnerTable(table: TressetteTableView): boolean {
-    return table.owner === this.activeUser.username;
+  canInteractEmptySeat(table: TressetteTableView, position: TressettePosition): boolean {
+    return this.emptySeatActionFor(table, position) !== 'none';
   }
 
-  canAddBotToSeat(table: TressetteTableView, position: TressettePosition): boolean {
-    if (this.addingBot) {
-      return false;
+  displayHumanSeatName(table: TressetteTableView, position: TressettePosition): string {
+    const player = this.playerAt(table, position);
+    if (!player || player.isBot) {
+      return '';
     }
 
-    const ownerContextTableId = this.selectedOwnerTable?.tableId;
-    if (!ownerContextTableId || ownerContextTableId !== table.tableId) {
-      return false;
-    }
-
-    if (!this.isOwnerTable(table)) {
-      return false;
-    }
-
-    if (table.status !== 'waiting' || this.isTableFull(table)) {
-      return false;
-    }
-
-    return !this.seatOccupied(table, position);
+    return player.username;
   }
 
-  displayPlayerName(player?: TressettePlayer): string {
-    if (!player) {
-      return 'libero';
-    }
-
-    return player.isBot ? 'Bot' : player.username;
+  isBotSeat(table: TressetteTableView, position: TressettePosition): boolean {
+    return !!this.playerAt(table, position)?.isBot;
   }
 
   playerAt(table: TressetteTableView, position: TressettePosition): TressettePlayer | undefined {
@@ -321,6 +309,32 @@ export class TressetteLobbyPage implements OnInit {
 
   onToastDismiss(): void {
     this.toastOpen = false;
+  }
+
+  private activeUserSeatedTable(): TressetteTableView | null {
+    return this.tables.find((table) => table.players.some((player) => player.username === this.activeUser.username)) ?? null;
+  }
+
+  private emptySeatActionFor(table: TressetteTableView, position: TressettePosition): 'join' | 'add_bot' | 'none' {
+    if (this.loading || this.addingBot || this.seatOccupied(table, position) || table.status !== 'waiting') {
+      return 'none';
+    }
+
+    const activeSeatTable = this.activeUserSeatedTable();
+    if (!activeSeatTable) {
+      return 'join';
+    }
+
+    if (activeSeatTable.tableId !== table.tableId) {
+      return 'none';
+    }
+
+    const ownerContextTableId = this.selectedOwnerTable?.tableId;
+    if (ownerContextTableId === table.tableId && table.owner === this.activeUser.username && !this.isTableFull(table)) {
+      return 'add_bot';
+    }
+
+    return 'none';
   }
 
   private openToast(message: string): void {

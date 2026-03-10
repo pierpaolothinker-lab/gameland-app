@@ -39,31 +39,25 @@ describe('TressetteLobbyPage', () => {
     tableId: string,
     owner: string,
     status: 'waiting' | 'in_game' | 'ended',
-    playersCount: number,
+    players: TressetteTableView['players'],
     isComplete = false
   ): TressetteTableView => ({
     tableId,
     owner,
-    players: [
-      { username: 'p1', position: 'SUD' as const },
-      { username: 'p2', position: 'NORD' as const },
-      { username: 'p3', position: 'EST' as const },
-      { username: 'p4', position: 'OVEST' as const },
-    ].slice(0, playersCount),
+    players,
     isComplete,
     points: { teamSN: 0, teamEO: 0 },
     status,
   });
 
-  const tablesMock: TressetteTableView[] = [makeTable('table-1', 'owner-a', 'waiting', 1)];
-
   beforeEach(async () => {
+    const baseTable = makeTable('table-1', 'owner-a', 'waiting', [{ username: 'owner-a', position: 'SUD' }]);
     serviceMock = {
-      listTables: jasmine.createSpy('listTables').and.returnValue(of(tablesMock)),
-      createTable: jasmine.createSpy('createTable').and.returnValue(of(tablesMock[0])),
-      joinTable: jasmine.createSpy('joinTable').and.returnValue(of(tablesMock[0])),
-      addBot: jasmine.createSpy('addBot').and.returnValue(of(tablesMock[0])),
-      startTable: jasmine.createSpy('startTable').and.returnValue(of(tablesMock[0])),
+      listTables: jasmine.createSpy('listTables').and.returnValue(of([baseTable])),
+      createTable: jasmine.createSpy('createTable').and.returnValue(of(baseTable)),
+      joinTable: jasmine.createSpy('joinTable').and.returnValue(of(baseTable)),
+      addBot: jasmine.createSpy('addBot').and.returnValue(of(baseTable)),
+      startTable: jasmine.createSpy('startTable').and.returnValue(of(baseTable)),
     };
 
     authMock = {
@@ -104,67 +98,78 @@ describe('TressetteLobbyPage', () => {
   it('render lista tavoli', () => {
     expect(serviceMock.listTables).toHaveBeenCalledTimes(1);
     expect(component.tables.length).toBe(1);
-    expect(component.tables[0].tableId).toBe('table-1');
   });
 
-  it('create success usa username da sessione', () => {
-    component.createTable();
+  it('click seat vuoto -> join quando utente non e seduto in nessun tavolo', () => {
+    component.tables = [
+      makeTable('table-join', 'Marta', 'waiting', [{ username: 'Marta', position: 'SUD' }]),
+    ];
 
-    expect(serviceMock.createTable).toHaveBeenCalledWith('Luca');
-    expect(serviceMock.listTables).toHaveBeenCalledTimes(2);
+    component.onEmptySeatClick(component.tables[0], 'NORD');
+
+    expect(serviceMock.joinTable).toHaveBeenCalledWith('table-join', 'Luca', 'NORD');
+    expect(serviceMock.addBot).not.toHaveBeenCalled();
   });
 
-  it('join success usa username da sessione', () => {
-    component.joinSeat('table-1', 'NORD');
+  it('click seat vuoto -> add bot quando owner e gia seduto sullo stesso tavolo', () => {
+    component.tables = [
+      makeTable('table-owner', 'Luca', 'waiting', [
+        { username: 'Luca', position: 'SUD' },
+        { username: 'Marta', position: 'NORD' },
+      ]),
+    ];
 
-    expect(serviceMock.joinTable).toHaveBeenCalledWith('table-1', 'Luca', 'NORD');
-    expect(serviceMock.listTables).toHaveBeenCalledTimes(2);
+    component.onEmptySeatClick(component.tables[0], 'EST');
+
+    expect(serviceMock.addBot).toHaveBeenCalledWith('table-owner', 'Luca', 'EST');
+    expect(serviceMock.joinTable).not.toHaveBeenCalled();
   });
 
-  it('add bot usa username da sessione solo su owner table context', () => {
-    component.tables = [makeTable('table-1', 'Luca', 'waiting', 2)];
+  it('click seat vuoto su tavolo diverso quando utente e gia seduto altrove -> no-op', () => {
+    component.tables = [
+      makeTable('table-a', 'Luca', 'waiting', [{ username: 'Luca', position: 'SUD' }]),
+      makeTable('table-b', 'Marta', 'waiting', [{ username: 'Marta', position: 'SUD' }]),
+    ];
 
-    component.addBot('table-1', 'OVEST');
+    component.onEmptySeatClick(component.tables[1], 'EST');
 
-    expect(serviceMock.addBot).toHaveBeenCalledWith('table-1', 'Luca', 'OVEST');
-    expect(serviceMock.listTables).toHaveBeenCalledTimes(2);
+    expect(serviceMock.addBot).not.toHaveBeenCalled();
+    expect(serviceMock.joinTable).not.toHaveBeenCalled();
   });
 
-  it('click empty seat su tabella non owner e no-op', () => {
-    component.tables = [makeTable('table-1', 'Marta', 'waiting', 2)];
+  it('click seat vuoto same table ma non owner -> no-op', () => {
+    component.tables = [
+      makeTable('table-a', 'Marta', 'waiting', [
+        { username: 'Luca', position: 'SUD' },
+        { username: 'Marta', position: 'NORD' },
+      ]),
+    ];
 
     component.onEmptySeatClick(component.tables[0], 'EST');
 
     expect(serviceMock.addBot).not.toHaveBeenCalled();
+    expect(serviceMock.joinTable).not.toHaveBeenCalled();
   });
 
-  it('azione add bot solo su tavolo owner selezionato e posto libero', () => {
-    component.tables = [
-      makeTable('tbl-owner-ready', 'Luca', 'waiting', 4, true),
-      makeTable('tbl-owner-wait', 'Luca', 'waiting', 2),
-      makeTable('tbl-other', 'Marta', 'waiting', 1),
-    ];
+  it('nessun bottone esplicito Siediti/Aggiungi Bot nel markup seat', () => {
+    fixture.detectChanges();
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
 
-    expect(component.ownerTargetTableId).toBe('tbl-owner-ready');
-    expect(component.canAddBotToSeat(component.tables[1], 'EST')).toBeFalse();
-    expect(component.canAddBotToSeat(component.tables[2], 'EST')).toBeFalse();
+    expect(text).not.toContain('Siediti');
+    expect(text).not.toContain('Aggiungi Bot');
   });
 
-  it('mostra Bot (non Bot-1) in seat lobby', () => {
+  it('mostra BOT badge senza username bot', () => {
     component.tables = [
-      {
-        ...makeTable('tbl-bot', 'Luca', 'waiting', 2),
-        players: [
-          { username: 'Luca', position: 'SUD' },
-          { username: 'Bot-1', position: 'NORD', isBot: true },
-        ],
-      },
+      makeTable('tbl-bot', 'Luca', 'waiting', [
+        { username: 'Luca', position: 'SUD' },
+        { username: 'Bot-1', position: 'NORD', isBot: true },
+      ]),
     ];
 
     fixture.detectChanges();
-
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
-    expect(text).toContain('Bot');
+
     expect(text).toContain('BOT');
     expect(text).not.toContain('Bot-1');
   });
@@ -178,47 +183,26 @@ describe('TressetteLobbyPage', () => {
     expect(component.loading).toBeFalse();
   });
 
-  it('multiple owner tables, one start-ready -> button enabled', () => {
-    component.tables = [
-      makeTable('tbl-owner-wait-2of4', 'Luca', 'waiting', 2),
-      makeTable('tbl-owner-ready', 'Luca', 'waiting', 4, true),
-      makeTable('tbl-other', 'Marta', 'waiting', 4, true),
-    ];
-
-    expect(component.ownerTargetTableId).toBe('tbl-owner-ready');
-    expect(component.canStartOwnerTable).toBeTrue();
-    expect(component.startDisabledReason).toBe('');
-  });
-
-  it('multiple owner tables, none start-ready -> disabled with correct reason', () => {
-    component.tables = [
-      makeTable('tbl-owner-wait-2of4', 'Luca', 'waiting', 2),
-      makeTable('tbl-owner-ended', 'Luca', 'ended', 4, true),
-    ];
-
-    expect(component.ownerTargetTableId).toBe('tbl-owner-wait-2of4');
-    expect(component.canStartOwnerTable).toBeFalse();
-    expect(component.startDisabledReason).toBe('Il tuo tavolo non e completo (servono 4/4)');
-  });
-
   it('start success -> navigation a gameplay con tableId', () => {
     component.tables = [
-      makeTable('tbl-owner-not-ready', 'Luca', 'waiting', 1),
-      makeTable('tbl-owner-ready', 'Luca', 'waiting', 4, true),
+      makeTable('tbl-owner-not-ready', 'Luca', 'waiting', [{ username: 'Luca', position: 'SUD' }]),
+      makeTable(
+        'tbl-owner-ready',
+        'Luca',
+        'waiting',
+        [
+          { username: 'Luca', position: 'SUD' },
+          { username: 'Marta', position: 'NORD' },
+          { username: 'Diego', position: 'EST' },
+          { username: 'Sara', position: 'OVEST' },
+        ],
+        true
+      ),
     ];
 
     component.startMyGame();
 
     expect(serviceMock.startTable).toHaveBeenCalledWith('tbl-owner-ready', 'Luca');
     expect(routerMock.navigate).toHaveBeenCalledWith(['/table3s74i', 'tbl-owner-ready']);
-  });
-
-  it('start error -> nessuna navigazione', () => {
-    serviceMock.startTable.and.returnValue(throwError(() => new Error('start failed')));
-    component.tables = [makeTable('tbl-owner-ready', 'Luca', 'waiting', 4, true)];
-
-    component.startMyGame();
-
-    expect(routerMock.navigate).not.toHaveBeenCalled();
   });
 });

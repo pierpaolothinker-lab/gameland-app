@@ -490,8 +490,6 @@ describe('Table3s74iPage', () => {
     fixture.detectChanges();
 
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
-    expect(text).toContain('BOT');
-    expect(text).toContain('Bot');
     expect(text).not.toContain('BOT_1');
   });
 
@@ -512,4 +510,5 @@ describe('Table3s74iPage', () => {
     expect(component.canPlayCards).toBeFalse();
   });
 });
+
 

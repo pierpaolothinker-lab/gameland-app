@@ -74,113 +74,77 @@
           <div class="seat seat-nord" [class.occupied]="seatOccupied(table, 'NORD')" [class.empty]="!seatOccupied(table, 'NORD')">
             <div class="seat-label" *ngIf="seatOccupied(table, 'NORD')">NORD</div>
             <div class="seat-player" *ngIf="seatOccupied(table, 'NORD'); else emptyNord">
-              {{ displayPlayerName(playerAt(table, 'NORD')) }}
-              <span class="bot-badge" *ngIf="playerAt(table, 'NORD')?.isBot">BOT</span>
+              <span class="human-name" *ngIf="!isBotSeat(table, 'NORD')">{{ displayHumanSeatName(table, 'NORD') }}</span>
+              <span class="bot-badge" *ngIf="isBotSeat(table, 'NORD')">BOT</span>
             </div>
             <ng-template #emptyNord>
               <button
                 type="button"
                 class="empty-seat-trigger"
-                [class.owner-enabled]="canAddBotToSeat(table, 'NORD')"
-                [disabled]="!canAddBotToSeat(table, 'NORD')"
+                [class.enabled]="canInteractEmptySeat(table, 'NORD')"
+                [disabled]="!canInteractEmptySeat(table, 'NORD')"
                 (click)="onEmptySeatClick(table, 'NORD')"
-                aria-label="Aggiungi bot posto libero"
               >
                 <span class="seat-glyph" aria-hidden="true"></span>
               </button>
             </ng-template>
-            <ion-button
-              size="small"
-              fill="solid"
-              [disabled]="seatOccupied(table, 'NORD')"
-              (click)="joinSeat(table.tableId, 'NORD')"
-            >
-              {{ seatOccupied(table, 'NORD') ? 'Occupato' : 'Siediti' }}
-            </ion-button>
           </div>
 
           <div class="seat seat-est" [class.occupied]="seatOccupied(table, 'EST')" [class.empty]="!seatOccupied(table, 'EST')">
             <div class="seat-label" *ngIf="seatOccupied(table, 'EST')">EST</div>
             <div class="seat-player" *ngIf="seatOccupied(table, 'EST'); else emptyEst">
-              {{ displayPlayerName(playerAt(table, 'EST')) }}
-              <span class="bot-badge" *ngIf="playerAt(table, 'EST')?.isBot">BOT</span>
+              <span class="human-name" *ngIf="!isBotSeat(table, 'EST')">{{ displayHumanSeatName(table, 'EST') }}</span>
+              <span class="bot-badge" *ngIf="isBotSeat(table, 'EST')">BOT</span>
             </div>
             <ng-template #emptyEst>
               <button
                 type="button"
                 class="empty-seat-trigger"
-                [class.owner-enabled]="canAddBotToSeat(table, 'EST')"
-                [disabled]="!canAddBotToSeat(table, 'EST')"
+                [class.enabled]="canInteractEmptySeat(table, 'EST')"
+                [disabled]="!canInteractEmptySeat(table, 'EST')"
                 (click)="onEmptySeatClick(table, 'EST')"
-                aria-label="Aggiungi bot posto libero"
               >
                 <span class="seat-glyph" aria-hidden="true"></span>
               </button>
             </ng-template>
-            <ion-button
-              size="small"
-              fill="solid"
-              [disabled]="seatOccupied(table, 'EST')"
-              (click)="joinSeat(table.tableId, 'EST')"
-            >
-              {{ seatOccupied(table, 'EST') ? 'Occupato' : 'Siediti' }}
-            </ion-button>
           </div>
 
           <div class="seat seat-sud" [class.occupied]="seatOccupied(table, 'SUD')" [class.empty]="!seatOccupied(table, 'SUD')">
             <div class="seat-label" *ngIf="seatOccupied(table, 'SUD')">SUD</div>
             <div class="seat-player" *ngIf="seatOccupied(table, 'SUD'); else emptySud">
-              {{ displayPlayerName(playerAt(table, 'SUD')) }}
-              <span class="bot-badge" *ngIf="playerAt(table, 'SUD')?.isBot">BOT</span>
+              <span class="human-name" *ngIf="!isBotSeat(table, 'SUD')">{{ displayHumanSeatName(table, 'SUD') }}</span>
+              <span class="bot-badge" *ngIf="isBotSeat(table, 'SUD')">BOT</span>
             </div>
             <ng-template #emptySud>
               <button
                 type="button"
                 class="empty-seat-trigger"
-                [class.owner-enabled]="canAddBotToSeat(table, 'SUD')"
-                [disabled]="!canAddBotToSeat(table, 'SUD')"
+                [class.enabled]="canInteractEmptySeat(table, 'SUD')"
+                [disabled]="!canInteractEmptySeat(table, 'SUD')"
                 (click)="onEmptySeatClick(table, 'SUD')"
-                aria-label="Aggiungi bot posto libero"
               >
                 <span class="seat-glyph" aria-hidden="true"></span>
               </button>
             </ng-template>
-            <ion-button
-              size="small"
-              fill="solid"
-              [disabled]="seatOccupied(table, 'SUD')"
-              (click)="joinSeat(table.tableId, 'SUD')"
-            >
-              {{ seatOccupied(table, 'SUD') ? 'Occupato' : 'Siediti' }}
-            </ion-button>
           </div>
 
           <div class="seat seat-ovest" [class.occupied]="seatOccupied(table, 'OVEST')" [class.empty]="!seatOccupied(table, 'OVEST')">
             <div class="seat-label" *ngIf="seatOccupied(table, 'OVEST')">OVEST</div>
             <div class="seat-player" *ngIf="seatOccupied(table, 'OVEST'); else emptyOvest">
-              {{ displayPlayerName(playerAt(table, 'OVEST')) }}
-              <span class="bot-badge" *ngIf="playerAt(table, 'OVEST')?.isBot">BOT</span>
+              <span class="human-name" *ngIf="!isBotSeat(table, 'OVEST')">{{ displayHumanSeatName(table, 'OVEST') }}</span>
+              <span class="bot-badge" *ngIf="isBotSeat(table, 'OVEST')">BOT</span>
             </div>
             <ng-template #emptyOvest>
               <button
                 type="button"
                 class="empty-seat-trigger"
-                [class.owner-enabled]="canAddBotToSeat(table, 'OVEST')"
-                [disabled]="!canAddBotToSeat(table, 'OVEST')"
+                [class.enabled]="canInteractEmptySeat(table, 'OVEST')"
+                [disabled]="!canInteractEmptySeat(table, 'OVEST')"
                 (click)="onEmptySeatClick(table, 'OVEST')"
-                aria-label="Aggiungi bot posto libero"
               >
                 <span class="seat-glyph" aria-hidden="true"></span>
               </button>
             </ng-template>
-            <ion-button
-              size="small"
-              fill="solid"
-              [disabled]="seatOccupied(table, 'OVEST')"
-              (click)="joinSeat(table.tableId, 'OVEST')"
-            >
-              {{ seatOccupied(table, 'OVEST') ? 'Occupato' : 'Siediti' }}
-            </ion-button>
           </div>
         </div>
       </ion-card-content>

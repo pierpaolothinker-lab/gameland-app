@@ -5,6 +5,8 @@ class bGImageCostants {
   public CARD_SIZE = {
     ORIGINAL_WIDTH: 60,
     ORIGINAL_HEIGHT: 90,
+    DISPLAY_WIDTH: 70,
+    DISPLAY_HEIGHT: 100,
   };
 
   public INITIAL_OFFSET = {
@@ -16,11 +18,4 @@ class bGImageCostants {
     X: 5.2,
     Y: 24,
   };
-
-  public SPRITE_SCALE = {
-    X: 65 / 87,
-    Y: 108 / 139,
-  };
-
-  public SAFE_INSET_PX = 1;
 }

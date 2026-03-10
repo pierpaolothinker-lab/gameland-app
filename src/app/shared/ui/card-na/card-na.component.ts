@@ -50,16 +50,23 @@ export class CardNAComponent implements OnInit {
       throw new Error('No card');
     }
 
-    return card.value - 1;
+    return this.card.value - 1;
+  }
+
+  private alignHalfPixel(value: number): number {
+    return Math.round(value * 2) / 2;
   }
 
   showCard(row: number, col: number): void {
+    const scaleX = this.K.CARD_SIZE.DISPLAY_WIDTH / this.K.CARD_SIZE.ORIGINAL_WIDTH;
+    const scaleY = this.K.CARD_SIZE.DISPLAY_HEIGHT / this.K.CARD_SIZE.ORIGINAL_HEIGHT;
+
     const xPosOriginal = this.K.INITIAL_OFFSET.X + col * (this.K.CARD_SIZE.ORIGINAL_WIDTH + this.K.CARD_SPACING.X);
     const yPosOriginal = this.K.INITIAL_OFFSET.Y + row * (this.K.CARD_SIZE.ORIGINAL_HEIGHT + this.K.CARD_SPACING.Y);
 
-    // Keep stable historical sprite extraction and only clamp to integer pixels + tiny inset.
-    const xPos = Math.round(xPosOriginal * this.K.SPRITE_SCALE.X) + this.K.SAFE_INSET_PX;
-    const yPos = Math.round(yPosOriginal * this.K.SPRITE_SCALE.Y) + this.K.SAFE_INSET_PX;
+    // Minimal centering patch only: snap to half-pixel to reduce sub-pixel drift.
+    const xPos = this.alignHalfPixel(xPosOriginal * scaleX);
+    const yPos = this.alignHalfPixel(yPosOriginal * scaleY);
 
     this.myElement.nativeElement.style.backgroundPosition = `-${xPos}px -${yPos}px`;
   }

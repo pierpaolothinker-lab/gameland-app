@@ -57,10 +57,11 @@ export class CardNAComponent implements OnInit {
     return Math.round(value * 2) / 2;
   }
 
-  private getFineTuneOffsets(card: ICardIT): { x: number; y: number } {
-    const valueOffsetX = card.value === 6 ? 1 : card.value === 4 || card.value === 5 ? 1 : 0;
+  private getFineTuneOffsets(card: ICardIT): { x: number; y: number; bottomCropY: number } {
+    const valueOffsetX = card.value === 6 ? 2 : card.value === 5 ? 1 : card.value === 4 ? 1 : 0;
     const bastoniOffsetY = card.suit === Suit.Bastoni ? 1 : 0;
-    return { x: valueOffsetX, y: bastoniOffsetY };
+    const bastoniBottomCropY = card.suit === Suit.Bastoni ? 1 : 0;
+    return { x: valueOffsetX, y: bastoniOffsetY, bottomCropY: bastoniBottomCropY };
   }
 
   showCard(row: number, col: number): void {
@@ -75,8 +76,6 @@ export class CardNAComponent implements OnInit {
     const yPos = this.alignHalfPixel(yPosOriginal * scaleY);
     const offset = this.getFineTuneOffsets(this.card);
 
-    this.myElement.nativeElement.style.backgroundPosition = `-${xPos - offset.x}px -${yPos + offset.y}px`;
+    this.myElement.nativeElement.style.backgroundPosition = `-${xPos - offset.x}px -${yPos + offset.y + offset.bottomCropY}px`;
   }
 }
-
-

@@ -1,4 +1,4 @@
-# gameland-app
+﻿# gameland-app
 
 ## Flow Login Mock (FE)
 
@@ -56,9 +56,10 @@ This project is licensed under a proprietary license. See the [LICENSE](./LICENS
 
 ## Default player avatars
 
-Per i giocatori umani senza avatar personale, il FE assegna un avatar placeholder deterministico usando lo username (hash % 20).
+Per i giocatori umani senza avatar personale, il FE assegna un avatar placeholder deterministico usando lo username (hash % 40).
 
-- Asset pack: src/assets/avatars/players/player-01.svg ... player-20.svg
-- Manifest: src/assets/avatars/players/manifest.json
+- Asset pack: 20 umani (`src/assets/avatars/players/player-01.svg` ... `player-20.svg`) + 20 animali (`src/assets/avatars/players/animals/animal-01.svg` ... `animal-20.svg`)
+- Manifest unificato (40 avatar): `src/assets/avatars/players/manifest.json`
 - Regola: stesso username -> stesso avatar default
 - I bot continuano a usare solo assets/avatar-bot.svg con varianti colore esistenti (invariato)
+

@@ -1,85 +1,205 @@
 ﻿{
-    "version":  1,
+    "version":  2,
     "avatars":  [
                     {
                         "id":  "player-01",
-                        "file":  "assets/avatars/players/player-01.svg"
+                        "file":  "assets/avatars/players/player-01.svg",
+                        "type":  "human"
                     },
                     {
                         "id":  "player-02",
-                        "file":  "assets/avatars/players/player-02.svg"
+                        "file":  "assets/avatars/players/player-02.svg",
+                        "type":  "human"
                     },
                     {
                         "id":  "player-03",
-                        "file":  "assets/avatars/players/player-03.svg"
+                        "file":  "assets/avatars/players/player-03.svg",
+                        "type":  "human"
                     },
                     {
                         "id":  "player-04",
-                        "file":  "assets/avatars/players/player-04.svg"
+                        "file":  "assets/avatars/players/player-04.svg",
+                        "type":  "human"
                     },
                     {
                         "id":  "player-05",
-                        "file":  "assets/avatars/players/player-05.svg"
+                        "file":  "assets/avatars/players/player-05.svg",
+                        "type":  "human"
                     },
                     {
                         "id":  "player-06",
-                        "file":  "assets/avatars/players/player-06.svg"
+                        "file":  "assets/avatars/players/player-06.svg",
+                        "type":  "human"
                     },
                     {
                         "id":  "player-07",
-                        "file":  "assets/avatars/players/player-07.svg"
+                        "file":  "assets/avatars/players/player-07.svg",
+                        "type":  "human"
                     },
                     {
                         "id":  "player-08",
-                        "file":  "assets/avatars/players/player-08.svg"
+                        "file":  "assets/avatars/players/player-08.svg",
+                        "type":  "human"
                     },
                     {
                         "id":  "player-09",
-                        "file":  "assets/avatars/players/player-09.svg"
+                        "file":  "assets/avatars/players/player-09.svg",
+                        "type":  "human"
                     },
                     {
                         "id":  "player-10",
-                        "file":  "assets/avatars/players/player-10.svg"
+                        "file":  "assets/avatars/players/player-10.svg",
+                        "type":  "human"
                     },
                     {
                         "id":  "player-11",
-                        "file":  "assets/avatars/players/player-11.svg"
+                        "file":  "assets/avatars/players/player-11.svg",
+                        "type":  "human"
                     },
                     {
                         "id":  "player-12",
-                        "file":  "assets/avatars/players/player-12.svg"
+                        "file":  "assets/avatars/players/player-12.svg",
+                        "type":  "human"
                     },
                     {
                         "id":  "player-13",
-                        "file":  "assets/avatars/players/player-13.svg"
+                        "file":  "assets/avatars/players/player-13.svg",
+                        "type":  "human"
                     },
                     {
                         "id":  "player-14",
-                        "file":  "assets/avatars/players/player-14.svg"
+                        "file":  "assets/avatars/players/player-14.svg",
+                        "type":  "human"
                     },
                     {
                         "id":  "player-15",
-                        "file":  "assets/avatars/players/player-15.svg"
+                        "file":  "assets/avatars/players/player-15.svg",
+                        "type":  "human"
                     },
                     {
                         "id":  "player-16",
-                        "file":  "assets/avatars/players/player-16.svg"
+                        "file":  "assets/avatars/players/player-16.svg",
+                        "type":  "human"
                     },
                     {
                         "id":  "player-17",
-                        "file":  "assets/avatars/players/player-17.svg"
+                        "file":  "assets/avatars/players/player-17.svg",
+                        "type":  "human"
                     },
                     {
                         "id":  "player-18",
-                        "file":  "assets/avatars/players/player-18.svg"
+                        "file":  "assets/avatars/players/player-18.svg",
+                        "type":  "human"
                     },
                     {
                         "id":  "player-19",
-                        "file":  "assets/avatars/players/player-19.svg"
+                        "file":  "assets/avatars/players/player-19.svg",
+                        "type":  "human"
                     },
                     {
                         "id":  "player-20",
-                        "file":  "assets/avatars/players/player-20.svg"
+                        "file":  "assets/avatars/players/player-20.svg",
+                        "type":  "human"
+                    },
+                    {
+                        "id":  "animal-01",
+                        "file":  "assets/avatars/players/animals/animal-01.svg",
+                        "type":  "animal"
+                    },
+                    {
+                        "id":  "animal-02",
+                        "file":  "assets/avatars/players/animals/animal-02.svg",
+                        "type":  "animal"
+                    },
+                    {
+                        "id":  "animal-03",
+                        "file":  "assets/avatars/players/animals/animal-03.svg",
+                        "type":  "animal"
+                    },
+                    {
+                        "id":  "animal-04",
+                        "file":  "assets/avatars/players/animals/animal-04.svg",
+                        "type":  "animal"
+                    },
+                    {
+                        "id":  "animal-05",
+                        "file":  "assets/avatars/players/animals/animal-05.svg",
+                        "type":  "animal"
+                    },
+                    {
+                        "id":  "animal-06",
+                        "file":  "assets/avatars/players/animals/animal-06.svg",
+                        "type":  "animal"
+                    },
+                    {
+                        "id":  "animal-07",
+                        "file":  "assets/avatars/players/animals/animal-07.svg",
+                        "type":  "animal"
+                    },
+                    {
+                        "id":  "animal-08",
+                        "file":  "assets/avatars/players/animals/animal-08.svg",
+                        "type":  "animal"
+                    },
+                    {
+                        "id":  "animal-09",
+                        "file":  "assets/avatars/players/animals/animal-09.svg",
+                        "type":  "animal"
+                    },
+                    {
+                        "id":  "animal-10",
+                        "file":  "assets/avatars/players/animals/animal-10.svg",
+                        "type":  "animal"
+                    },
+                    {
+                        "id":  "animal-11",
+                        "file":  "assets/avatars/players/animals/animal-11.svg",
+                        "type":  "animal"
+                    },
+                    {
+                        "id":  "animal-12",
+                        "file":  "assets/avatars/players/animals/animal-12.svg",
+                        "type":  "animal"
+                    },
+                    {
+                        "id":  "animal-13",
+                        "file":  "assets/avatars/players/animals/animal-13.svg",
+                        "type":  "animal"
+                    },
+                    {
+                        "id":  "animal-14",
+                        "file":  "assets/avatars/players/animals/animal-14.svg",
+                        "type":  "animal"
+                    },
+                    {
+                        "id":  "animal-15",
+                        "file":  "assets/avatars/players/animals/animal-15.svg",
+                        "type":  "animal"
+                    },
+                    {
+                        "id":  "animal-16",
+                        "file":  "assets/avatars/players/animals/animal-16.svg",
+                        "type":  "animal"
+                    },
+                    {
+                        "id":  "animal-17",
+                        "file":  "assets/avatars/players/animals/animal-17.svg",
+                        "type":  "animal"
+                    },
+                    {
+                        "id":  "animal-18",
+                        "file":  "assets/avatars/players/animals/animal-18.svg",
+                        "type":  "animal"
+                    },
+                    {
+                        "id":  "animal-19",
+                        "file":  "assets/avatars/players/animals/animal-19.svg",
+                        "type":  "animal"
+                    },
+                    {
+                        "id":  "animal-20",
+                        "file":  "assets/avatars/players/animals/animal-20.svg",
+                        "type":  "animal"
                     }
                 ]
 }

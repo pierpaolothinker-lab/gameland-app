@@ -219,8 +219,7 @@ describe('TressetteLobbyPage', () => {
     expect(northAvatar?.getAttribute('src')).toContain('assets/avatar-bot.svg');
     expect(northAvatar?.className).toContain('bot-avatar');
     expect(northAvatar?.className).toMatch(/bot-variant-[0-5]/);
-    expect(southAvatar?.getAttribute('src')).toContain('assets/avatars/players/player-');
-    expect(southAvatar?.getAttribute('src')).toContain('.svg');
+    expect(southAvatar?.getAttribute('src')).toMatch(/^assets\/avatars\/players\/(player-(0[1-9]|1[0-9]|20)|animals\/animal-(0[1-9]|1[0-9]|20))\.svg$/);
     expect(southAvatar?.className).toContain('human-avatar');
   });
   it('gestione errore API', () => {
@@ -255,6 +254,7 @@ describe('TressetteLobbyPage', () => {
     expect(routerMock.navigate).toHaveBeenCalledWith(['/table3s74i', 'tbl-owner-ready']);
   });
 });
+
 
 
 

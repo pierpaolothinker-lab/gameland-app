@@ -514,8 +514,7 @@ describe('Table3s74iPage', () => {
     const southAvatar = fixture.nativeElement.querySelector('.seat-south .seat-avatar') as HTMLImageElement | null;
 
     expect(northAvatar?.getAttribute('src')).toContain('assets/avatar-bot.svg');
-    expect(southAvatar?.getAttribute('src')).toContain('assets/avatars/players/player-');
-    expect(southAvatar?.getAttribute('src')).toContain('.svg');
+    expect(southAvatar?.getAttribute('src')).toMatch(/^assets\/avatars\/players\/(player-(0[1-9]|1[0-9]|20)|animals\/animal-(0[1-9]|1[0-9]|20))\.svg$/);
   });
   
   it('nasconde badge turno e countdown durante trick reveal attivo', () => {
@@ -570,6 +569,7 @@ describe('Table3s74iPage', () => {
     expect(component.canPlayCards).toBeFalse();
   });
 });
+
 
 
 

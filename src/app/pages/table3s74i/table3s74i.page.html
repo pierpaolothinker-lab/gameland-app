@@ -62,6 +62,7 @@
         <div class="player-badge">
           <span class="player-name" *ngIf="!isBotPlayer('NORD')">{{ playerDisplayName('NORD') }}</span>
           <span class="bot-seat-badge" *ngIf="isBotPlayer('NORD')">BOT</span>
+          <img class="seat-avatar" *ngIf="getPlayer('NORD')" [src]="seatAvatarSrc('NORD')" [alt]="isBotPlayer('NORD') ? 'Avatar Bot' : 'Avatar giocatore'" />
           <span class="turn-badge" *ngIf="isTurnPosition('NORD')">DI TURNO</span>
           <span class="turn-countdown" *ngIf="getSeatCountdown('NORD') !== null">{{ getSeatCountdown('NORD') }}s</span>
         </div>
@@ -70,6 +71,7 @@
         <div class="player-badge">
           <span class="player-name" *ngIf="!isBotPlayer('EST')">{{ playerDisplayName('EST') }}</span>
           <span class="bot-seat-badge" *ngIf="isBotPlayer('EST')">BOT</span>
+          <img class="seat-avatar" *ngIf="getPlayer('EST')" [src]="seatAvatarSrc('EST')" [alt]="isBotPlayer('EST') ? 'Avatar Bot' : 'Avatar giocatore'" />
           <span class="turn-badge" *ngIf="isTurnPosition('EST')">DI TURNO</span>
           <span class="turn-countdown" *ngIf="getSeatCountdown('EST') !== null">{{ getSeatCountdown('EST') }}s</span>
         </div>
@@ -78,6 +80,7 @@
         <div class="player-badge me">
           <span class="player-name" *ngIf="!isBotPlayer('SUD')">{{ playerDisplayName('SUD') }}</span>
           <span class="bot-seat-badge" *ngIf="isBotPlayer('SUD')">BOT</span>
+          <img class="seat-avatar" *ngIf="getPlayer('SUD')" [src]="seatAvatarSrc('SUD')" [alt]="isBotPlayer('SUD') ? 'Avatar Bot' : 'Avatar giocatore'" />
           <span class="turn-badge" *ngIf="isTurnPosition('SUD')">DI TURNO</span>
           <span class="turn-countdown" *ngIf="getSeatCountdown('SUD') !== null">{{ getSeatCountdown('SUD') }}s</span>
         </div>
@@ -86,6 +89,7 @@
         <div class="player-badge">
           <span class="player-name" *ngIf="!isBotPlayer('OVEST')">{{ playerDisplayName('OVEST') }}</span>
           <span class="bot-seat-badge" *ngIf="isBotPlayer('OVEST')">BOT</span>
+          <img class="seat-avatar" *ngIf="getPlayer('OVEST')" [src]="seatAvatarSrc('OVEST')" [alt]="isBotPlayer('OVEST') ? 'Avatar Bot' : 'Avatar giocatore'" />
           <span class="turn-badge" *ngIf="isTurnPosition('OVEST')">DI TURNO</span>
           <span class="turn-countdown" *ngIf="getSeatCountdown('OVEST') !== null">{{ getSeatCountdown('OVEST') }}s</span>
         </div>

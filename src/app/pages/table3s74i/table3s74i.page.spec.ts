@@ -493,6 +493,29 @@ describe('Table3s74iPage', () => {
     expect(text).not.toContain('BOT_1');
   });
 
+  
+  it('renderizza avatar umano e bot nelle seat card', () => {
+    component.table = {
+      ...tableMock,
+      players: [
+        { username: 'Luca', position: 'SUD', isBot: false },
+        { username: 'BOT_1', position: 'NORD', isBot: true },
+        { username: 'Diego', position: 'EST', isBot: false },
+        { username: 'Sara', position: 'OVEST', isBot: false },
+      ],
+    };
+
+    fixture.detectChanges();
+
+    const avatars = fixture.nativeElement.querySelectorAll('.seat-avatar') as NodeListOf<HTMLImageElement>;
+    expect(avatars.length).toBe(4);
+
+    const northAvatar = fixture.nativeElement.querySelector('.seat-north .seat-avatar') as HTMLImageElement | null;
+    const southAvatar = fixture.nativeElement.querySelector('.seat-south .seat-avatar') as HTMLImageElement | null;
+
+    expect(northAvatar?.getAttribute('src')).toContain('assets/avatar-bot.svg');
+    expect(southAvatar?.getAttribute('src')).toContain('assets/avatarExample.png');
+  });
   it('disabilita play-card quando utente sessione e bot', () => {
     authMock.currentUser = { userId: 'u-bot', username: 'BOT_1' };
     component.table = {
@@ -510,5 +533,6 @@ describe('Table3s74iPage', () => {
     expect(component.canPlayCards).toBeFalse();
   });
 });
+
 
 

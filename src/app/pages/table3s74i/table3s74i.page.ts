@@ -285,6 +285,10 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return player.isBot ? 'Bot' : player.username;
   }
 
+  seatAvatarSrc(position: TressettePosition): string {
+    return this.isBotPlayer(position) ? 'assets/avatar-bot.svg' : 'assets/avatarExample.png';
+  }
+
   getTrickCard(position: TressettePosition): ICardIT | null {
     return this.table?.currentTrick?.find((trickCard) => trickCard.position === position)?.card ?? null;
   }
@@ -972,6 +976,8 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.table.players.find((player) => player.username === username)?.position ?? null;
   }
 }
+
+
 
 
 

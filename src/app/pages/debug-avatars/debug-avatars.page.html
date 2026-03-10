@@ -1,0 +1,47 @@
+<ion-content [fullscreen]="true" class="avatar-catalog-content">
+  <section class="header">
+    <h1>Avatar Catalog</h1>
+    <p class="subtitle">Totale avatar caricati: <strong>{{ totalLoaded }}</strong></p>
+  </section>
+
+  <section class="status" *ngIf="loading">Caricamento manifest avatar...</section>
+  <section class="status error" *ngIf="!loading && loadError">{{ loadError }}</section>
+
+  <section class="status warning" *ngIf="!loading && hasCountWarning">
+    WARNING: dataset avatar incompleto o non conforme (atteso Human 20 / Animal 20 / Totale 40).
+  </section>
+
+  <section class="group" *ngIf="!loading">
+    <div class="group-header">
+      <h2>Human avatars</h2>
+      <ion-badge color="primary">{{ humanAvatars.length }}</ion-badge>
+    </div>
+
+    <div class="grid">
+      <ion-card class="avatar-card" *ngFor="let avatar of humanAvatars">
+        <ion-card-content>
+          <img [src]="avatar.file" [alt]="avatar.id" class="avatar-preview" />
+          <p class="avatar-id">{{ avatar.id }}</p>
+          <p class="avatar-file">{{ avatar.file }}</p>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </section>
+
+  <section class="group" *ngIf="!loading">
+    <div class="group-header">
+      <h2>Animal avatars</h2>
+      <ion-badge color="success">{{ animalAvatars.length }}</ion-badge>
+    </div>
+
+    <div class="grid">
+      <ion-card class="avatar-card" *ngFor="let avatar of animalAvatars">
+        <ion-card-content>
+          <img [src]="avatar.file" [alt]="avatar.id" class="avatar-preview" />
+          <p class="avatar-id">{{ avatar.id }}</p>
+          <p class="avatar-file">{{ avatar.file }}</p>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </section>
+</ion-content>

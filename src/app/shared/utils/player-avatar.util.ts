@@ -1,12 +1,32 @@
 ﻿const PLAYER_AVATAR_BASE_PATH = 'assets/avatars/players';
-const DEFAULT_PLAYER_AVATAR_COUNT = 20;
+const PLAYER_ANIMAL_AVATAR_BASE_PATH = `${PLAYER_AVATAR_BASE_PATH}/animals`;
+
+function buildAvatarFileList(basePath: string, prefix: string, count: number): string[] {
+  return Array.from({ length: count }, (_, index) => {
+    const fileNumber = String(index + 1).padStart(2, '0');
+    return `${basePath}/${prefix}-${fileNumber}.svg`;
+  });
+}
+
+const HUMAN_PLAYER_AVATARS = buildAvatarFileList(PLAYER_AVATAR_BASE_PATH, 'player', 20);
+const ANIMAL_PLAYER_AVATARS = buildAvatarFileList(PLAYER_ANIMAL_AVATAR_BASE_PATH, 'animal', 20);
+
+export const DEFAULT_PLAYER_AVATARS: readonly string[] = [...HUMAN_PLAYER_AVATARS, ...ANIMAL_PLAYER_AVATARS];
+export const DEFAULT_PLAYER_AVATAR_COUNT = DEFAULT_PLAYER_AVATARS.length;
 
 export function resolveDefaultPlayerAvatar(username?: string | null, avatarCount = DEFAULT_PLAYER_AVATAR_COUNT): string {
-  const safeCount = Number.isFinite(avatarCount) && avatarCount > 0 ? Math.floor(avatarCount) : DEFAULT_PLAYER_AVATAR_COUNT;
+  const safeCount = clampAvatarCount(avatarCount);
   const normalized = normalizeUsername(username);
   const avatarIndex = hashUsername(normalized) % safeCount;
-  const fileNumber = String(avatarIndex + 1).padStart(2, '0');
-  return `${PLAYER_AVATAR_BASE_PATH}/player-${fileNumber}.svg`;
+  return DEFAULT_PLAYER_AVATARS[avatarIndex];
+}
+
+function clampAvatarCount(value: number): number {
+  if (!Number.isFinite(value) || value <= 0) {
+    return DEFAULT_PLAYER_AVATAR_COUNT;
+  }
+
+  return Math.min(Math.floor(value), DEFAULT_PLAYER_AVATAR_COUNT);
 }
 
 function normalizeUsername(username?: string | null): string {

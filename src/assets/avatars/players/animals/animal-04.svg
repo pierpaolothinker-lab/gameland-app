@@ -1,0 +1,19 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title-a04 desc-a04">
+  <title id="title-a04">Animal avatar 04</title>
+  <desc id="desc-a04">Stylized tiger avatar placeholder for a player seat.</desc>
+  <defs>
+    <linearGradient id="bg-a04" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFE0B2"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.35"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="24" fill="url(#bg-a04)"/>
+  <path d="M48 41 L44 62" stroke="#5D4037" stroke-width="4" stroke-linecap="round"/>
+  <path d="M64 38 L64 63" stroke="#5D4037" stroke-width="4" stroke-linecap="round"/>
+  <path d="M80 41 L84 62" stroke="#5D4037" stroke-width="4" stroke-linecap="round"/>  <circle cx="64" cy="67" r="33" fill="#F2A14A"/>
+  <ellipse cx="64" cy="83" rx="17" ry="12" fill="#FFF0DF"/>
+  <circle cx="52" cy="64" r="4" fill="#2A261E"/>
+  <circle cx="76" cy="64" r="4" fill="#2A261E"/>
+  <ellipse cx="64" cy="77" rx="4" ry="3" fill="#5D4037"/>
+  <path d="M58 86 Q64 92 70 86" stroke="#5D4037" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+</svg>

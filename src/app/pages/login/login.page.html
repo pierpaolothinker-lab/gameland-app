@@ -1,32 +1,71 @@
-<ion-content [fullscreen]="true">
-  <div class="flex-center">
+<ion-content [fullscreen]="true" class="login-content">
+  <div class="login-shell">
+    <div class="bg-orb orb-one" aria-hidden="true"></div>
+    <div class="bg-orb orb-two" aria-hidden="true"></div>
+    <div class="bg-grid" aria-hidden="true"></div>
 
-    <!-- <img src="assets/logoGL.png" alt="Game Land Logo" class="logo" /> -->
+    <section class="brand-panel" aria-label="Brand GAME LAND">
+      <div class="brand-chip">GAME LAND</div>
+      <h1>Play smart. Win together.</h1>
+      <p class="brand-subtitle">
+        Accedi alla tua area e passa subito dalla lobby al tavolo di gioco con un'esperienza rapida e immersiva.
+      </p>
+      <ul class="brand-highlights" aria-label="Vantaggi principali">
+        <li>Lobby veloce per scegliere il gioco</li>
+        <li>Sessione mock pronta per testare i flussi</li>
+        <li>UI ottimizzata per desktop e mobile</li>
+      </ul>
+    </section>
 
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>GAME LAND</ion-card-title>
-        <ion-card-subtitle>The land of games</ion-card-subtitle>
-      </ion-card-header>
+    <section class="form-panel" aria-label="Form di login">
+      <ion-card class="login-card">
+        <ion-card-header>
+          <ion-card-title>Accedi</ion-card-title>
+          <ion-card-subtitle>Entra in GAME LAND e seleziona il tuo gioco.</ion-card-subtitle>
+        </ion-card-header>
 
-      <ion-card-content>
-        <ion-item>
-          <ion-input labelPlacement="floating" label="username" placeholder="Enter your username"
-            type="text"></ion-input>
-        </ion-item>
+        <ion-card-content>
+          <ion-item lines="none" class="field-item" [class.invalid]="usernameErrorVisible">
+            <ion-label position="stacked">Username</ion-label>
+            <ion-input
+              [(ngModel)]="username"
+              name="username"
+              placeholder="Inserisci username"
+              type="text"
+              [attr.aria-invalid]="usernameErrorVisible"
+            ></ion-input>
+          </ion-item>
 
-        <ion-item>
-          <ion-input labelPlacement="floating" label="password" placeholder="Enter your password" type="password">
-            <ion-button fill="clear" slot="end" aria-label="Show/hide">
-              <ion-icon slot="icon-only" name="eye" aria-hidden="true"></ion-icon>
-            </ion-button>
-          </ion-input>
-        </ion-item>
+          <ion-text color="danger" *ngIf="usernameErrorVisible" class="field-error" role="alert">
+            Username obbligatorio.
+          </ion-text>
 
-        <ion-button fill="clear" color="dark" expand="block">Forgot username/password</ion-button>
-        <ion-button color="success" expand="block">Login</ion-button>
-        <ion-button color="primary" fill="clear" expand="block">Register</ion-button>
+          <ion-item lines="none" class="field-item">
+            <ion-label position="stacked">Password</ion-label>
+            <ion-input
+              [(ngModel)]="password"
+              name="password"
+              placeholder="Inserisci password"
+              type="password"
+            ></ion-input>
+          </ion-item>
+
+          <ion-button color="success" expand="block" class="submit-btn" (click)="onSubmit()">Accedi</ion-button>
+
+          <div class="social-wrap">
+            <p class="social-title">Social mock</p>
+            <div class="social-row">
+              <ion-button fill="outline" class="social-btn gmail" size="small">Gmail</ion-button>
+              <ion-button fill="outline" class="social-btn facebook" size="small">Facebook</ion-button>
+              <ion-button fill="outline" class="social-btn twitter" size="small">Twitter</ion-button>
+            </div>
+          </div>
+        <div class="debug-footer">
+          <a routerLink="/debug-avatars">Debug avatars</a>
+        </div>
       </ion-card-content>
-    </ion-card>
+      </ion-card>
+    </section>
   </div>
 </ion-content>
+

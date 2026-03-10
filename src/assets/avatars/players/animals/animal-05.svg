@@ -1,0 +1,18 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title-a05 desc-a05">
+  <title id="title-a05">Animal avatar 05</title>
+  <desc id="desc-a05">Stylized panda avatar placeholder for a player seat.</desc>
+  <defs>
+    <linearGradient id="bg-a05" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ECEFF1"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.35"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="24" fill="url(#bg-a05)"/>
+  <ellipse cx="48" cy="58" rx="10" ry="12" fill="#263238"/>
+  <ellipse cx="80" cy="58" rx="10" ry="12" fill="#263238"/>  <circle cx="64" cy="67" r="33" fill="#FFFFFF"/>
+  <ellipse cx="64" cy="83" rx="17" ry="12" fill="#F7F7F7"/>
+  <circle cx="52" cy="64" r="4" fill="#1B1F24"/>
+  <circle cx="76" cy="64" r="4" fill="#1B1F24"/>
+  <ellipse cx="64" cy="77" rx="4" ry="3" fill="#263238"/>
+  <path d="M58 86 Q64 92 70 86" stroke="#263238" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+</svg>

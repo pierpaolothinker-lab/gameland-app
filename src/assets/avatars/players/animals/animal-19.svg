@@ -1,0 +1,18 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title-a19 desc-a19">
+  <title id="title-a19">Animal avatar 19</title>
+  <desc id="desc-a19">Stylized dolphin avatar placeholder for a player seat.</desc>
+  <defs>
+    <linearGradient id="bg-a19" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#D6ECF7"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.35"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="24" fill="url(#bg-a19)"/>
+  <path d="M40 74 C52 60,78 58,88 72 C76 88,52 88,40 74 Z" fill="#4F7D95" opacity="0.72"/>
+  <path d="M89 71 L101 65 L96 78 Z" fill="#4F7D95"/>  <circle cx="64" cy="67" r="33" fill="#80B7D6"/>
+  <ellipse cx="64" cy="83" rx="17" ry="12" fill="#E4F4FB"/>
+  <circle cx="52" cy="64" r="4" fill="#1A2A35"/>
+  <circle cx="76" cy="64" r="4" fill="#1A2A35"/>
+  <ellipse cx="64" cy="77" rx="4" ry="3" fill="#4F7D95"/>
+  <path d="M58 86 Q64 92 70 86" stroke="#4F7D95" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,19 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title-a16 desc-a16">
+  <title id="title-a16">Animal avatar 16</title>
+  <desc id="desc-a16">Stylized owl avatar placeholder for a player seat.</desc>
+  <defs>
+    <linearGradient id="bg-a16" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E8D6BC"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.35"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="24" fill="url(#bg-a16)"/>
+  <circle cx="52" cy="60" r="9" fill="#FFFFFF" opacity="0.9"/>
+  <circle cx="76" cy="60" r="9" fill="#FFFFFF" opacity="0.9"/>
+  <path d="M64 76 L58 83 L70 83 Z" fill="#5D4037"/>  <circle cx="64" cy="67" r="33" fill="#9C7B5D"/>
+  <ellipse cx="64" cy="83" rx="17" ry="12" fill="#F2E8D9"/>
+  <circle cx="52" cy="64" r="4" fill="#231C16"/>
+  <circle cx="76" cy="64" r="4" fill="#231C16"/>
+  <ellipse cx="64" cy="77" rx="4" ry="3" fill="#5D4037"/>
+  <path d="M58 86 Q64 92 70 86" stroke="#5D4037" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+</svg>

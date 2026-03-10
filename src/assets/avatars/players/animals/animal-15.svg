@@ -1,0 +1,18 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title-a15 desc-a15">
+  <title id="title-a15">Animal avatar 15</title>
+  <desc id="desc-a15">Stylized monkey avatar placeholder for a player seat.</desc>
+  <defs>
+    <linearGradient id="bg-a15" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F4D3B8"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.35"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="24" fill="url(#bg-a15)"/>
+  <circle cx="41" cy="59" r="11" fill="#6D4C41" opacity="0.62"/>
+  <circle cx="87" cy="59" r="11" fill="#6D4C41" opacity="0.62"/>  <circle cx="64" cy="67" r="33" fill="#A7744E"/>
+  <ellipse cx="64" cy="83" rx="17" ry="12" fill="#F3E1CF"/>
+  <circle cx="52" cy="64" r="4" fill="#2E2118"/>
+  <circle cx="76" cy="64" r="4" fill="#2E2118"/>
+  <ellipse cx="64" cy="77" rx="4" ry="3" fill="#6D4C41"/>
+  <path d="M58 86 Q64 92 70 86" stroke="#6D4C41" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+</svg>

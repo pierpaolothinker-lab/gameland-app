@@ -1,0 +1,19 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title-a07 desc-a07">
+  <title id="title-a07">Animal avatar 07</title>
+  <desc id="desc-a07">Stylized fox avatar placeholder for a player seat.</desc>
+  <defs>
+    <linearGradient id="bg-a07" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFE0CC"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.35"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="24" fill="url(#bg-a07)"/>
+  <path d="M35 55 L45 30 L55 55 Z" fill="#6D3D1D"/>
+  <path d="M93 55 L83 30 L73 55 Z" fill="#6D3D1D"/>
+  <path d="M64 74 L74 91 L54 91 Z" fill="#6D3D1D" opacity="0.8"/>  <circle cx="64" cy="67" r="33" fill="#F28B3B"/>
+  <ellipse cx="64" cy="83" rx="17" ry="12" fill="#FFF2E3"/>
+  <circle cx="52" cy="64" r="4" fill="#261B12"/>
+  <circle cx="76" cy="64" r="4" fill="#261B12"/>
+  <ellipse cx="64" cy="77" rx="4" ry="3" fill="#6D3D1D"/>
+  <path d="M58 86 Q64 92 70 86" stroke="#6D3D1D" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+</svg>

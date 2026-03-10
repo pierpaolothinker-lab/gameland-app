@@ -1,0 +1,18 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title-a20 desc-a20">
+  <title id="title-a20">Animal avatar 20</title>
+  <desc id="desc-a20">Stylized turtle avatar placeholder for a player seat.</desc>
+  <defs>
+    <linearGradient id="bg-a20" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#DDECC7"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.35"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="24" fill="url(#bg-a20)"/>
+  <ellipse cx="64" cy="76" rx="22" ry="16" fill="#4E6C37" opacity="0.86"/>
+  <path d="M52 76 H76 M64 64 V88" stroke="#DDECC7" stroke-width="2"/>  <circle cx="64" cy="67" r="33" fill="#7FA35F"/>
+  <ellipse cx="64" cy="83" rx="17" ry="12" fill="#E8F3D6"/>
+  <circle cx="52" cy="64" r="4" fill="#213020"/>
+  <circle cx="76" cy="64" r="4" fill="#213020"/>
+  <ellipse cx="64" cy="77" rx="4" ry="3" fill="#4E6C37"/>
+  <path d="M58 86 Q64 92 70 86" stroke="#4E6C37" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+</svg>

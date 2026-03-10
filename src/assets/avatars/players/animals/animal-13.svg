@@ -1,0 +1,19 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title-a13 desc-a13">
+  <title id="title-a13">Animal avatar 13</title>
+  <desc id="desc-a13">Stylized elephant avatar placeholder for a player seat.</desc>
+  <defs>
+    <linearGradient id="bg-a13" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#D9E2E8"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.35"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="24" fill="url(#bg-a13)"/>
+  <path d="M64 72 C70 80,70 92,62 101" stroke="#607D8B" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <ellipse cx="44" cy="56" rx="13" ry="10" fill="#607D8B" opacity="0.5"/>
+  <ellipse cx="84" cy="56" rx="13" ry="10" fill="#607D8B" opacity="0.5"/>  <circle cx="64" cy="67" r="33" fill="#9FB2BF"/>
+  <ellipse cx="64" cy="83" rx="17" ry="12" fill="#DCE7ED"/>
+  <circle cx="52" cy="64" r="4" fill="#24323D"/>
+  <circle cx="76" cy="64" r="4" fill="#24323D"/>
+  <ellipse cx="64" cy="77" rx="4" ry="3" fill="#607D8B"/>
+  <path d="M58 86 Q64 92 70 86" stroke="#607D8B" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+</svg>

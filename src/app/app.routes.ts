@@ -1,9 +1,11 @@
 import { Routes } from '@angular/router';
 
+import { mockAuthGuard } from './guards/mock-auth.guard';
+
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'tressette-lobby',
+    redirectTo: 'login',
     pathMatch: 'full',
   },
   {
@@ -15,15 +17,22 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/login/login.page').then((m) => m.LoginPage),
   },
   {
+    path: 'game-select',
+    canActivate: [mockAuthGuard],
+    loadComponent: () => import('./pages/game-select/game-select.page').then((m) => m.GameSelectPage),
+  },
+  {
     path: 'register',
     loadComponent: () => import('./pages/register/register.page').then((m) => m.RegisterPage),
   },
   {
     path: 'home',
-    loadComponent: () => import('./pages/home/home.page').then((m) => m.HomePage),
+    redirectTo: 'game-select',
+    pathMatch: 'full',
   },
   {
     path: 'tressette-lobby',
+    canActivate: [mockAuthGuard],
     loadComponent: () => import('./pages/tressette-lobby/tressette-lobby.page').then((m) => m.TressetteLobbyPage),
   },
   {
@@ -33,19 +42,30 @@ export const routes: Routes = [
   },
   {
     path: 'tressette4-inc',
+    canActivate: [mockAuthGuard],
     loadComponent: () => import('./pages/tressette4-inc/tressette4-inc.page').then((m) => m.Tressette4IncPage),
   },
   {
     path: 'table3s74i/:tableId',
+    canActivate: [mockAuthGuard],
     loadComponent: () => import('./pages/table3s74i/table3s74i.page').then((m) => m.Table3s74iPage),
   },
   {
     path: 'debug/cards-catalog',
     loadComponent: () => import('./pages/debug-cards-catalog/debug-cards-catalog.page').then((m) => m.DebugCardsCatalogPage),
-  },  {
+  },
+  {
+    path: 'debug-avatars',
+    loadComponent: () => import('./pages/debug-avatars/debug-avatars.page').then((m) => m.DebugAvatarsPage),
+  },
+  {
     path: 'table3s74i',
     redirectTo: 'tressette-lobby',
     pathMatch: 'full',
+  },
+  {
+    path: '**',
+    redirectTo: 'login',
   },
 ];
 

@@ -9,14 +9,14 @@ describe('LoginPage', () => {
   let component: LoginPage;
   let fixture: ComponentFixture<LoginPage>;
   let authMock: {
-    hasActiveSession: boolean;
-    loginWithUsername: jasmine.Spy;
+    isAuthenticated: jasmine.Spy;
+    login: jasmine.Spy;
   };
 
   beforeEach(async () => {
     authMock = {
-      hasActiveSession: false,
-      loginWithUsername: jasmine.createSpy('loginWithUsername').and.returnValue(true),
+      isAuthenticated: jasmine.createSpy('isAuthenticated').and.returnValue(false),
+      login: jasmine.createSpy('login'),
     };
 
     await TestBed.configureTestingModule({
@@ -45,7 +45,7 @@ describe('LoginPage', () => {
     component.onSubmit();
 
     expect(component.usernameErrorVisible).toBeTrue();
-    expect(authMock.loginWithUsername).toHaveBeenCalledWith('   ');
+    expect(authMock.login).not.toHaveBeenCalled();
   });
 
   it('naviga a game-select se login valido', () => {
@@ -53,9 +53,10 @@ describe('LoginPage', () => {
     spyOn(router, 'navigateByUrl').and.resolveTo(true);
 
     component.username = 'Luca';
+    component.password = 'any';
     component.onSubmit();
 
-    expect(authMock.loginWithUsername).toHaveBeenCalledWith('Luca');
+    expect(authMock.login).toHaveBeenCalledWith('Luca', 'any');
     expect(router.navigateByUrl).toHaveBeenCalledWith('/game-select');
   });
 
@@ -63,7 +64,7 @@ describe('LoginPage', () => {
     const router = TestBed.inject(Router);
     spyOn(router, 'navigateByUrl').and.resolveTo(true);
 
-    authMock.hasActiveSession = true;
+    authMock.isAuthenticated.and.returnValue(true);
     component.ngOnInit();
 
     expect(router.navigateByUrl).toHaveBeenCalledWith('/game-select');

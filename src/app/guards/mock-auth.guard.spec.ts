@@ -7,12 +7,12 @@ import { AuthSessionService } from '../services/auth/auth-session.service';
 describe('mockAuthGuard', () => {
   const createGuardResult = () => TestBed.runInInjectionContext(() => mockAuthGuard({} as never, {} as never));
 
-  it('consente accesso se sessione presente', () => {
+  it('consente accesso se autenticato', () => {
     TestBed.configureTestingModule({
       providers: [
         {
           provide: AuthSessionService,
-          useValue: { hasActiveSession: true },
+          useValue: { isAuthenticated: () => true },
         },
         {
           provide: Router,
@@ -24,7 +24,7 @@ describe('mockAuthGuard', () => {
     expect(createGuardResult()).toBeTrue();
   });
 
-  it('redireziona a login se sessione assente', () => {
+  it('redireziona a login se non autenticato', () => {
     const loginTree = new UrlTree();
     const routerMock = {
       createUrlTree: jasmine.createSpy('createUrlTree').and.returnValue(loginTree),
@@ -34,7 +34,7 @@ describe('mockAuthGuard', () => {
       providers: [
         {
           provide: AuthSessionService,
-          useValue: { hasActiveSession: false },
+          useValue: { isAuthenticated: () => false },
         },
         {
           provide: Router,

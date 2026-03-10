@@ -47,7 +47,7 @@ export class LoginPage implements OnInit {
   constructor(private readonly authSessionService: AuthSessionService, private readonly router: Router) {}
 
   ngOnInit(): void {
-    if (this.authSessionService.hasActiveSession) {
+    if (this.authSessionService.isAuthenticated()) {
       void this.router.navigateByUrl('/game-select');
     }
   }
@@ -59,11 +59,11 @@ export class LoginPage implements OnInit {
   onSubmit(): void {
     this.submitted = true;
 
-    const success = this.authSessionService.loginWithUsername(this.username);
-    if (!success) {
+    if (!this.username.trim()) {
       return;
     }
 
+    this.authSessionService.login(this.username, this.password);
     void this.router.navigateByUrl('/game-select');
   }
 }

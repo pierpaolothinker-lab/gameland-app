@@ -11,18 +11,21 @@ Dettagli:
 - Landing `/` redireziona a `/login`.
 - Login mock richiede `username` (obbligatorio) e include campo password solo UI.
 - Pulsanti social `Gmail`, `Facebook`, `Twitter` sono mock UI (nessuna OAuth reale).
-- Submit login valido salva sessione mock locale e naviga a `/game-select`.
+- Submit login valido chiama `authSessionService.login(username, password?)`, salva la sessione mock su localStorage e naviga a `/game-select`.
 - Da `Scelta Gioco`, click su `Tressette` apre `/tressette-lobby`.
+- Pulsante `Esci` in `Scelta Gioco` chiama sempre `authSessionService.logout()` e forza redirect a `/login`.
 
 Protezione route minima (mock auth):
 
 - Rotte protette: `/game-select`, `/tressette-lobby`, `/table3s74i/:tableId`, `/tressette4-inc`.
+- Il guard usa `authSessionService.isAuthenticated()`.
 - Se non autenticato -> redirect a `/login`.
 
-Storage sessione mock:
+Storage sessione mock (source-of-truth):
 
-- Legacy key: `gameland.mockAuthSession.userId`
-- Session key JSON: `gameland.mockAuthSession.session`
+- Session key JSON corrente: `gameland.mockAuthSession.session`
+- Compatibilita legacy lettura/scrittura: `gameland.mockAuthSession.userId`, `gameland.mockAuthSession.username`
+- `logout()` rimuove deterministicamente tutte le chiavi sessione mock sopra.
 
 ## Mock Auth Session (Tressette Lobby)
 

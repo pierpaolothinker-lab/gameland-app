@@ -7,7 +7,7 @@ export const mockAuthGuard: CanActivateFn = () => {
   const authSession = inject(AuthSessionService);
   const router = inject(Router);
 
-  if (authSession.hasActiveSession) {
+  if (authSession.isAuthenticated()) {
     return true;
   }
 

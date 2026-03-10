@@ -26,6 +26,13 @@ const DEFAULT_MOCK_USERS: MockSessionUser[] = [
 export class AuthSessionService {
   static readonly STORAGE_KEY = 'gameland.mockAuthSession.userId';
   static readonly SESSION_STORAGE_KEY = 'gameland.mockAuthSession.session';
+  static readonly LEGACY_USERNAME_KEY = 'gameland.mockAuthSession.username';
+
+  private static readonly SESSION_KEYS = [
+    AuthSessionService.SESSION_STORAGE_KEY,
+    AuthSessionService.STORAGE_KEY,
+    AuthSessionService.LEGACY_USERNAME_KEY,
+  ];
 
   readonly availableUsers: MockSessionUser[] = DEFAULT_MOCK_USERS;
 
@@ -38,25 +45,22 @@ export class AuthSessionService {
     return this.currentUserSubject.value;
   }
 
-  get hasActiveSession(): boolean {
-    return this.authenticatedSubject.value;
-  }
-
   setActiveUser(userId: string): void {
     const selectedUser = this.availableUsers.find((user) => user.userId === userId);
     if (!selectedUser) {
       return;
     }
 
-    this.currentUserSubject.next(selectedUser);
     this.persistSession(selectedUser);
   }
 
-  loginWithUsername(username: string): boolean {
+  login(username: string, password?: string): void {
     const normalized = username.trim();
     if (!normalized) {
-      return false;
+      throw new Error('USERNAME_REQUIRED');
     }
+
+    void password;
 
     const matched = this.availableUsers.find((user) => user.username.toLowerCase() === normalized.toLowerCase());
     const sessionUser: MockSessionUser =
@@ -65,24 +69,26 @@ export class AuthSessionService {
         username: normalized,
       };
 
-    this.currentUserSubject.next(sessionUser);
     this.persistSession(sessionUser);
-    return true;
   }
 
   logout(): void {
-    if (typeof window === 'undefined') {
-      this.authenticatedSubject.next(false);
-      return;
+    if (typeof window !== 'undefined') {
+      for (const key of AuthSessionService.SESSION_KEYS) {
+        window.localStorage.removeItem(key);
+      }
     }
 
-    window.localStorage.removeItem(AuthSessionService.STORAGE_KEY);
-    window.localStorage.removeItem(AuthSessionService.SESSION_STORAGE_KEY);
+    this.currentUserSubject.next(this.defaultUser());
     this.authenticatedSubject.next(false);
   }
 
+  isAuthenticated(): boolean {
+    return this.authenticatedSubject.value;
+  }
+
   private resolveInitialUser(): MockSessionUser {
-    const fallback = this.availableUsers[0];
+    const fallback = this.defaultUser();
 
     if (typeof window === 'undefined') {
       return fallback;
@@ -97,11 +103,22 @@ export class AuthSessionService {
     }
 
     const storedUserId = window.localStorage.getItem(AuthSessionService.STORAGE_KEY);
-    if (!storedUserId) {
+    if (storedUserId) {
+      return this.availableUsers.find((user) => user.userId === storedUserId) ?? fallback;
+    }
+
+    const legacyUsername = window.localStorage.getItem(AuthSessionService.LEGACY_USERNAME_KEY)?.trim();
+    if (!legacyUsername) {
       return fallback;
     }
 
-    return this.availableUsers.find((user) => user.userId === storedUserId) ?? fallback;
+    const matched = this.availableUsers.find((user) => user.username.toLowerCase() === legacyUsername.toLowerCase());
+    return (
+      matched ?? {
+        userId: this.buildCustomUserId(legacyUsername),
+        username: legacyUsername,
+      }
+    );
   }
 
   private resolveIsAuthenticated(): boolean {
@@ -109,10 +126,7 @@ export class AuthSessionService {
       return false;
     }
 
-    return (
-      !!window.localStorage.getItem(AuthSessionService.SESSION_STORAGE_KEY) ||
-      !!window.localStorage.getItem(AuthSessionService.STORAGE_KEY)
-    );
+    return AuthSessionService.SESSION_KEYS.some((key) => !!window.localStorage.getItem(key));
   }
 
   private parseStoredSession(raw: string): MockSessionUser | null {
@@ -136,20 +150,26 @@ export class AuthSessionService {
   }
 
   private persistSession(user: MockSessionUser): void {
-    if (typeof window === 'undefined') {
-      return;
+    this.currentUserSubject.next(user);
+
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(AuthSessionService.STORAGE_KEY, user.userId);
+      window.localStorage.setItem(AuthSessionService.LEGACY_USERNAME_KEY, user.username);
+      window.localStorage.setItem(
+        AuthSessionService.SESSION_STORAGE_KEY,
+        JSON.stringify({
+          userId: user.userId,
+          username: user.username,
+          displayName: user.displayName,
+        } satisfies StoredMockSession)
+      );
     }
 
-    window.localStorage.setItem(AuthSessionService.STORAGE_KEY, user.userId);
-    window.localStorage.setItem(
-      AuthSessionService.SESSION_STORAGE_KEY,
-      JSON.stringify({
-        userId: user.userId,
-        username: user.username,
-        displayName: user.displayName,
-      } satisfies StoredMockSession)
-    );
     this.authenticatedSubject.next(true);
+  }
+
+  private defaultUser(): MockSessionUser {
+    return this.availableUsers[0];
   }
 
   private buildCustomUserId(username: string): string {

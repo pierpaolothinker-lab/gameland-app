@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
   IonButton,
   IonCard,
@@ -37,6 +37,7 @@ import { AuthSessionService } from 'src/app/services/auth/auth-session.service';
     IonText,
     CommonModule,
     FormsModule,
+    RouterLink,
   ],
 })
 export class LoginPage implements OnInit {
@@ -67,3 +68,4 @@ export class LoginPage implements OnInit {
     void this.router.navigateByUrl('/game-select');
   }
 }
+

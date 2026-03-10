@@ -55,6 +55,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/debug-cards-catalog/debug-cards-catalog.page').then((m) => m.DebugCardsCatalogPage),
   },
   {
+    path: 'debug-avatars',
+    loadComponent: () => import('./pages/debug-avatars/debug-avatars.page').then((m) => m.DebugAvatarsPage),
+  },
+  {
     path: 'table3s74i',
     redirectTo: 'tressette-lobby',
     pathMatch: 'full',
@@ -64,3 +68,4 @@ export const routes: Routes = [
     redirectTo: 'login',
   },
 ];
+

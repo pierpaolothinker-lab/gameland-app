@@ -327,3 +327,19 @@ ion-card-content {
     grid-template-columns: 1fr;
   }
 }
+
+.debug-footer {
+  margin-top: 14px;
+  text-align: right;
+}
+
+.debug-footer a {
+  color: #9ec8ea;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.debug-footer a:hover {
+  text-decoration: underline;
+}
+

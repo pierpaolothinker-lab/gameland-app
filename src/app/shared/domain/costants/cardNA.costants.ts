@@ -1,19 +1,24 @@
-import { Injectable } from "@angular/core";
+import { Injectable } from '@angular/core';
 
-export @Injectable({providedIn:'root'})
+export @Injectable({ providedIn: 'root' })
 class bGImageCostants {
-    public CARD_SIZE = {
-        ORIGINAL_WIDTH : 60,
-        ORIGINAL_HEIGHT : 90,
-        DISPLAY_WIDTH : 70,
-        DISPLAY_HEIGHT : 100,
-    }
-    public INITIAL_OFFSET = {
-        X : 9,
-        Y: 9
-    }
-    public CARD_SPACING = {
-        X: 5.2,
-        Y: 24
-    }
+  public SPRITE_SHEET = {
+    WIDTH: 1024,
+    HEIGHT: 649,
+  };
+
+  public CARD_GRID = {
+    OFFSET_X: 9,
+    OFFSET_Y: 9,
+    CELL_WIDTH: 60,
+    CELL_HEIGHT: 90,
+    GAP_X: 5,
+    GAP_Y: 24,
+  };
+
+  public DISPLAY = {
+    WIDTH: 58,
+    HEIGHT: 105,
+    SAFE_INSET: 1,
+  };
 }

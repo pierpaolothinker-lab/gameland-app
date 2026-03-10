@@ -1,6 +1,6 @@
-﻿import { CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Component, ElementRef, Input, OnInit, SimpleChanges } from '@angular/core';
-import { bGImageCostants } from './../../domain/costants/cardNA.costants'
+import { bGImageCostants } from './../../domain/costants/cardNA.costants';
 import { ICardIT, Suit } from '../../domain/models/cardIT.model';
 
 @Component({
@@ -8,59 +8,69 @@ import { ICardIT, Suit } from '../../domain/models/cardIT.model';
   templateUrl: './card-na.component.html',
   styleUrls: ['./card-na.component.scss'],
   standalone: true,
-  imports: [CommonModule]
+  imports: [CommonModule],
 })
-export class CardNAComponent  implements OnInit {
-  constructor(private myElement: ElementRef, private K : bGImageCostants) { }
-  @Input({ required: true }) card!: ICardIT
+export class CardNAComponent implements OnInit {
+  constructor(private myElement: ElementRef, private K: bGImageCostants) {}
+
+  @Input({ required: true }) card!: ICardIT;
 
   ngOnInit() {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    this.showCard(this.getMatrixRow(this.card), this.getMatrixCol(this.card))
+    this.showCard(this.getMatrixRow(this.card), this.getMatrixCol(this.card));
   }
 
   private getMatrixRow(card: ICardIT): number {
-    if (!card)
-      throw new Error('No card')
+    if (!card) {
+      throw new Error('No card');
+    }
 
-    if (card.suit === Suit.Coppe)
-      return 0
+    if (card.suit === Suit.Coppe) {
+      return 0;
+    }
 
-    if (card.suit === Suit.Denari)
-      return 1
+    if (card.suit === Suit.Denari) {
+      return 1;
+    }
 
-    if (card.suit === Suit.Bastoni)
-      return 2
+    if (card.suit === Suit.Bastoni) {
+      return 2;
+    }
 
-    if (card.suit === Suit.Spade)
-      return 3
+    if (card.suit === Suit.Spade) {
+      return 3;
+    }
 
-    return -1
+    return -1;
   }
 
   private getMatrixCol(card: ICardIT): number {
-    if (!card)
-      throw new Error('No card')
+    if (!card) {
+      throw new Error('No card');
+    }
 
-    return this.card.value - 1
-
+    return card.value - 1;
   }
 
-  showCard(row: number, col: number) {
+  showCard(row: number, col: number): void {
+    const grid = this.K.CARD_GRID;
+    const display = this.K.DISPLAY;
 
-    // Calcola il fattore di ridimensionamento
-    const scaleX = this.K.CARD_SIZE.DISPLAY_WIDTH / this.K.CARD_SIZE.ORIGINAL_WIDTH;
-    const scaleY = this.K.CARD_SIZE.DISPLAY_HEIGHT / this.K.CARD_SIZE.ORIGINAL_HEIGHT;
-  
-    // Calcola la posizione della carta all'interno dell'immagine originale
-    const xPosOriginal = this.K.INITIAL_OFFSET.X + col * (this.K.CARD_SIZE.ORIGINAL_WIDTH + this.K.CARD_SPACING.X);
-    const yPosOriginal = this.K.INITIAL_OFFSET.Y + row * (this.K.CARD_SIZE.ORIGINAL_HEIGHT + this.K.CARD_SPACING.Y);
-  
-    // Applica il ridimensionamento
-    const xPos = xPosOriginal * scaleX;
-    const yPos = yPosOriginal * scaleY;
+    const scaleX = display.WIDTH / grid.CELL_WIDTH;
+    const scaleY = display.HEIGHT / grid.CELL_HEIGHT;
 
-    this.myElement.nativeElement.style.backgroundPosition = `-${xPos}px -${yPos}px`; 
+    const xCell = grid.OFFSET_X + col * (grid.CELL_WIDTH + grid.GAP_X);
+    const yCell = grid.OFFSET_Y + row * (grid.CELL_HEIGHT + grid.GAP_Y);
+
+    const xPos = Math.round(xCell * scaleX) + display.SAFE_INSET;
+    const yPos = Math.round(yCell * scaleY) + display.SAFE_INSET;
+
+    const bgWidth = Math.round(this.K.SPRITE_SHEET.WIDTH * scaleX);
+    const bgHeight = Math.round(this.K.SPRITE_SHEET.HEIGHT * scaleY);
+
+    const elementStyle = this.myElement.nativeElement.style;
+    elementStyle.backgroundSize = `${bgWidth}px ${bgHeight}px`;
+    elementStyle.backgroundPosition = `-${xPos}px -${yPos}px`;
   }
 }

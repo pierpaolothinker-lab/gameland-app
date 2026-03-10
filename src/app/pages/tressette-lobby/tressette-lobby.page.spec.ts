@@ -202,6 +202,26 @@ describe('TressetteLobbyPage', () => {
     expect(text).not.toContain('Bot-1');
   });
 
+  
+  it('renderizza avatar umano e bot nella lobby occupata', () => {
+    component.tables = [
+      makeTable('tbl-bot', 'Luca', 'waiting', [
+        { username: 'Luca', position: 'SUD' },
+        { username: 'Bot-1', position: 'NORD', isBot: true },
+      ]),
+    ];
+
+    fixture.detectChanges();
+
+    const northAvatar = fixture.nativeElement.querySelector('.seat-nord .seat-avatar') as HTMLImageElement | null;
+    const southAvatar = fixture.nativeElement.querySelector('.seat-sud .seat-avatar') as HTMLImageElement | null;
+
+    expect(northAvatar?.getAttribute('src')).toContain('assets/avatar-bot.svg');
+    expect(northAvatar?.className).toContain('bot-avatar');
+    expect(northAvatar?.className).toMatch(/bot-variant-[0-5]/);
+    expect(southAvatar?.getAttribute('src')).toContain('assets/avatarExample.png');
+    expect(southAvatar?.className).toContain('human-avatar');
+  });
   it('gestione errore API', () => {
     serviceMock.listTables.and.returnValue(throwError(() => new Error('offline')));
 
@@ -234,4 +254,5 @@ describe('TressetteLobbyPage', () => {
     expect(routerMock.navigate).toHaveBeenCalledWith(['/table3s74i', 'tbl-owner-ready']);
   });
 });
+
 

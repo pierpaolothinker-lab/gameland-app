@@ -150,6 +150,9 @@
   color: #ffffff;
   margin-bottom: 2px;
   font-size: 13px;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
 }
 
 .human-name {
@@ -265,3 +268,46 @@
   display: flex;
   gap: 8px;
 }
+
+
+.seat-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.seat-avatar.human-avatar {
+  filter: none;
+}
+
+.seat-avatar.bot-avatar {
+  filter: saturate(1.1) contrast(1.05);
+}
+
+.seat-avatar.bot-avatar.bot-variant-0 {
+  filter: hue-rotate(0deg) saturate(1.2) brightness(1.02);
+}
+
+.seat-avatar.bot-avatar.bot-variant-1 {
+  filter: hue-rotate(35deg) saturate(1.18) brightness(1.02);
+}
+
+.seat-avatar.bot-avatar.bot-variant-2 {
+  filter: hue-rotate(75deg) saturate(1.16) brightness(1.01);
+}
+
+.seat-avatar.bot-avatar.bot-variant-3 {
+  filter: hue-rotate(125deg) saturate(1.1) brightness(1.03);
+}
+
+.seat-avatar.bot-avatar.bot-variant-4 {
+  filter: hue-rotate(180deg) saturate(1.12) brightness(1.01);
+}
+
+.seat-avatar.bot-avatar.bot-variant-5 {
+  filter: hue-rotate(230deg) saturate(1.15) brightness(1.04);
+}
+

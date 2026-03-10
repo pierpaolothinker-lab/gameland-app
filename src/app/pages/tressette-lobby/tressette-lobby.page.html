@@ -76,6 +76,7 @@
             <div class="seat-player" *ngIf="seatOccupied(table, 'NORD'); else emptyNord">
               <span class="human-name" *ngIf="!isBotSeat(table, 'NORD')">{{ displayHumanSeatName(table, 'NORD') }}</span>
               <span class="bot-badge" *ngIf="isBotSeat(table, 'NORD')">BOT</span>
+              <img class="seat-avatar" *ngIf="playerAt(table, 'NORD')" [ngClass]="seatAvatarClass(table, 'NORD')" [src]="seatAvatarSrc(table, 'NORD')" [alt]="isBotSeat(table, 'NORD') ? 'Avatar Bot' : 'Avatar giocatore'" />
             </div>
             <ng-template #emptyNord>
               <button
@@ -94,6 +95,7 @@
             <div class="seat-player" *ngIf="seatOccupied(table, 'EST'); else emptyEst">
               <span class="human-name" *ngIf="!isBotSeat(table, 'EST')">{{ displayHumanSeatName(table, 'EST') }}</span>
               <span class="bot-badge" *ngIf="isBotSeat(table, 'EST')">BOT</span>
+              <img class="seat-avatar" *ngIf="playerAt(table, 'EST')" [ngClass]="seatAvatarClass(table, 'EST')" [src]="seatAvatarSrc(table, 'EST')" [alt]="isBotSeat(table, 'EST') ? 'Avatar Bot' : 'Avatar giocatore'" />
             </div>
             <ng-template #emptyEst>
               <button
@@ -112,6 +114,7 @@
             <div class="seat-player" *ngIf="seatOccupied(table, 'SUD'); else emptySud">
               <span class="human-name" *ngIf="!isBotSeat(table, 'SUD')">{{ displayHumanSeatName(table, 'SUD') }}</span>
               <span class="bot-badge" *ngIf="isBotSeat(table, 'SUD')">BOT</span>
+              <img class="seat-avatar" *ngIf="playerAt(table, 'SUD')" [ngClass]="seatAvatarClass(table, 'SUD')" [src]="seatAvatarSrc(table, 'SUD')" [alt]="isBotSeat(table, 'SUD') ? 'Avatar Bot' : 'Avatar giocatore'" />
             </div>
             <ng-template #emptySud>
               <button
@@ -130,6 +133,7 @@
             <div class="seat-player" *ngIf="seatOccupied(table, 'OVEST'); else emptyOvest">
               <span class="human-name" *ngIf="!isBotSeat(table, 'OVEST')">{{ displayHumanSeatName(table, 'OVEST') }}</span>
               <span class="bot-badge" *ngIf="isBotSeat(table, 'OVEST')">BOT</span>
+              <img class="seat-avatar" *ngIf="playerAt(table, 'OVEST')" [ngClass]="seatAvatarClass(table, 'OVEST')" [src]="seatAvatarSrc(table, 'OVEST')" [alt]="isBotSeat(table, 'OVEST') ? 'Avatar Bot' : 'Avatar giocatore'" />
             </div>
             <ng-template #emptyOvest>
               <button

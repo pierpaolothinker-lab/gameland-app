@@ -260,11 +260,15 @@ export class Table3s74iPage implements OnInit, OnDestroy {
   }
 
   isTurnPosition(position: TressettePosition): boolean {
+    if (this.isAnyTrickRevealActive()) {
+      return false;
+    }
+
     return this.turnPlayerPosition === position;
   }
 
   getSeatCountdown(position: TressettePosition): number | null {
-    if (!this.isTurnPosition(position)) {
+    if (this.isAnyTrickRevealActive() || !this.isTurnPosition(position)) {
       return null;
     }
 
@@ -287,6 +291,15 @@ export class Table3s74iPage implements OnInit, OnDestroy {
 
   seatAvatarSrc(position: TressettePosition): string {
     return this.isBotPlayer(position) ? 'assets/avatar-bot.svg' : 'assets/avatarExample.png';
+  }
+
+  seatAvatarClass(position: TressettePosition): string {
+    const player = this.getPlayer(position);
+    if (!player?.isBot) {
+      return 'human-avatar';
+    }
+
+    return `bot-avatar ${this.botAvatarVariantClass(player.username, position)}`;
   }
 
   getTrickCard(position: TressettePosition): ICardIT | null {
@@ -798,6 +811,18 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.trickRevealActive;
   }
 
+  
+  private botAvatarVariantClass(username?: string, position?: TressettePosition): string {
+    const seed = `${this.tableId}|${position ?? '-'}|${username ?? '-'}`;
+    let hash = 0;
+    for (let index = 0; index < seed.length; index += 1) {
+      hash = (hash * 31 + seed.charCodeAt(index)) % 2147483647;
+    }
+
+    const variant = Math.abs(hash) % 6;
+    return `bot-variant-${variant}`;
+  }
+
   private compareCardsForHandDisplay(left: ICardIT, right: ICardIT): number {
     const suitOrder: Suit[] = [Suit.Denari, Suit.Spade, Suit.Coppe, Suit.Bastoni];
     const sovereigntyOrder = [3, 2, 1, 10, 9, 8, 7, 6, 5, 4];
@@ -976,6 +1001,9 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.table.players.find((player) => player.username === username)?.position ?? null;
   }
 }
+
+
+
 
 
 

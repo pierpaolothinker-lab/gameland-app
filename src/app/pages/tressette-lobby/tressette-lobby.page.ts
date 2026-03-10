@@ -295,6 +295,19 @@ export class TressetteLobbyPage implements OnInit {
     return !!this.playerAt(table, position)?.isBot;
   }
 
+  seatAvatarSrc(table: TressetteTableView, position: TressettePosition): string {
+    return this.isBotSeat(table, position) ? 'assets/avatar-bot.svg' : 'assets/avatarExample.png';
+  }
+
+  seatAvatarClass(table: TressetteTableView, position: TressettePosition): string {
+    const player = this.playerAt(table, position);
+    if (!player?.isBot) {
+      return 'human-avatar';
+    }
+
+    return `bot-avatar ${this.botAvatarVariantClass(table.tableId, player.username, position)}`;
+  }
+
   playerAt(table: TressetteTableView, position: TressettePosition): TressettePlayer | undefined {
     return table.players.find((entry) => entry.position === position);
   }
@@ -349,6 +362,18 @@ export class TressetteLobbyPage implements OnInit {
     return 'none';
   }
 
+  
+  private botAvatarVariantClass(tableId: string, username?: string, position?: TressettePosition): string {
+    const seed = `${tableId}|${position ?? '-'}|${username ?? '-'}`;
+    let hash = 0;
+    for (let index = 0; index < seed.length; index += 1) {
+      hash = (hash * 31 + seed.charCodeAt(index)) % 2147483647;
+    }
+
+    const variant = Math.abs(hash) % 6;
+    return `bot-variant-${variant}`;
+  }
+
   private openToast(message: string): void {
     this.toastMessage = message;
     this.toastOpen = true;
@@ -362,3 +387,6 @@ export class TressetteLobbyPage implements OnInit {
     return apiMessage ? `${fallback}: ${apiMessage}` : fallback;
   }
 }
+
+
+

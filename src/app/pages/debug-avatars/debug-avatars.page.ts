@@ -22,6 +22,12 @@ interface AvatarCatalogItem {
   type: AvatarType;
 }
 
+interface AvatarPreviewSize {
+  className: string;
+  label: string;
+  pixels: number;
+}
+
 @Component({
   selector: 'app-debug-avatars',
   templateUrl: './debug-avatars.page.html',
@@ -30,6 +36,13 @@ interface AvatarCatalogItem {
   imports: [IonBadge, IonCard, IonCardContent, IonContent, CommonModule],
 })
 export class DebugAvatarsPage implements OnInit {
+  readonly previewSizes: AvatarPreviewSize[] = [
+    { className: 'size-32', label: '32', pixels: 32 },
+    { className: 'size-40', label: '40', pixels: 40 },
+    { className: 'size-56', label: '56', pixels: 56 },
+    { className: 'size-96', label: '96', pixels: 96 },
+  ];
+
   humanAvatars: AvatarCatalogItem[] = [];
   animalAvatars: AvatarCatalogItem[] = [];
   loading = true;

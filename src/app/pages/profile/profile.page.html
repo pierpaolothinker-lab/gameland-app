@@ -1,0 +1,33 @@
+<ion-content [fullscreen]="true" class="profile-content">
+  <section class="profile-hero">
+    <p class="profile-kicker">Profilo</p>
+    <h2>{{ username }}</h2>
+    <p>Sessione mock locale attiva, con accesso rapido a preferenze e utility personali.</p>
+  </section>
+
+  <section class="profile-grid">
+    <ion-card class="profile-card">
+      <ion-card-header>
+        <ion-card-subtitle>Sessione</ion-card-subtitle>
+        <ion-card-title>Stato account</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p>Mock auth attiva e persistita in locale, compatibile con la shell mobile ibrida.</p>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card class="profile-card">
+      <ion-card-header>
+        <ion-card-subtitle>Preferenze</ion-card-subtitle>
+        <ion-card-title>Dispositivo</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p>Audio, vibrazione e notifiche sono esposti nella shell come entry point mobile-first.</p>
+      </ion-card-content>
+    </ion-card>
+  </section>
+
+  <section class="profile-actions">
+    <ion-button color="danger" (click)="logout()">Esci</ion-button>
+  </section>
+</ion-content>

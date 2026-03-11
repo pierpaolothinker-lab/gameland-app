@@ -49,6 +49,81 @@
 .table-stage {
   padding: 8px 16px 24px;
 }
+.gameplay-utility-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.utility-chip {
+  border: 1px solid rgba(255, 224, 138, 0.28);
+  background: rgba(9, 37, 73, 0.78);
+  color: #f6fbff;
+  padding: 9px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.utility-chip.active {
+  background: linear-gradient(180deg, rgba(255, 224, 138, 0.28), rgba(9, 37, 73, 0.92));
+  border-color: rgba(255, 224, 138, 0.52);
+  color: #fff4d1;
+}
+.gameplay-utility-panel {
+  margin-bottom: 10px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(6, 26, 52, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+}
+.panel-title {
+  margin: 0 0 4px;
+  color: #fff4d1;
+  font-size: 13px;
+  font-weight: 800;
+}
+.panel-copy {
+  margin: 0 0 10px;
+  color: #d5e7f7;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.quick-chat-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.quick-chat-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #f6fbff;
+  font-size: 12px;
+  font-weight: 700;
+}
+.context-menu-panel {
+  display: grid;
+  gap: 8px;
+}
+.context-action {
+  min-height: 42px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f6fbff;
+  padding: 0 12px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 700;
+}
+.context-action.exit {
+  border-color: rgba(255, 214, 120, 0.4);
+  color: #ffe08a;
+}
 
 .game-table {
   position: relative;
@@ -267,53 +342,6 @@
   margin-top: 10px;
   display: flex;
   justify-content: flex-end;
-}
-
-@media (max-width: 900px) {
-  .game-table {
-    min-height: 360px;
-  }
-
-  .player-badge {
-    min-width: 90px;
-    font-size: 12px;
-  }
-
-  .seat-avatar {
-    width: 30px;
-    height: 30px;
-  }
-
-  .turn-badge {
-    font-size: 9px;
-    padding: 2px 6px;
-  }
-
-  .turn-countdown {
-    min-width: 32px;
-    font-size: 11px;
-  }
-
-  .trick-slot {
-    width: 62px;
-    height: 98px;
-  }
-
-  .trick-north {
-    top: calc(50% - 108px);
-  }
-
-  .trick-east {
-    left: calc(50% + 66px);
-  }
-
-  .trick-south {
-    top: calc(50% + 8px);
-  }
-
-  .trick-west {
-    left: calc(50% - 128px);
-  }
 }
 
 .data-mode-bar {

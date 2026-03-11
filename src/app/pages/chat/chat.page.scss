@@ -1,0 +1,50 @@
+.chat-content {
+  --background: radial-gradient(circle at top, #16314c 0%, #0d2236 52%, #08131d 100%);
+}
+
+.chat-hero {
+  padding: 18px 16px 8px;
+  color: #edf5ff;
+}
+
+.chat-kicker {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 11px;
+  color: #f2c35b;
+}
+
+.chat-hero h2 {
+  margin: 8px 0 6px;
+}
+
+.chat-hero p {
+  margin: 0;
+  color: #c7d7e9;
+}
+
+.chat-list {
+  padding: 10px 16px 24px;
+  display: grid;
+  gap: 12px;
+}
+
+.chat-card {
+  margin: 0;
+  background: rgba(8, 31, 49, 0.88);
+  color: #ecf5ff;
+  border: 1px solid rgba(129, 176, 220, 0.28);
+}
+
+.chat-copy {
+  color: #c2d4e8;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+@media (min-width: 760px) {
+  .chat-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

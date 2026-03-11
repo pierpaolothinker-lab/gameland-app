@@ -2,6 +2,7 @@
   <section class="header">
     <h1>Avatar Catalog</h1>
     <p class="subtitle">Totale avatar caricati: <strong>{{ totalLoaded }}</strong></p>
+    <p class="helper">Preview QA: crop circolare e lettura a 32 / 40 / 56 / 96 px su feltro tavolo e superficie UI.</p>
   </section>
 
   <section class="status" *ngIf="loading">Caricamento manifest avatar...</section>
@@ -23,6 +24,32 @@
           <img [src]="avatar.file" [alt]="avatar.id" class="avatar-preview" />
           <p class="avatar-id">{{ avatar.id }}</p>
           <p class="avatar-file">{{ avatar.file }}</p>
+
+          <div class="avatar-validation">
+            <div class="preview-surface surface-felt">
+              <p class="surface-label">Table felt</p>
+              <div class="preview-strip">
+                <div class="preview-size" *ngFor="let size of previewSizes">
+                  <div class="preview-circle" [ngClass]="size.className">
+                    <img [src]="avatar.file" [alt]="avatar.id + ' felt ' + size.label + 'px'" class="avatar-preview-circle" />
+                  </div>
+                  <span>{{ size.label }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="preview-surface surface-ui">
+              <p class="surface-label">Night UI</p>
+              <div class="preview-strip compact-strip">
+                <div class="preview-size" *ngFor="let size of previewSizes">
+                  <div class="preview-circle" [ngClass]="size.className">
+                    <img [src]="avatar.file" [alt]="avatar.id + ' ui ' + size.label + 'px'" class="avatar-preview-circle" />
+                  </div>
+                  <span>{{ size.label }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </ion-card-content>
       </ion-card>
     </div>
@@ -40,6 +67,20 @@
           <img [src]="avatar.file" [alt]="avatar.id" class="avatar-preview" />
           <p class="avatar-id">{{ avatar.id }}</p>
           <p class="avatar-file">{{ avatar.file }}</p>
+
+          <div class="avatar-validation">
+            <div class="preview-surface surface-felt surface-felt-animal">
+              <p class="surface-label">Table felt</p>
+              <div class="preview-strip compact-strip">
+                <div class="preview-size" *ngFor="let size of previewSizes">
+                  <div class="preview-circle" [ngClass]="size.className">
+                    <img [src]="avatar.file" [alt]="avatar.id + ' felt ' + size.label + 'px'" class="avatar-preview-circle" />
+                  </div>
+                  <span>{{ size.label }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </ion-card-content>
       </ion-card>
     </div>

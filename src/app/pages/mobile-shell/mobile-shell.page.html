@@ -1,0 +1,87 @@
+<ion-menu side="end" menuId="utility-menu" contentId="shell-content" type="overlay" [swipeGesture]="false" class="utility-menu">
+  <ion-content class="utility-content">
+    <section class="utility-panel">
+      <p class="utility-eyebrow">Utility</p>
+      <h2>Menu rapido</h2>
+      <p class="utility-copy">Scorciatoie secondarie pensate per consultazione veloce e azione con una mano.</p>
+
+      <ion-list lines="none" class="utility-list">
+        <ion-item button detail="false" (click)="openUtilityPlaceholder('Impostazioni')">
+          <ion-icon slot="start" name="settings-outline"></ion-icon>
+          <ion-label>Impostazioni</ion-label>
+          <ion-badge slot="end" color="warning">Soon</ion-badge>
+        </ion-item>
+
+        <ion-item button detail="false" (click)="openUtilityPlaceholder('Notifiche')">
+          <ion-icon slot="start" name="notifications-outline"></ion-icon>
+          <ion-label>Notifiche</ion-label>
+          <ion-badge slot="end" color="warning">Soon</ion-badge>
+        </ion-item>
+
+        <ion-item button detail="false" (click)="openUtilityPlaceholder('Regole')">
+          <ion-icon slot="start" name="book-outline"></ion-icon>
+          <ion-label>Regole</ion-label>
+          <ion-badge slot="end" color="warning">Soon</ion-badge>
+        </ion-item>
+
+        <ion-item button detail="false" (click)="openUtilityPlaceholder('Supporto')">
+          <ion-icon slot="start" name="help-circle-outline"></ion-icon>
+          <ion-label>Supporto</ion-label>
+          <ion-badge slot="end" color="warning">Soon</ion-badge>
+        </ion-item>
+
+        <ion-menu-toggle auto-hide="true" *ngIf="showDevEntry">
+          <ion-item button detail="false" routerLink="/debug-avatars">
+            <ion-icon slot="start" name="bug-outline"></ion-icon>
+            <ion-label>Debug avatars</ion-label>
+            <ion-badge slot="end" color="primary">DEV</ion-badge>
+          </ion-item>
+        </ion-menu-toggle>
+      </ion-list>
+    </section>
+  </ion-content>
+</ion-menu>
+
+<section class="shell-frame">
+  <header class="shell-header">
+    <div class="header-copy">
+      <p class="shell-kicker">{{ currentTitle }}</p>
+      <h1>GAME LAND</h1>
+      <p class="shell-subtitle">{{ currentSubtitle }}</p>
+    </div>
+
+    <div class="header-actions">
+      <button type="button" class="user-pill" (click)="navigateTo('/profile')">
+        {{ username }}
+      </button>
+      <ion-buttons>
+        <ion-menu-button menu="utility-menu" autoHide="false"></ion-menu-button>
+      </ion-buttons>
+    </div>
+  </header>
+
+  <main id="shell-content" class="shell-main">
+    <ion-router-outlet></ion-router-outlet>
+  </main>
+
+  <nav class="shell-tabbar" aria-label="Navigazione principale">
+    <button
+      type="button"
+      class="tab-link"
+      *ngFor="let tab of tabs"
+      [class.active]="isTabActive(tab)"
+      (click)="navigateTo(tab.route)"
+    >
+      <ion-icon [name]="tab.icon"></ion-icon>
+      <span>{{ tab.label }}</span>
+    </button>
+  </nav>
+</section>
+
+<ion-toast
+  [isOpen]="toastOpen"
+  [message]="toastMessage"
+  [duration]="1700"
+  (didDismiss)="onToastDismiss()"
+></ion-toast>
+

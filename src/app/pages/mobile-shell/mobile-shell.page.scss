@@ -1,0 +1,174 @@
+:host {
+  --shell-night-1: #071525;
+  --shell-night-2: #0b2034;
+  --shell-night-3: #14304c;
+  --shell-gold: #f2c35b;
+  --shell-line: rgba(127, 174, 219, 0.18);
+  --shell-text: #edf5ff;
+  --shell-soft: #b5cadf;
+}
+
+.shell-frame {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  background:
+    radial-gradient(circle at top right, rgba(242, 195, 91, 0.18), transparent 28%),
+    linear-gradient(180deg, var(--shell-night-3) 0%, var(--shell-night-2) 22%, var(--shell-night-1) 100%);
+}
+
+.shell-header {
+  padding: calc(10px + var(--ion-safe-area-top)) 14px 10px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--shell-line);
+  background: rgba(4, 17, 29, 0.72);
+  backdrop-filter: blur(16px);
+}
+
+.header-copy {
+  min-width: 0;
+}
+
+.shell-kicker {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 11px;
+  color: var(--shell-gold);
+}
+
+.shell-header h1 {
+  margin: 4px 0 4px;
+  font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--shell-text);
+}
+
+.shell-subtitle {
+  margin: 0;
+  max-width: 34ch;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--shell-soft);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-pill {
+  border: 1px solid rgba(242, 195, 91, 0.36);
+  background: rgba(242, 195, 91, 0.12);
+  color: #ffe9b5;
+  padding: 8px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.shell-main {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.shell-tabbar {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  padding: 10px 12px calc(10px + var(--ion-safe-area-bottom));
+  border-top: 1px solid var(--shell-line);
+  background: rgba(3, 13, 23, 0.94);
+}
+
+.tab-link {
+  border: 1px solid rgba(123, 176, 228, 0.14);
+  background: rgba(12, 31, 50, 0.78);
+  color: var(--shell-soft);
+  border-radius: 16px;
+  padding: 10px 6px 8px;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.tab-link ion-icon {
+  font-size: 18px;
+}
+
+.tab-link.active {
+  color: #fff4d1;
+  border-color: rgba(242, 195, 91, 0.38);
+  background: linear-gradient(180deg, rgba(242, 195, 91, 0.22), rgba(12, 31, 50, 0.92));
+  box-shadow: 0 0 0 1px rgba(242, 195, 91, 0.1) inset;
+}
+
+.utility-content {
+  --background: linear-gradient(180deg, #102439 0%, #0b1828 100%);
+}
+
+.utility-panel {
+  padding: calc(18px + var(--ion-safe-area-top)) 16px 18px;
+  color: var(--shell-text);
+}
+
+.utility-eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 11px;
+  color: var(--shell-gold);
+}
+
+.utility-panel h2 {
+  margin: 8px 0 6px;
+}
+
+.utility-copy {
+  margin: 0 0 16px;
+  color: var(--shell-soft);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.utility-list {
+  background: transparent;
+}
+
+.utility-list ion-item {
+  --background: rgba(255, 255, 255, 0.04);
+  --color: var(--shell-text);
+  --border-radius: 14px;
+  margin-bottom: 8px;
+  border: 1px solid rgba(123, 176, 228, 0.14);
+}
+
+@media (min-width: 840px) {
+  .shell-header {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .shell-header h1 {
+    font-size: 26px;
+  }
+
+  .shell-subtitle {
+    font-size: 13px;
+  }
+
+  .shell-tabbar {
+    padding-left: 18px;
+    padding-right: 18px;
+    max-width: 720px;
+    width: 100%;
+    margin: 0 auto;
+  }
+}

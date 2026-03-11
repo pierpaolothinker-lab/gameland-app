@@ -36,6 +36,29 @@
   </section>
 
   <section class="table-stage">
+    <div class="gameplay-utility-strip">
+      <button type="button" class="utility-chip" [class.active]="quickChatOpen" (click)="toggleQuickChat()">Chat rapida</button>
+      <button type="button" class="utility-chip" [class.active]="contextMenuOpen" (click)="toggleContextMenu()">Menu tavolo</button>
+    </div>
+
+    <div class="gameplay-utility-panel" *ngIf="quickChatOpen">
+      <p class="panel-title">Chat rapida</p>
+      <p class="panel-copy">Accesso separato alla chat senza tab bar persistente durante la mano.</p>
+      <div class="quick-chat-pills">
+        <span class="quick-chat-pill">Owner: {{ table?.owner ?? '-' }}</span>
+        <span class="quick-chat-pill">Tu: {{ myUsername }}</span>
+        <span class="quick-chat-pill">Stato: {{ table?.status ?? 'waiting' }}</span>
+      </div>
+    </div>
+
+    <div class="gameplay-utility-panel context-menu-panel" *ngIf="contextMenuOpen">
+      <button type="button" class="context-action" (click)="showTableInfo()">Info tavolo</button>
+      <button type="button" class="context-action" (click)="showQuickRules()">Regole rapide</button>
+      <button type="button" class="context-action" (click)="toggleAudio()">Audio: {{ audioEnabled ? 'ON' : 'OFF' }}</button>
+      <button type="button" class="context-action" (click)="toggleVibration()">Vibrazione: {{ vibrationEnabled ? 'ON' : 'OFF' }}</button>
+      <button type="button" class="context-action exit" (click)="goToLobby()">Torna alla lobby</button>
+    </div>
+
     <div class="game-table" [class.reveal-active]="winnerOverlayVisible">
       <div class="scoreboard-note" *ngIf="table as t">
         <p class="scoreboard-title">Taccuino punti</p>
@@ -134,4 +157,3 @@
     </div>
   </section>
 </ion-content>
-

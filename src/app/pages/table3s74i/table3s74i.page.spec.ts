@@ -1,4 +1,4 @@
-﻿import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 
@@ -568,11 +568,23 @@ describe('Table3s74iPage', () => {
 
     expect(component.canPlayCards).toBeFalse();
   });
+  it('toggle chat rapida e menu contestuale in mutua esclusione', () => {
+    component.toggleQuickChat();
+    expect(component.quickChatOpen).toBeTrue();
+    expect(component.contextMenuOpen).toBeFalse();
+
+    component.toggleContextMenu();
+    expect(component.contextMenuOpen).toBeTrue();
+    expect(component.quickChatOpen).toBeFalse();
+  });
+
+  it('azione torna alla lobby dal menu gameplay', () => {
+    component.contextMenuOpen = true;
+
+    component.goToLobby();
+
+    expect(component.contextMenuOpen).toBeFalse();
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/tressette-lobby']);
+  });
 });
-
-
-
-
-
-
 

@@ -63,3 +63,13 @@ Per i giocatori umani senza avatar personale, il FE assegna un avatar placeholde
 - Regola: stesso username -> stesso avatar default
 - I bot continuano a usare solo assets/avatar-bot.svg con varianti colore esistenti (invariato)
 
+
+## Mobile Navigation Shell (FE)
+
+Nuova shell ibrida mobile-first per le schermate non-gameplay.
+
+- Tab bar primaria globale: Lobby, Giochi, Chat, Profilo
+- Menu utility in alto a destra con placeholder eleganti per Impostazioni, Notifiche, Regole, Supporto
+- Entry Debug avatars disponibile solo in ambiente dev quando coerente col contesto
+- Gameplay Tressette fuori dalla shell globale: niente tab bar persistente, ma Chat rapida e menu contestuale tavolo dedicato
+- Palette coerente con il visual language attuale: shell blu notte, feltro verde in gameplay, accenti oro per stati attivi e CTA

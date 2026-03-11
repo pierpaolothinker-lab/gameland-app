@@ -1,0 +1,25 @@
+<ion-content [fullscreen]="true" class="chat-content">
+  <section class="chat-hero">
+    <p class="chat-kicker">Chat hub</p>
+    <h2>Messaggistica ibrida</h2>
+    <p>Accesso rapido a conversazioni e placeholder di servizio senza appesantire il gameplay.</p>
+  </section>
+
+  <section class="chat-list">
+    <ion-card class="chat-card" *ngFor="let channel of channels">
+      <ion-card-header>
+        <ion-card-subtitle>{{ channel.subtitle }}</ion-card-subtitle>
+        <ion-card-title>{{ channel.title }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-badge [color]="channel.badge === 'Live' ? 'success' : 'warning'">{{ channel.badge }}</ion-badge>
+        <p class="chat-copy">
+          Esperienza mobile-first pronta per Capacitor: qui teniamo visibili i punti di accesso senza introdurre logica backend nuova.
+        </p>
+        <ion-button fill="outline" size="small" disabled>
+          {{ channel.badge === 'Live' ? 'Integrazione chat tavolo in arrivo' : 'Placeholder elegante' }}
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  </section>
+</ion-content>

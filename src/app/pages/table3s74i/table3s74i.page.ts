@@ -1,4 +1,4 @@
-﻿import { CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, OnDestroy, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -111,6 +111,10 @@ export class Table3s74iPage implements OnInit, OnDestroy {
   currentHandIndex: number | null = null;
   preGameCountdownActive = false;
   preGameSecondsRemaining = 0;
+  quickChatOpen = false;
+  contextMenuOpen = false;
+  audioEnabled = true;
+  vibrationEnabled = true;
 
   readonly positions: TressettePosition[] = ['NORD', 'EST', 'SUD', 'OVEST'];
   readonly socketUrl = environment.backend.socketUrl;
@@ -254,7 +258,44 @@ export class Table3s74iPage implements OnInit, OnDestroy {
   }
 
   goToLobby(): void {
+    this.quickChatOpen = false;
+    this.contextMenuOpen = false;
     void this.router.navigate(['/tressette-lobby']);
+  }
+
+  toggleQuickChat(): void {
+    this.quickChatOpen = !this.quickChatOpen;
+    if (this.quickChatOpen) {
+      this.contextMenuOpen = false;
+    }
+  }
+
+  toggleContextMenu(): void {
+    this.contextMenuOpen = !this.contextMenuOpen;
+    if (this.contextMenuOpen) {
+      this.quickChatOpen = false;
+    }
+  }
+
+  showTableInfo(): void {
+    const playerCount = this.table?.players.length ?? 0;
+    this.infoMessage = `Tavolo ${this.tableId}: ${playerCount}/4 giocatori, stato ${this.table?.status ?? 'waiting'}`;
+    this.contextMenuOpen = false;
+  }
+
+  showQuickRules(): void {
+    this.infoMessage = 'Regole rapide: rispondi al seme se possibile e conserva il ritmo del tavolo.';
+    this.contextMenuOpen = false;
+  }
+
+  toggleAudio(): void {
+    this.audioEnabled = !this.audioEnabled;
+    this.infoMessage = `Audio ${this.audioEnabled ? 'attivo' : 'disattivato'}`;
+  }
+
+  toggleVibration(): void {
+    this.vibrationEnabled = !this.vibrationEnabled;
+    this.infoMessage = `Vibrazione ${this.vibrationEnabled ? 'attiva' : 'disattivata'}`;
   }
 
   getPlayer(position: TressettePosition): TressettePlayer | undefined {
@@ -1004,5 +1045,3 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.table.players.find((player) => player.username === username)?.position ?? null;
   }
 }
-
-

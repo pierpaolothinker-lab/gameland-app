@@ -1,11 +1,20 @@
-﻿<ion-menu side="end" menuId="utility-menu" contentId="shell-content" type="overlay" [swipeGesture]="false" class="utility-menu">
+<ion-menu side="end" menuId="utility-menu" contentId="shell-content" type="overlay" [swipeGesture]="false" class="utility-menu">
   <ion-content class="utility-content">
     <section class="utility-panel">
       <p class="utility-eyebrow">Utility</p>
       <h2>Menu rapido</h2>
       <p class="utility-copy">Scorciatoie secondarie pensate per consultazione veloce e azione con una mano.</p>
 
-      <div class="debug-toggle-shell" [class.active]="debugModeEnabled">
+      <div
+        class="debug-toggle-shell"
+        [class.active]="debugModeEnabled"
+        role="button"
+        tabindex="0"
+        [attr.aria-pressed]="debugModeEnabled"
+        (click)="toggleDebugMode()"
+        (keydown.enter)="toggleDebugMode()"
+        (keydown.space)="toggleDebugMode(); $event.preventDefault()"
+      >
         <div class="debug-toggle-copy">
           <p class="debug-toggle-label">Debug mode</p>
           <p class="debug-toggle-hint">
@@ -16,9 +25,11 @@
         <div class="debug-toggle-action">
           <span class="debug-state-pill" [class.active]="debugModeEnabled">{{ debugModeLabel }}</span>
           <ion-toggle
+            class="debug-mode-switch"
             [checked]="debugModeEnabled"
-            (ionChange)="onDebugModeToggle($event.detail.checked)"
             aria-label="Attiva o disattiva Debug mode"
+            (click)="$event.stopPropagation()"
+            (ionChange)="$event.stopPropagation(); onDebugModeToggle($event.detail.checked)"
           ></ion-toggle>
         </div>
       </div>

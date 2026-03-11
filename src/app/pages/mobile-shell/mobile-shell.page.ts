@@ -1,4 +1,4 @@
-﻿import { CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, NavigationEnd, Router, RouterLink } from '@angular/router';
@@ -130,6 +130,10 @@ export class MobileShellPage implements OnInit {
 
   get debugModeLabel(): string {
     return this.debugModeEnabled ? 'ON' : 'OFF';
+  }
+
+  toggleDebugMode(): void {
+    this.onDebugModeToggle(!this.debugModeEnabled);
   }
 
   navigateTo(route: string): void {

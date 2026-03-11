@@ -1,4 +1,4 @@
-﻿import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, provideRouter, Router } from '@angular/router';
 import { MenuController } from '@ionic/angular';
 import { BehaviorSubject } from 'rxjs';
@@ -92,8 +92,17 @@ describe('MobileShellPage', () => {
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
 
     expect(text).toContain('Debug mode');
+    expect(text).not.toContain('Debug avatars');
     expect(text).not.toContain('Catalogo avatar');
     expect(text).not.toContain('Matrice carte');
+  });
+
+  it('attiva debug mode al tap sulla riga dedicata', () => {
+    const toggleRow = (fixture.nativeElement as HTMLElement).querySelector('.debug-toggle-shell') as HTMLElement;
+
+    toggleRow.click();
+
+    expect(debugModeMock.setEnabled).toHaveBeenCalledWith(true);
   });
 
   it('mostra link debug quando debug mode e on', () => {
@@ -103,5 +112,6 @@ describe('MobileShellPage', () => {
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
     expect(text).toContain('Catalogo avatar');
     expect(text).toContain('Matrice carte');
+    expect(text).not.toContain('Debug avatars');
   });
 });

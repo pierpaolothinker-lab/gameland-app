@@ -1,4 +1,4 @@
-﻿:host {
+:host {
   --shell-night-1: #071525;
   --shell-night-2: #0b2034;
   --shell-night-3: #14304c;
@@ -148,6 +148,13 @@
   border-radius: 18px;
   border: 1px solid rgba(123, 176, 228, 0.16);
   background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  transition: border-color 140ms ease, background 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+}
+
+.debug-toggle-shell:focus-visible {
+  outline: 2px solid rgba(242, 195, 91, 0.62);
+  outline-offset: 2px;
 }
 
 .debug-toggle-shell.active {
@@ -178,6 +185,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  flex: 0 0 auto;
 }
 
 .debug-state-pill {
@@ -195,6 +203,12 @@
 .debug-state-pill.active {
   background: #f2c35b;
   color: #112235;
+}
+
+.debug-mode-switch {
+  flex: 0 0 auto;
+  transform: scale(1.06);
+  transform-origin: center right;
 }
 
 .debug-toggle-shell ion-toggle {

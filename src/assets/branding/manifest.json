@@ -1,0 +1,23 @@
+{
+  "brand": "Gameland",
+  "legacy": {
+    "notes": [
+      "logoGL.png remains a legacy illustrative crest and is not part of the new core logo system.",
+      "favicon.png remains available as png fallback only."
+    ]
+  },
+  "assets": [
+    { "id": "mark-dark", "file": "assets/branding/gameland-mark-dark.svg", "type": "mark", "variant": "dark", "usage": "default icon on light surfaces" },
+    { "id": "mark-light", "file": "assets/branding/gameland-mark-light.svg", "type": "mark", "variant": "light", "usage": "icon on dark and night surfaces" },
+    { "id": "mark-mono", "file": "assets/branding/gameland-mark-mono.svg", "type": "mark", "variant": "mono", "usage": "single-color print or embossed use" },
+    { "id": "wordmark-dark", "file": "assets/branding/gameland-wordmark-dark.svg", "type": "wordmark", "variant": "dark", "usage": "wordmark on light surfaces" },
+    { "id": "wordmark-light", "file": "assets/branding/gameland-wordmark-light.svg", "type": "wordmark", "variant": "light", "usage": "wordmark on dark and night surfaces" },
+    { "id": "wordmark-mono", "file": "assets/branding/gameland-wordmark-mono.svg", "type": "wordmark", "variant": "mono", "usage": "single-color wordmark" },
+    { "id": "logo-primary-dark", "file": "assets/branding/gameland-logo-primary-dark.svg", "type": "logo-primary", "variant": "dark", "usage": "default stacked logo for light surfaces" },
+    { "id": "logo-primary-light", "file": "assets/branding/gameland-logo-primary-light.svg", "type": "logo-primary", "variant": "light", "usage": "stacked logo for dark and night surfaces" },
+    { "id": "logo-primary-mono", "file": "assets/branding/gameland-logo-primary-mono.svg", "type": "logo-primary", "variant": "mono", "usage": "single-color stacked logo" },
+    { "id": "logo-horizontal-dark", "file": "assets/branding/gameland-logo-horizontal-dark.svg", "type": "logo-horizontal", "variant": "dark", "usage": "default horizontal lockup for headers and cards" },
+    { "id": "logo-horizontal-light", "file": "assets/branding/gameland-logo-horizontal-light.svg", "type": "logo-horizontal", "variant": "light", "usage": "horizontal lockup for dark and night surfaces" },
+    { "id": "logo-horizontal-mono", "file": "assets/branding/gameland-logo-horizontal-mono.svg", "type": "logo-horizontal", "variant": "mono", "usage": "single-color horizontal lockup" }
+  ]
+}

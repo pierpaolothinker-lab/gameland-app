@@ -1,4 +1,4 @@
-﻿# gameland-app
+# gameland-app
 
 ## Flow Login Mock (FE)
 
@@ -73,3 +73,17 @@ Nuova shell ibrida mobile-first per le schermate non-gameplay.
 - Entry Debug avatars disponibile solo in ambiente dev quando coerente col contesto
 - Gameplay Tressette fuori dalla shell globale: niente tab bar persistente, ma Chat rapida e menu contestuale tavolo dedicato
 - Palette coerente con il visual language attuale: shell blu notte, feltro verde in gameplay, accenti oro per stati attivi e CTA
+## Brand Logo System
+
+Nuovo sistema logo Gameland disponibile in `src/assets/branding/`.
+
+- Varianti incluse: `mark`, `wordmark`, `logo-primary`, `logo-horizontal`
+- Varianti colore: `dark`, `light`, `mono`
+- Guida d'uso e rationale: `docs/BRAND_LOGO_SYSTEM.md`
+- Manifest asset: `src/assets/branding/manifest.json`
+- Preview board: `src/assets/branding/gameland-preview-board.svg`
+
+Note:
+
+- `src/assets/logoGL.png` resta solo come crest legacy di riferimento
+- il nuovo mark SVG e` gia` pronto per metadata/browser icon senza toccare shell o routing

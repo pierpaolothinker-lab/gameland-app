@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="360" viewBox="0 0 1400 360" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Gameland horizontal logo mono</title>
+  <desc id="desc">Monochrome horizontal lockup with the mark and GAME LAND wordmark.</desc>
+  <path d="M222 122 C204 103 179 92 150 92 C99 92 60 131 60 182 C60 233 99 272 150 272 C188 272 220 252 236 224" fill="none" stroke="currentColor" stroke-width="42" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M150 182 H236" fill="none" stroke="currentColor" stroke-width="42" stroke-linecap="round"/>
+  <circle cx="102" cy="112" r="11" fill="currentColor"/>
+  <circle cx="240" cy="112" r="11" fill="currentColor"/>
+  <circle cx="102" cy="250" r="11" fill="currentColor"/>
+  <circle cx="240" cy="250" r="11" fill="currentColor"/>
+  <path d="M170 124 L222 176 L170 228 L118 176 Z M154 150 L198 176 L154 202 Z" fill="currentColor" fill-rule="evenodd"/>
+  <g fill="currentColor" font-family="Trebuchet MS, Segoe UI, sans-serif" font-size="128" font-weight="700" letter-spacing="10">
+    <text x="390" y="206">GAME</text>
+    <text x="840" y="206">LAND</text>
+  </g>
+  <path d="M760 130 L798 168 L760 206 L722 168 Z" fill="currentColor"/>
+</svg>

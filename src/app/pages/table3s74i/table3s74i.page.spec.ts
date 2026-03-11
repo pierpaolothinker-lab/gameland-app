@@ -3,6 +3,7 @@ import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 
 import { AuthSessionService, MockSessionUser } from 'src/app/services/auth/auth-session.service';
+import { DebugModeService } from 'src/app/services/debug-mode/debug-mode.service';
 import { DataMode, DataModeService } from 'src/app/services/data-mode/data-mode.service';
 import { TressetteTableService } from 'src/app/services/tressette/tressette-table.service';
 import { CardIT, Suit } from 'src/app/shared/domain/models/cardIT.model';
@@ -27,6 +28,11 @@ describe('Table3s74iPage', () => {
     mode: DataMode;
     mode$: BehaviorSubject<DataMode>;
     setMode: jasmine.Spy;
+  };
+
+  let debugModeMock: {
+    enabled: boolean;
+    enabled$: BehaviorSubject<boolean>;
   };
 
   let routeMock: {
@@ -107,6 +113,11 @@ describe('Table3s74iPage', () => {
       }),
     };
 
+    debugModeMock = {
+      enabled: false,
+      enabled$: new BehaviorSubject<boolean>(false),
+    };
+
     routeMock = {
       snapshot: { paramMap: convertToParamMap({ tableId: 'tbl-001' }) },
     };
@@ -121,6 +132,7 @@ describe('Table3s74iPage', () => {
         { provide: TressetteTableService, useValue: serviceMock },
         { provide: AuthSessionService, useValue: authMock },
         { provide: DataModeService, useValue: dataModeMock },
+        { provide: DebugModeService, useValue: debugModeMock },
         { provide: ActivatedRoute, useValue: routeMock },
         { provide: Router, useValue: routerMock },
       ],
@@ -129,6 +141,20 @@ describe('Table3s74iPage', () => {
     fixture = TestBed.createComponent(Table3s74iPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
+  });
+
+  it('nasconde data mode nel gameplay quando debug mode e off', () => {
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+
+    expect(text).not.toContain('Data Mode:');
+  });
+
+  it('mostra data mode nel gameplay quando debug mode e on', () => {
+    debugModeMock.enabled$.next(true);
+    fixture.detectChanges();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Data Mode:');
   });
 
   it('carica tableId da route e usa backend realtime fetch', () => {
@@ -587,4 +613,3 @@ describe('Table3s74iPage', () => {
     expect(routerMock.navigate).toHaveBeenCalledWith(['/tressette-lobby']);
   });
 });
-

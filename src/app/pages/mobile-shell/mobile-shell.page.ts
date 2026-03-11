@@ -1,9 +1,9 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+﻿import { CommonModule } from '@angular/common';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, NavigationEnd, Router, RouterLink } from '@angular/router';
 import {
   IonBadge,
-  IonButton,
   IonButtons,
   IonContent,
   IonIcon,
@@ -15,17 +15,18 @@ import {
   IonMenuToggle,
   IonRouterOutlet,
   IonToast,
+  IonToggle,
 } from '@ionic/angular/standalone';
 import { MenuController } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
   bookOutline,
-  bugOutline,
   chatbubbleEllipsesOutline,
   gameControllerOutline,
+  gridOutline,
   helpCircleOutline,
   homeOutline,
-  menuOutline,
+  imagesOutline,
   notificationsOutline,
   personCircleOutline,
   settingsOutline,
@@ -33,7 +34,7 @@ import {
 import { filter } from 'rxjs';
 
 import { AuthSessionService } from 'src/app/services/auth/auth-session.service';
-import { environment } from 'src/environments/environment';
+import { DebugModeService } from 'src/app/services/debug-mode/debug-mode.service';
 
 type ShellTabKey = 'lobby' | 'games' | 'chat' | 'profile';
 
@@ -51,7 +52,6 @@ interface ShellTab {
   standalone: true,
   imports: [
     IonBadge,
-    IonButton,
     IonButtons,
     IonContent,
     IonIcon,
@@ -63,6 +63,7 @@ interface ShellTab {
     IonMenuToggle,
     IonRouterOutlet,
     IonToast,
+    IonToggle,
     CommonModule,
     RouterLink,
   ],
@@ -80,21 +81,25 @@ export class MobileShellPage implements OnInit {
   currentTab: ShellTabKey = 'games';
   toastOpen = false;
   toastMessage = '';
+  debugModeEnabled = false;
+
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private readonly activatedRoute: ActivatedRoute,
     private readonly authSessionService: AuthSessionService,
+    private readonly debugModeService: DebugModeService,
     private readonly menuController: MenuController,
     private readonly router: Router
   ) {
     addIcons({
       bookOutline,
-      bugOutline,
       chatbubbleEllipsesOutline,
       gameControllerOutline,
+      gridOutline,
       helpCircleOutline,
       homeOutline,
-      menuOutline,
+      imagesOutline,
       notificationsOutline,
       personCircleOutline,
       settingsOutline,
@@ -102,9 +107,18 @@ export class MobileShellPage implements OnInit {
   }
 
   ngOnInit(): void {
+    this.debugModeService.enabled$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((enabled) => {
+        this.debugModeEnabled = enabled;
+      });
+
     this.syncRouteMeta();
     this.router.events
-      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef)
+      )
       .subscribe(() => {
         this.syncRouteMeta();
       });
@@ -114,8 +128,8 @@ export class MobileShellPage implements OnInit {
     return this.authSessionService.currentUser.username;
   }
 
-  get showDevEntry(): boolean {
-    return !environment.production;
+  get debugModeLabel(): string {
+    return this.debugModeEnabled ? 'ON' : 'OFF';
   }
 
   navigateTo(route: string): void {
@@ -129,6 +143,14 @@ export class MobileShellPage implements OnInit {
   async openUtilityPlaceholder(label: string): Promise<void> {
     await this.menuController.close('utility-menu');
     this.toastMessage = `${label} disponibile presto in questa shell ibrida.`;
+    this.toastOpen = true;
+  }
+
+  onDebugModeToggle(enabled: boolean): void {
+    this.debugModeService.setEnabled(enabled);
+    this.toastMessage = enabled
+      ? 'Debug mode attivo: strumenti QA visibili in lobby e quick menu.'
+      : 'Debug mode disattivato: UI tornata alla modalita standard.';
     this.toastOpen = true;
   }
 

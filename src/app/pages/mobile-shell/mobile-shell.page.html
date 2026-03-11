@@ -1,9 +1,50 @@
-<ion-menu side="end" menuId="utility-menu" contentId="shell-content" type="overlay" [swipeGesture]="false" class="utility-menu">
+﻿<ion-menu side="end" menuId="utility-menu" contentId="shell-content" type="overlay" [swipeGesture]="false" class="utility-menu">
   <ion-content class="utility-content">
     <section class="utility-panel">
       <p class="utility-eyebrow">Utility</p>
       <h2>Menu rapido</h2>
       <p class="utility-copy">Scorciatoie secondarie pensate per consultazione veloce e azione con una mano.</p>
+
+      <div class="debug-toggle-shell" [class.active]="debugModeEnabled">
+        <div class="debug-toggle-copy">
+          <p class="debug-toggle-label">Debug mode</p>
+          <p class="debug-toggle-hint">
+            {{ debugModeEnabled ? 'Strumenti QA locali attivi in quick menu, lobby e gameplay.' : 'Nasconde controlli mock e link di ispezione.' }}
+          </p>
+        </div>
+
+        <div class="debug-toggle-action">
+          <span class="debug-state-pill" [class.active]="debugModeEnabled">{{ debugModeLabel }}</span>
+          <ion-toggle
+            [checked]="debugModeEnabled"
+            (ionChange)="onDebugModeToggle($event.detail.checked)"
+            aria-label="Attiva o disattiva Debug mode"
+          ></ion-toggle>
+        </div>
+      </div>
+
+      <section class="debug-panel" *ngIf="debugModeEnabled">
+        <p class="debug-panel-kicker">Debug mode attivo</p>
+        <p class="debug-panel-copy">Data mode e switch utente mock sono visibili in lobby. Qui sotto trovi i link di ispezione rapida.</p>
+
+        <ion-list lines="none" class="utility-list debug-link-list">
+          <ion-menu-toggle auto-hide="true">
+            <ion-item button detail="false" routerLink="/debug-avatars">
+              <ion-icon slot="start" name="images-outline"></ion-icon>
+              <ion-label>Catalogo avatar</ion-label>
+              <ion-badge slot="end" color="warning">DEBUG</ion-badge>
+            </ion-item>
+          </ion-menu-toggle>
+
+          <ion-menu-toggle auto-hide="true">
+            <ion-item button detail="false" routerLink="/debug/cards-catalog">
+              <ion-icon slot="start" name="grid-outline"></ion-icon>
+              <ion-label>Matrice carte</ion-label>
+              <ion-badge slot="end" color="warning">DEBUG</ion-badge>
+            </ion-item>
+          </ion-menu-toggle>
+        </ion-list>
+      </section>
 
       <ion-list lines="none" class="utility-list">
         <ion-item button detail="false" (click)="openUtilityPlaceholder('Impostazioni')">
@@ -29,14 +70,6 @@
           <ion-label>Supporto</ion-label>
           <ion-badge slot="end" color="warning">Soon</ion-badge>
         </ion-item>
-
-        <ion-menu-toggle auto-hide="true" *ngIf="showDevEntry">
-          <ion-item button detail="false" routerLink="/debug-avatars">
-            <ion-icon slot="start" name="bug-outline"></ion-icon>
-            <ion-label>Debug avatars</ion-label>
-            <ion-badge slot="end" color="primary">DEV</ion-badge>
-          </ion-item>
-        </ion-menu-toggle>
       </ion-list>
     </section>
   </ion-content>
@@ -84,4 +117,3 @@
   [duration]="1700"
   (didDismiss)="onToastDismiss()"
 ></ion-toast>
-

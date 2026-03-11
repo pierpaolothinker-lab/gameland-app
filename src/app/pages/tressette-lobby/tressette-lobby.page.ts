@@ -1,4 +1,4 @@
-﻿import { CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
@@ -19,12 +19,12 @@ import {
 } from '@ionic/angular/standalone';
 
 import { AuthSessionService, MockSessionUser } from 'src/app/services/auth/auth-session.service';
+import { DebugModeService } from 'src/app/services/debug-mode/debug-mode.service';
 import { DataMode, DataModeService } from 'src/app/services/data-mode/data-mode.service';
 import { TressetteTableService } from 'src/app/services/tressette/tressette-table.service';
 import { TressettePlayer, TressettePosition, TressetteTableView } from 'src/app/shared/domain/models/tressette-table.model';
 import { resolveBotAvatarVariantClass } from 'src/app/shared/utils/bot-avatar-variant.util';
 import { resolveDefaultPlayerAvatar } from 'src/app/shared/utils/player-avatar.util';
-import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-tressette-lobby',
@@ -51,7 +51,6 @@ import { environment } from 'src/environments/environment';
 export class TressetteLobbyPage implements OnInit {
   readonly positions: TressettePosition[] = ['SUD', 'NORD', 'EST', 'OVEST'];
   readonly availableUsers = this.authSessionService.availableUsers;
-  readonly showDevAuthPanel = !environment.production;
 
   tables: TressetteTableView[] = [];
   loading = false;
@@ -64,12 +63,14 @@ export class TressetteLobbyPage implements OnInit {
 
   activeUser: MockSessionUser;
   dataMode: DataMode;
+  debugModeEnabled = false;
 
   private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private readonly tableService: TressetteTableService,
     private readonly authSessionService: AuthSessionService,
+    private readonly debugModeService: DebugModeService,
     private readonly dataModeService: DataModeService,
     private readonly router: Router
   ) {
@@ -82,6 +83,12 @@ export class TressetteLobbyPage implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((user) => {
         this.activeUser = user;
+      });
+
+    this.debugModeService.enabled$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((enabled) => {
+        this.debugModeEnabled = enabled;
       });
 
     this.dataModeService.mode$
@@ -387,5 +394,3 @@ export class TressetteLobbyPage implements OnInit {
     return apiMessage ? `${fallback}: ${apiMessage}` : fallback;
   }
 }
-
-

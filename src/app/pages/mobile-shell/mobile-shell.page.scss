@@ -1,4 +1,4 @@
-:host {
+﻿:host {
   --shell-night-1: #071525;
   --shell-night-2: #0b2034;
   --shell-night-3: #14304c;
@@ -138,16 +138,113 @@
   line-height: 1.45;
 }
 
-.utility-list {
+.debug-toggle-shell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(123, 176, 228, 0.16);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.debug-toggle-shell.active {
+  border-color: rgba(242, 195, 91, 0.34);
+  background: linear-gradient(180deg, rgba(242, 195, 91, 0.16), rgba(255, 255, 255, 0.04));
+  box-shadow: 0 0 0 1px rgba(242, 195, 91, 0.08) inset;
+}
+
+.debug-toggle-copy {
+  min-width: 0;
+}
+
+.debug-toggle-label {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff4d1;
+}
+
+.debug-toggle-hint {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--shell-soft);
+}
+
+.debug-toggle-action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.debug-state-pill {
+  min-width: 42px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--shell-soft);
+  text-align: center;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.debug-state-pill.active {
+  background: #f2c35b;
+  color: #112235;
+}
+
+.debug-toggle-shell ion-toggle {
+  --track-background: rgba(122, 156, 189, 0.32);
+  --track-background-checked: rgba(242, 195, 91, 0.88);
+  --handle-background: #f6fbff;
+  --handle-background-checked: #0a1d2f;
+}
+
+.debug-panel {
+  margin-bottom: 14px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(242, 195, 91, 0.28);
+  background: linear-gradient(180deg, rgba(242, 195, 91, 0.14), rgba(255, 255, 255, 0.03));
+}
+
+.debug-panel-kicker {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 11px;
+  font-weight: 800;
+  color: #ffe9b5;
+}
+
+.debug-panel-copy {
+  margin: 6px 0 12px;
+  color: var(--shell-text);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.utility-list,
+.debug-link-list {
   background: transparent;
 }
 
-.utility-list ion-item {
+.utility-list ion-item,
+.debug-link-list ion-item {
   --background: rgba(255, 255, 255, 0.04);
   --color: var(--shell-text);
   --border-radius: 14px;
   margin-bottom: 8px;
   border: 1px solid rgba(123, 176, 228, 0.14);
+}
+
+.debug-link-list ion-item {
+  --background: rgba(242, 195, 91, 0.06);
+  border-color: rgba(242, 195, 91, 0.18);
 }
 
 @media (min-width: 840px) {

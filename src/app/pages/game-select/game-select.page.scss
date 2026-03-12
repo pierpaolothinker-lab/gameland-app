@@ -11,6 +11,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 12px;
   margin-bottom: 8px;
 }
@@ -25,8 +26,8 @@
 
 .hero-wordmark {
   flex: 0 0 auto;
-  width: clamp(104px, 30vw, 132px);
-  max-width: 40%;
+  width: clamp(136px, 36vw, 172px);
+  max-width: 100%;
   height: auto;
   opacity: 0.92;
 }
@@ -59,8 +60,12 @@
 }
 
 @media (min-width: 720px) {
+  .hero-topline {
+    flex-wrap: nowrap;
+  }
+
   .hero-wordmark {
-    width: 132px;
+    width: 164px;
     max-width: none;
   }
 }

@@ -21,8 +21,8 @@
   <path d="M452 180 L518 246 L452 312 L386 246 Z" fill="#FFD27B" stroke="#EAF6FF" stroke-width="10" stroke-linejoin="round"/>
   <path d="M432 213 L488 246 L432 279 Z" fill="#12324C"/>
   <g fill="#F5FAFF" font-family="Trebuchet MS, Segoe UI, sans-serif" font-size="108" font-weight="700" letter-spacing="10">
-    <text x="128" y="620">GAME</text>
-    <text x="500" y="620">LAND</text>
+    <text x="118" y="620">GAME</text>
+    <text x="562" y="620">LAND</text>
   </g>
-  <path d="M448 548 L486 586 L448 624 L410 586 Z" fill="#FFD27B" stroke="#EAF6FF" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M498 548 L536 586 L498 624 L460 586 Z" fill="#FFD27B" stroke="#EAF6FF" stroke-width="8" stroke-linejoin="round"/>
 </svg>

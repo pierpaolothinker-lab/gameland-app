@@ -86,6 +86,8 @@ Define x as the diameter of one player node in the mark.
 
 - Keep the mark to the left of the wordmark in horizontal lockups.
 - Do not shrink the mark below the cap height of the wordmark when used in lockup.
+- The approved reading is GAME [diamond] LAND.
+- The diamond is a separator token and must never overlap, replace or visually merge with any letter.
 - Do not separate the mark and wordmark with extra decorative shapes.
 - If the symbol is already present in a nearby UI element, prefer the wordmark-only asset instead of duplicating the symbol.
 

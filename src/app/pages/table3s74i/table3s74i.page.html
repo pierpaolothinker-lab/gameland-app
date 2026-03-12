@@ -4,7 +4,7 @@
     <p class="subtitle">Tavolo: {{ tableId || '-' }}</p>
   </section>
 
-  <section class="status-board data-mode-bar">
+  <section class="status-board data-mode-bar" *ngIf="debugModeEnabled">
     <p><strong>Data Mode:</strong> {{ dataMode | uppercase }}</p>
     <div class="data-mode-actions">
       <ion-button size="small" [fill]="dataMode === 'demo' ? 'solid' : 'outline'" (click)="onDataModeChange('demo')">Demo</ion-button>

@@ -382,20 +382,6 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     return this.previousTrickCards.length > 0;
   }
 
-  positionCompactLabel(position: TressettePosition): string {
-    switch (position) {
-      case 'NORD':
-        return 'N';
-      case 'EST':
-        return 'E';
-      case 'OVEST':
-        return 'O';
-      case 'SUD':
-      default:
-        return 'S';
-    }
-  }
-
   isCardPlayable(card: ICardIT): boolean {
     if (!this.canPlayCards) {
       return false;

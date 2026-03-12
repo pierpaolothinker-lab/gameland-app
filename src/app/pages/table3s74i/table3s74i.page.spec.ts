@@ -627,12 +627,11 @@ describe('Table3s74iPage', () => {
     expect(component.quickChatOpen).toBeFalse();
   });
 
-  it('renderizza accesso rapido al trick precedente nell area top-right del tavolo', () => {
+  it('nasconde il trigger quick peek quando non esiste ancora un trick precedente', () => {
     fixture.detectChanges();
 
     const trigger = fixture.nativeElement.querySelector('.game-table .previous-trick-entry') as HTMLButtonElement | null;
-    expect(trigger).not.toBeNull();
-    expect(trigger?.textContent ?? '').toContain('Trick');
+    expect(trigger).toBeNull();
   });
 
   it('mostra stato vuoto chiaro quando non esiste ancora un trick precedente', () => {
@@ -659,6 +658,11 @@ describe('Table3s74iPage', () => {
     expect(component.hasPreviousTrick).toBeTrue();
     expect(component.getPreviousTrickCard('NORD')).toEqual(new CardIT(Suit.Coppe, 3));
 
+    fixture.detectChanges();
+    const trigger = fixture.nativeElement.querySelector('.game-table .previous-trick-entry') as HTMLButtonElement | null;
+    expect(trigger).not.toBeNull();
+    expect((trigger?.textContent ?? '').trim()).toBe('');
+
     component.togglePreviousTrickPeek();
     fixture.detectChanges();
 
@@ -668,6 +672,7 @@ describe('Table3s74iPage', () => {
     expect(fixture.nativeElement.querySelector('.previous-trick-slot.peek-est')).not.toBeNull();
     expect(fixture.nativeElement.querySelector('.previous-trick-slot.peek-sud')).not.toBeNull();
     expect(fixture.nativeElement.querySelector('.previous-trick-slot.peek-ovest')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.previous-trick-position')).toBeNull();
   });
 
   it('mantiene quick peek, chat e menu contestuale in mutua esclusione', () => {

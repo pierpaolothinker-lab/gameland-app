@@ -642,6 +642,7 @@ describe('Table3s74iPage', () => {
     const panel = fixture.nativeElement.querySelector('.previous-trick-panel') as HTMLElement | null;
     expect(panel).not.toBeNull();
     expect(panel?.textContent ?? '').toContain('Nessun trick precedente disponibile.');
+    expect(panel?.textContent ?? '').not.toContain('Trick precedente');
   });
 
   it('salva il trick precedente su trick-ended e lo mostra nel quick peek', () => {
@@ -663,6 +664,10 @@ describe('Table3s74iPage', () => {
 
     const cards = fixture.nativeElement.querySelectorAll('.previous-trick-slot app-card-na');
     expect(cards.length).toBe(4);
+    expect(fixture.nativeElement.querySelector('.previous-trick-slot.peek-nord')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.previous-trick-slot.peek-est')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.previous-trick-slot.peek-sud')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.previous-trick-slot.peek-ovest')).not.toBeNull();
   });
 
   it('mantiene quick peek, chat e menu contestuale in mutua esclusione', () => {

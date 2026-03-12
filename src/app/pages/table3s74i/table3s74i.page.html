@@ -120,15 +120,13 @@
         </button>
 
         <section class="previous-trick-panel" *ngIf="previousTrickPeekOpen" id="previous-trick-panel" aria-label="Trick precedente">
-          <p class="previous-trick-title">Trick precedente</p>
-
           <p class="previous-trick-empty" *ngIf="!hasPreviousTrick">
             Nessun trick precedente disponibile.
           </p>
 
-          <div class="previous-trick-grid" *ngIf="hasPreviousTrick">
-            <div class="previous-trick-slot" *ngFor="let position of positions; trackBy: trackByPosition">
-              <span class="previous-trick-position">{{ positionCompactLabel(position) }}</span>
+          <div class="previous-trick-mini-table" *ngIf="hasPreviousTrick">
+            <div class="previous-trick-slot" *ngFor="let position of positions; trackBy: trackByPosition" [ngClass]="'peek-' + position.toLowerCase()">
+              <span class="previous-trick-position" [attr.aria-label]="'Posizione ' + position">{{ positionCompactLabel(position) }}</span>
               <app-card-na *ngIf="getPreviousTrickCard(position) as card" [card]="card"></app-card-na>
             </div>
           </div>

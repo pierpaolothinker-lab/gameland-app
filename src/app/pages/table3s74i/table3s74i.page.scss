@@ -27,7 +27,7 @@
   --trick-slot-height: calc(var(--trick-card-height) + (var(--trick-slot-padding) * 2));
   --trick-offset-x: clamp(36px, 10.5vw, 44px);
   --trick-offset-y: clamp(24px, 6.8vw, 29px);
-  --peek-card-width: clamp(28px, 7.8vw, 32px);
+  --peek-card-width: clamp(24px, 6.8vw, 29px);
   --peek-card-height: calc(var(--peek-card-width) * 105 / 58);
   --hand-card-width: clamp(44px, 12.6vw, 50px);
   --hand-card-height: calc(var(--hand-card-width) * 105 / 58);
@@ -774,48 +774,69 @@
 }
 
 .previous-trick-panel {
-  top: 48px;
-  width: min(184px, calc(100% - 16px));
-  padding: 8px;
-  border-radius: 14px;
+  top: 46px;
+  width: min(148px, calc(100% - 10px));
+  padding: 5px;
+  border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   background: rgba(6, 26, 52, 0.92);
   box-shadow: 0 14px 24px rgba(0, 0, 0, 0.24);
 }
 
-.previous-trick-title {
-  margin: 0 0 6px;
-  color: #fff4d1;
-  font-size: 10px;
-  font-weight: 800;
-}
-
 .previous-trick-empty {
   margin: 0;
   color: #d5e7f7;
-  font-size: 10px;
+  font-size: 9px;
   line-height: 1.35;
 }
 
-.previous-trick-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
+.previous-trick-mini-table {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
 }
 
 .previous-trick-slot {
+  position: absolute;
+  width: calc(var(--peek-card-width) + 10px);
   min-width: 0;
-  display: grid;
+  display: flex;
+  flex-direction: column;
   justify-items: center;
-  gap: 4px;
-  padding: 5px 4px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.05);
+  align-items: center;
+  gap: 2px;
+  padding: 1px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.previous-trick-slot.peek-nord {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.previous-trick-slot.peek-est {
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+}
+
+.previous-trick-slot.peek-sud {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.previous-trick-slot.peek-ovest {
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
 }
 
 .previous-trick-position {
   color: #ffe08a;
-  font-size: 8px;
+  font-size: 7px;
   font-weight: 800;
   letter-spacing: 0.4px;
   text-transform: uppercase;
@@ -842,7 +863,7 @@
     --trick-card-width: clamp(38px, 10.2vw, 44px);
     --trick-offset-x: clamp(40px, 10.8vw, 48px);
     --trick-offset-y: clamp(28px, 7vw, 34px);
-    --peek-card-width: clamp(30px, 7.6vw, 35px);
+    --peek-card-width: clamp(26px, 6.8vw, 31px);
     --hand-card-width: clamp(46px, 12.4vw, 52px);
     --hand-grid-gap: 4px;
   }
@@ -882,18 +903,18 @@
 
   .previous-trick-entry-label,
   .previous-trick-position {
-    font-size: 9px;
+    font-size: 8px;
   }
 
   .previous-trick-entry-value,
-  .previous-trick-title,
   .previous-trick-empty {
     font-size: 11px;
   }
 
   .previous-trick-panel {
-    width: min(196px, calc(100% - 20px));
-    top: 52px;
+    width: min(160px, calc(100% - 14px));
+    top: 50px;
+    padding: 6px;
   }
 }
 
@@ -911,7 +932,7 @@
     --trick-card-width: 48px;
     --trick-offset-x: 54px;
     --trick-offset-y: 36px;
-    --peek-card-width: 36px;
+    --peek-card-width: 32px;
     --hand-card-width: 54px;
     --hand-grid-gap: 6px;
   }

@@ -42,17 +42,14 @@
     </div>
   </section>
 
-  <section class="create-block start-owner-block">
-    <div class="start-owner-title">Start owner</div>
-    <div class="start-owner-target">Tavolo owner target: <strong>{{ ownerTargetTableId }}</strong></div>
-    <div class="start-owner-reason" *ngIf="!canStartOwnerTable">{{ startDisabledReason }}</div>
-    <ion-button [disabled]="!canStartOwnerTable" (click)="startMyGame()">Avvia la mia partita</ion-button>
-  </section>
-
   <section class="create-block">
     <div class="create-actions">
       <ion-button *ngIf="canCreateTable" (click)="createTable()">Crea Tavolo</ion-button>
-      <div class="create-guard" *ngIf="!canCreateTable">Sei gia seduto al tavolo {{ activeSeatTableId }}.</div>
+      <div class="create-guard" *ngIf="!canCreateTable">
+        Sei gia seduto
+        <ng-container *ngIf="debugModeEnabled && activeSeatTableId; else genericSeatedCopy"> al tavolo {{ activeSeatTableId }}</ng-container>
+        <ng-template #genericSeatedCopy> a un tavolo</ng-template>.
+      </div>
       <ion-button fill="outline" (click)="refreshTables()">Aggiorna Lista</ion-button>
     </div>
   </section>
@@ -70,11 +67,13 @@
 
   <section class="table-list" *ngIf="!loading && tables.length > 0">
     <ion-card *ngFor="let table of tables" class="table-card" [class.full]="isTableFull(table)">
-      <ion-card-header>
-        <ion-card-title>{{ table.tableId }}</ion-card-title>
-        <ion-card-subtitle>
-          owner: {{ table.owner }} - stato backend: {{ table.status }}
-        </ion-card-subtitle>
+      <ion-card-header [class.debug-meta-hidden]="!debugModeEnabled">
+        <ng-container *ngIf="debugModeEnabled">
+          <ion-card-title>{{ table.tableId }}</ion-card-title>
+          <ion-card-subtitle>
+            owner: {{ table.owner }} - stato backend: {{ table.status }}
+          </ion-card-subtitle>
+        </ng-container>
         <p class="table-fullness" [class.full]="isTableFull(table)">
           {{ occupiedSeats(table) }}/4 posti - {{ statusLabel(table) }}
         </p>
@@ -83,6 +82,25 @@
       <ion-card-content>
         <div class="mini-table-wrap">
           <div class="mini-table-bg"></div>
+          <button
+            type="button"
+            class="table-center-cta"
+            [class.ready]="isTableReady(table)"
+            [class.actionable]="canStartTable(table)"
+            [class.awaiting-owner]="isTableReady(table) && !isOwnerTable(table)"
+            [disabled]="!canStartTable(table)"
+            [attr.aria-label]="tableCenterAriaLabel(table)"
+            (click)="onTableCenterClick(table)"
+          >
+            <span class="table-center-symbol" aria-hidden="true">
+              <img
+                class="table-center-mark"
+                src="assets/branding/gameland-mark-light.svg"
+                alt=""
+              />
+              <span class="table-center-play"></span>
+            </span>
+          </button>
 
           <div class="seat seat-nord" [class.occupied]="seatOccupied(table, 'NORD')" [class.empty]="!seatOccupied(table, 'NORD')">
             <div class="seat-player has-avatar" *ngIf="seatOccupied(table, 'NORD'); else emptyNord">

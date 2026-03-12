@@ -122,6 +122,40 @@ describe('TressetteLobbyPage', () => {
     expect(text).toContain('Switch utente mock');
   });
 
+  it('nasconde metadata tavolo fuori debug', () => {
+    component.tables = [
+      makeTable('table-meta', 'Marta', 'waiting', [{ username: 'Marta', position: 'SUD' }]),
+    ];
+
+    fixture.detectChanges();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    const header = fixture.nativeElement.querySelector('ion-card-header') as HTMLElement | null;
+
+    expect(text).not.toContain('table-meta');
+    expect(text).not.toContain('owner: Marta');
+    expect(text).not.toContain('stato backend: waiting');
+    expect(text).toContain('1/4 posti - IN ATTESA');
+    expect(header?.className ?? '').toContain('debug-meta-hidden');
+  });
+
+  it('mostra metadata tavolo quando debug mode e on', () => {
+    debugModeMock.enabled$.next(true);
+    component.tables = [
+      makeTable('table-meta', 'Marta', 'waiting', [{ username: 'Marta', position: 'SUD' }]),
+    ];
+
+    fixture.detectChanges();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    const header = fixture.nativeElement.querySelector('ion-card-header') as HTMLElement | null;
+
+    expect(text).toContain('table-meta');
+    expect(text).toContain('owner: Marta');
+    expect(text).toContain('stato backend: waiting');
+    expect(header?.className ?? '').not.toContain('debug-meta-hidden');
+  });
+
   it('renderizza il mark brand nel header lobby', () => {
     const logo = (fixture.nativeElement as HTMLElement).querySelector('.lobby-brand-mark') as HTMLImageElement | null;
 
@@ -132,6 +166,77 @@ describe('TressetteLobbyPage', () => {
   it('render lista tavoli', () => {
     expect(serviceMock.listTables).toHaveBeenCalledTimes(1);
     expect(component.tables.length).toBe(1);
+  });
+
+  it('rimuove la sezione Start owner e renderizza solo il mark centrale', () => {
+    component.tables = [
+      makeTable('table-center', 'Luca', 'waiting', [{ username: 'Luca', position: 'SUD' }]),
+    ];
+
+    fixture.detectChanges();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    const center = fixture.nativeElement.querySelector('.table-center-cta') as HTMLButtonElement | null;
+    const mark = fixture.nativeElement.querySelector('.table-center-mark') as HTMLImageElement | null;
+    const play = fixture.nativeElement.querySelector('.table-center-play') as HTMLElement | null;
+
+    expect(text).not.toContain('Start owner');
+    expect(text).not.toContain('PLAY');
+    expect(center).not.toBeNull();
+    expect(mark?.getAttribute('src')).toContain('gameland-mark-light.svg');
+    expect(play).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.table-center-copy')).toBeNull();
+  });
+
+  it('cta centrale resta passiva quando tavolo non e pronto', () => {
+    component.tables = [
+      makeTable('tbl-not-ready', 'Luca', 'waiting', [{ username: 'Luca', position: 'SUD' }]),
+    ];
+
+    fixture.detectChanges();
+
+    const center = fixture.nativeElement.querySelector('.table-center-cta') as HTMLButtonElement | null;
+    const play = fixture.nativeElement.querySelector('.table-center-play') as HTMLElement | null;
+
+    expect(center).not.toBeNull();
+    expect(center?.disabled).toBeTrue();
+    expect(center?.className).not.toContain('ready');
+    expect(center?.className).not.toContain('actionable');
+    expect(play).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.table-center-copy')).toBeNull();
+  });
+
+  it('cta centrale pronta ma non owner resta passiva e non attivabile', () => {
+    component.tables = [
+      makeTable(
+        'tbl-ready-other-owner',
+        'Marta',
+        'waiting',
+        [
+          { username: 'Luca', position: 'SUD' },
+          { username: 'Marta', position: 'NORD' },
+          { username: 'Diego', position: 'EST' },
+          { username: 'Sara', position: 'OVEST' },
+        ],
+        true
+      ),
+    ];
+
+    fixture.detectChanges();
+
+    const center = fixture.nativeElement.querySelector('.table-center-cta') as HTMLButtonElement | null;
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+
+    expect(center).not.toBeNull();
+    expect(center?.disabled).toBeTrue();
+    expect(center?.className).toContain('ready');
+    expect(center?.className).toContain('awaiting-owner');
+    expect(center?.className).not.toContain('actionable');
+    expect(text).not.toContain('Attende owner');
+
+    component.onTableCenterClick(component.tables[0]);
+
+    expect(serviceMock.startTable).not.toHaveBeenCalled();
   });
 
   it('click seat vuoto -> join quando utente non e seduto in nessun tavolo', () => {
@@ -192,6 +297,7 @@ describe('TressetteLobbyPage', () => {
     expect(text).not.toContain('Siediti');
     expect(text).not.toContain('Aggiungi Bot');
   });
+
   it('nasconde crea tavolo quando utente e gia seduto', () => {
     component.tables = [
       makeTable('table-a', 'Luca', 'waiting', [{ username: 'Luca', position: 'SUD' }]),
@@ -201,10 +307,25 @@ describe('TressetteLobbyPage', () => {
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
 
     expect(text).not.toContain('Crea Tavolo');
-    expect(text).toContain('Sei gia seduto al tavolo table-a.');
+    expect(text).toContain('Sei gia seduto');
+    expect(text).toContain('a un tavolo.');
+    expect(text).not.toContain('table-a');
 
     component.createTable();
     expect(serviceMock.createTable).not.toHaveBeenCalled();
+  });
+
+  it('mostra table id nella guard create solo in debug', () => {
+    debugModeMock.enabled$.next(true);
+    component.tables = [
+      makeTable('table-a', 'Luca', 'waiting', [{ username: 'Luca', position: 'SUD' }]),
+    ];
+
+    fixture.detectChanges();
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+
+    expect(text).toContain('Sei gia seduto');
+    expect(text).toContain('al tavolo table-a.');
   });
 
   it('non renderizza label posizione nelle seat card lobby', () => {
@@ -236,7 +357,6 @@ describe('TressetteLobbyPage', () => {
     expect(text).not.toContain('Bot-1');
   });
 
-  
   it('renderizza avatar umano e bot nella lobby occupata', () => {
     component.tables = [
       makeTable('tbl-bot', 'Luca', 'waiting', [
@@ -256,6 +376,7 @@ describe('TressetteLobbyPage', () => {
     expect(southAvatar?.getAttribute('src')).toMatch(/^assets\/avatars\/players\/(player-(0[1-9]|1[0-9]|20)|animals\/animal-(0[1-9]|1[0-9]|20))\.svg$/);
     expect(southAvatar?.className).toContain('human-avatar');
   });
+
   it('gestione errore API', () => {
     serviceMock.listTables.and.returnValue(throwError(() => new Error('offline')));
 
@@ -265,7 +386,7 @@ describe('TressetteLobbyPage', () => {
     expect(component.loading).toBeFalse();
   });
 
-  it('start success -> navigation a gameplay con tableId', () => {
+  it('cta centrale owner pronto -> navigation a gameplay con tableId', () => {
     component.tables = [
       makeTable('tbl-owner-not-ready', 'Luca', 'waiting', [{ username: 'Luca', position: 'SUD' }]),
       makeTable(
@@ -282,10 +403,18 @@ describe('TressetteLobbyPage', () => {
       ),
     ];
 
-    component.startMyGame();
+    fixture.detectChanges();
+
+    const centers = fixture.nativeElement.querySelectorAll('.table-center-cta') as NodeListOf<HTMLButtonElement>;
+
+    expect(centers[0].disabled).toBeTrue();
+    expect(centers[1].disabled).toBeFalse();
+
+    centers[1].click();
 
     expect(serviceMock.startTable).toHaveBeenCalledWith('tbl-owner-ready', 'Luca');
     expect(routerMock.navigate).toHaveBeenCalledWith(['/table3s74i', 'tbl-owner-ready']);
   });
 });
+
 

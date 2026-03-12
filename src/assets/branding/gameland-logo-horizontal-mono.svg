@@ -10,7 +10,7 @@
   <path d="M170 124 L222 176 L170 228 L118 176 Z M154 150 L198 176 L154 202 Z" fill="currentColor" fill-rule="evenodd"/>
   <g fill="currentColor" font-family="Trebuchet MS, Segoe UI, sans-serif" font-size="128" font-weight="700" letter-spacing="10">
     <text x="390" y="206">GAME</text>
-    <text x="840" y="206">LAND</text>
+    <text x="912" y="206">LAND</text>
   </g>
-  <path d="M760 130 L798 168 L760 206 L722 168 Z" fill="currentColor"/>
+  <path d="M824 130 L862 168 L824 206 L786 168 Z" fill="currentColor"/>
 </svg>

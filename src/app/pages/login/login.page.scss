@@ -18,11 +18,11 @@
   position: relative;
   isolation: isolate;
   min-height: 100%;
-  padding: clamp(24px, 3.8vw, 48px);
+  padding: 24px 16px 28px;
   display: grid;
-  grid-template-columns: minmax(300px, 1.1fr) minmax(320px, 0.9fr);
-  gap: clamp(18px, 3vw, 42px);
-  align-items: center;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  align-content: center;
   overflow: hidden;
 }
 
@@ -62,25 +62,27 @@
 }
 
 .brand-panel {
-  max-width: 620px;
+  max-width: 100%;
   color: var(--gl-text-strong);
+  text-align: center;
 }
 
-.brand-chip {
+.brand-logo-frame {
   display: inline-flex;
   align-items: center;
-  padding: 8px 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(122, 181, 244, 0.45);
-  background: rgba(15, 39, 62, 0.62);
-  font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  font-size: 0.74rem;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.brand-logo {
+  display: block;
+  width: clamp(144px, 45vw, 208px);
+  max-width: 100%;
+  height: auto;
 }
 
 .brand-panel h1 {
-  margin: 18px 0 12px;
+  margin: 0 0 12px;
   font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
   font-size: clamp(2rem, 4.6vw, 3.45rem);
   line-height: 1.05;
@@ -104,6 +106,10 @@
   gap: 10px;
   color: #ddeafe;
   font-size: 0.98rem;
+  justify-items: start;
+  max-width: 520px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .brand-highlights li {
@@ -126,6 +132,7 @@
 .form-panel {
   display: flex;
   justify-content: center;
+  width: 100%;
 }
 
 .login-card {
@@ -232,7 +239,7 @@ ion-card-content {
 
 .social-row {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 10px;
 }
 
@@ -276,28 +283,32 @@ ion-card-content {
   outline-offset: 2px;
 }
 
-@media (max-width: 1024px) {
+@media (min-width: 641px) {
+  .social-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1025px) {
   .login-shell {
-    grid-template-columns: 1fr;
-    gap: 20px;
-    align-content: center;
-    padding: 24px 16px 28px;
+    padding: clamp(24px, 3.8vw, 48px);
+    grid-template-columns: minmax(300px, 1.1fr) minmax(320px, 0.9fr);
+    gap: clamp(18px, 3vw, 42px);
+    align-items: center;
+    align-content: normal;
   }
 
   .brand-panel {
-    max-width: 100%;
-    text-align: center;
+    max-width: 620px;
+    text-align: left;
   }
 
-  .brand-highlights {
-    justify-items: start;
-    max-width: 520px;
-    margin-left: auto;
-    margin-right: auto;
+  .brand-logo-frame {
+    justify-content: flex-start;
   }
 
   .form-panel {
-    width: 100%;
+    width: auto;
   }
 }
 
@@ -322,62 +333,4 @@ ion-card-content {
   ion-card-content {
     padding: 8px 18px 20px;
   }
-
-  .social-row {
-    grid-template-columns: 1fr;
-  }
 }
-
-/* MOBILE-FIRST HARDENING START */
-.login-shell {
-  padding: 24px 16px 28px;
-  grid-template-columns: 1fr;
-  gap: 20px;
-  align-content: center;
-}
-
-.brand-panel {
-  max-width: 100%;
-  text-align: center;
-}
-
-.brand-highlights {
-  justify-items: start;
-  max-width: 520px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.form-panel {
-  width: 100%;
-}
-
-.social-row {
-  grid-template-columns: 1fr;
-}
-
-@media (min-width: 641px) {
-  .social-row {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1025px) {
-  .login-shell {
-    padding: clamp(24px, 3.8vw, 48px);
-    grid-template-columns: minmax(300px, 1.1fr) minmax(320px, 0.9fr);
-    gap: clamp(18px, 3vw, 42px);
-    align-items: center;
-    align-content: normal;
-  }
-
-  .brand-panel {
-    max-width: 620px;
-    text-align: left;
-  }
-
-  .form-panel {
-    width: auto;
-  }
-}
-/* MOBILE-FIRST HARDENING END */

@@ -1,7 +1,19 @@
 <ion-content [fullscreen]="true" class="lobby-content">
   <section class="header-block">
-    <h1>Lobby Tavoli Tressette</h1>
-    <p>Lista tavoli, creazione e join posto libero</p>
+    <div class="header-topline">
+      <div class="header-copy">
+        <h1>Lobby Tavoli Tressette</h1>
+        <p>Lista tavoli, creazione e join posto libero</p>
+      </div>
+
+      <div class="lobby-brand-chip" aria-label="Brand Gameland">
+        <img
+          class="lobby-brand-mark"
+          src="assets/branding/gameland-mark-light.svg"
+          alt="Gameland"
+        />
+      </div>
+    </div>
     <p class="active-user">Utente attivo: <strong>{{ activeUser.username }}</strong></p>
   </section>
 

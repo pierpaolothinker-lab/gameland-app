@@ -40,12 +40,18 @@
   color: var(--shell-gold);
 }
 
-.shell-header h1 {
-  margin: 4px 0 4px;
-  font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
-  font-size: 22px;
-  line-height: 1;
-  color: var(--shell-text);
+.shell-logo-wrap {
+  display: flex;
+  align-items: center;
+  margin: 7px 0 8px;
+  min-width: 0;
+}
+
+.shell-brand-lockup {
+  display: block;
+  width: clamp(176px, 48vw, 236px);
+  max-width: 100%;
+  height: auto;
 }
 
 .shell-subtitle {
@@ -267,8 +273,8 @@
     padding-right: 18px;
   }
 
-  .shell-header h1 {
-    font-size: 26px;
+  .shell-brand-lockup {
+    width: clamp(192px, 24vw, 260px);
   }
 
   .shell-subtitle {

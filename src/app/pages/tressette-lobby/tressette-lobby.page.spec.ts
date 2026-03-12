@@ -122,6 +122,13 @@ describe('TressetteLobbyPage', () => {
     expect(text).toContain('Switch utente mock');
   });
 
+  it('renderizza il mark brand nel header lobby', () => {
+    const logo = (fixture.nativeElement as HTMLElement).querySelector('.lobby-brand-mark') as HTMLImageElement | null;
+
+    expect(logo).not.toBeNull();
+    expect(logo?.getAttribute('src')).toContain('gameland-mark-light.svg');
+  });
+
   it('render lista tavoli', () => {
     expect(serviceMock.listTables).toHaveBeenCalledTimes(1);
     expect(component.tables.length).toBe(1);
@@ -281,3 +288,4 @@ describe('TressetteLobbyPage', () => {
     expect(routerMock.navigate).toHaveBeenCalledWith(['/table3s74i', 'tbl-owner-ready']);
   });
 });
+

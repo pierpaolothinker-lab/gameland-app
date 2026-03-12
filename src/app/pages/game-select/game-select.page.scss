@@ -7,6 +7,15 @@
   color: #eef6ff;
 }
 
+.hero-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
 .eyebrow {
   margin: 0;
   font-size: 12px;
@@ -15,8 +24,16 @@
   color: #a7cbe8;
 }
 
+.hero-wordmark {
+  flex: 0 0 auto;
+  width: clamp(136px, 36vw, 172px);
+  max-width: 100%;
+  height: auto;
+  opacity: 0.92;
+}
+
 .hero h1 {
-  margin: 8px 0 6px;
+  margin: 0 0 6px;
 }
 
 .subtitle {
@@ -40,4 +57,15 @@
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+}
+
+@media (min-width: 720px) {
+  .hero-topline {
+    flex-wrap: nowrap;
+  }
+
+  .hero-wordmark {
+    width: 164px;
+    max-width: none;
+  }
 }

@@ -27,6 +27,8 @@
   --trick-slot-height: calc(var(--trick-card-height) + (var(--trick-slot-padding) * 2));
   --trick-offset-x: clamp(36px, 10.5vw, 44px);
   --trick-offset-y: clamp(24px, 6.8vw, 29px);
+  --peek-card-width: clamp(28px, 7.8vw, 32px);
+  --peek-card-height: calc(var(--peek-card-width) * 105 / 58);
   --hand-card-width: clamp(44px, 12.6vw, 50px);
   --hand-card-height: calc(var(--hand-card-width) * 105 / 58);
   --hand-card-box-width: var(--hand-card-width);
@@ -686,6 +688,146 @@
   width: min(280px, calc(100% - 16px));
 }
 
+.previous-trick-entry,
+.previous-trick-panel {
+  position: absolute;
+  right: 8px;
+  z-index: 7;
+}
+
+.previous-trick-entry {
+  top: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 6px 9px 6px 8px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(6, 26, 52, 0.84);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.2);
+  color: #f7fbff;
+}
+
+.previous-trick-entry.active {
+  border-color: rgba(255, 224, 138, 0.52);
+  background: linear-gradient(180deg, rgba(255, 224, 138, 0.2), rgba(6, 26, 52, 0.92));
+  color: #fff4d1;
+}
+
+.previous-trick-entry-deck {
+  position: relative;
+  width: 20px;
+  height: 18px;
+  flex: 0 0 20px;
+}
+
+.previous-trick-entry-deck .back-card,
+.previous-trick-entry-deck .front-card {
+  position: absolute;
+  width: 12px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.16);
+}
+
+.previous-trick-entry-deck .back-card {
+  top: 2px;
+  left: 1px;
+  background: rgba(255, 255, 255, 0.18);
+  transform: rotate(-8deg);
+}
+
+.previous-trick-entry-deck .front-card {
+  top: 0;
+  left: 7px;
+  background: linear-gradient(180deg, #fff4d6, #f7dfab);
+  border-color: rgba(140, 107, 45, 0.58);
+  transform: rotate(7deg);
+}
+
+.previous-trick-entry-copy {
+  display: grid;
+  gap: 1px;
+  text-align: left;
+  min-width: 0;
+}
+
+.previous-trick-entry-label,
+.previous-trick-entry-value {
+  display: block;
+  line-height: 1.1;
+}
+
+.previous-trick-entry-label {
+  color: #ffe08a;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.previous-trick-entry-value {
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.previous-trick-panel {
+  top: 48px;
+  width: min(184px, calc(100% - 16px));
+  padding: 8px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(6, 26, 52, 0.92);
+  box-shadow: 0 14px 24px rgba(0, 0, 0, 0.24);
+}
+
+.previous-trick-title {
+  margin: 0 0 6px;
+  color: #fff4d1;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.previous-trick-empty {
+  margin: 0;
+  color: #d5e7f7;
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.previous-trick-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.previous-trick-slot {
+  min-width: 0;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 5px 4px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.previous-trick-position {
+  color: #ffe08a;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.previous-trick-slot app-card-na {
+  --card-width: var(--peek-card-width);
+  --card-height: var(--peek-card-height);
+  flex: 0 0 auto;
+  margin: 0;
+}
+
 @media (min-width: 361px) {
   .gameplay-shell {
     --page-pad-x: 12px;
@@ -700,6 +842,7 @@
     --trick-card-width: clamp(38px, 10.2vw, 44px);
     --trick-offset-x: clamp(40px, 10.8vw, 48px);
     --trick-offset-y: clamp(28px, 7vw, 34px);
+    --peek-card-width: clamp(30px, 7.6vw, 35px);
     --hand-card-width: clamp(46px, 12.4vw, 52px);
     --hand-grid-gap: 4px;
   }
@@ -731,6 +874,27 @@
   .bot-seat-badge {
     font-size: 10px;
   }
+
+  .previous-trick-entry {
+    min-height: 38px;
+    padding: 7px 11px 7px 9px;
+  }
+
+  .previous-trick-entry-label,
+  .previous-trick-position {
+    font-size: 9px;
+  }
+
+  .previous-trick-entry-value,
+  .previous-trick-title,
+  .previous-trick-empty {
+    font-size: 11px;
+  }
+
+  .previous-trick-panel {
+    width: min(196px, calc(100% - 20px));
+    top: 52px;
+  }
 }
 
 @media (min-width: 431px) {
@@ -747,6 +911,7 @@
     --trick-card-width: 48px;
     --trick-offset-x: 54px;
     --trick-offset-y: 36px;
+    --peek-card-width: 36px;
     --hand-card-width: 54px;
     --hand-grid-gap: 6px;
   }

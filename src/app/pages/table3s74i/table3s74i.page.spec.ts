@@ -627,12 +627,71 @@ describe('Table3s74iPage', () => {
     expect(component.quickChatOpen).toBeFalse();
   });
 
+  it('renderizza accesso rapido al trick precedente nell area top-right del tavolo', () => {
+    fixture.detectChanges();
+
+    const trigger = fixture.nativeElement.querySelector('.game-table .previous-trick-entry') as HTMLButtonElement | null;
+    expect(trigger).not.toBeNull();
+    expect(trigger?.textContent ?? '').toContain('Trick');
+  });
+
+  it('mostra stato vuoto chiaro quando non esiste ancora un trick precedente', () => {
+    component.togglePreviousTrickPeek();
+    fixture.detectChanges();
+
+    const panel = fixture.nativeElement.querySelector('.previous-trick-panel') as HTMLElement | null;
+    expect(panel).not.toBeNull();
+    expect(panel?.textContent ?? '').toContain('Nessun trick precedente disponibile.');
+  });
+
+  it('salva il trick precedente su trick-ended e lo mostra nel quick peek', () => {
+    latestSocketHandlers()['tressette:trick-ended']?.({
+      winner: 'Marta',
+      trickCards: [
+        { position: 'NORD', username: 'Marta', card: new CardIT(Suit.Coppe, 3) },
+        { position: 'EST', username: 'Diego', card: new CardIT(Suit.Denari, 4) },
+        { position: 'SUD', username: 'Luca', card: new CardIT(Suit.Spade, 5) },
+        { position: 'OVEST', username: 'Sara', card: new CardIT(Suit.Bastoni, 6) },
+      ],
+    });
+
+    expect(component.hasPreviousTrick).toBeTrue();
+    expect(component.getPreviousTrickCard('NORD')).toEqual(new CardIT(Suit.Coppe, 3));
+
+    component.togglePreviousTrickPeek();
+    fixture.detectChanges();
+
+    const cards = fixture.nativeElement.querySelectorAll('.previous-trick-slot app-card-na');
+    expect(cards.length).toBe(4);
+  });
+
+  it('mantiene quick peek, chat e menu contestuale in mutua esclusione', () => {
+    component.togglePreviousTrickPeek();
+    expect(component.previousTrickPeekOpen).toBeTrue();
+    expect(component.quickChatOpen).toBeFalse();
+    expect(component.contextMenuOpen).toBeFalse();
+
+    component.toggleQuickChat();
+    expect(component.quickChatOpen).toBeTrue();
+    expect(component.previousTrickPeekOpen).toBeFalse();
+
+    component.togglePreviousTrickPeek();
+    expect(component.previousTrickPeekOpen).toBeTrue();
+    expect(component.quickChatOpen).toBeFalse();
+
+    component.toggleContextMenu();
+    expect(component.contextMenuOpen).toBeTrue();
+    expect(component.previousTrickPeekOpen).toBeFalse();
+  });
+
   it('azione torna alla lobby dal menu gameplay', () => {
+    component.previousTrickPeekOpen = true;
     component.contextMenuOpen = true;
 
     component.goToLobby();
 
     expect(component.contextMenuOpen).toBeFalse();
+    expect(component.previousTrickPeekOpen).toBeFalse();
     expect(routerMock.navigate).toHaveBeenCalledWith(['/tressette-lobby']);
   });
 });

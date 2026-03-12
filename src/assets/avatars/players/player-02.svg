@@ -1,20 +1,33 @@
-﻿<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title-02 desc-02">
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title-02 desc-02">
   <title id="title-02">Player avatar 02</title>
-  <desc id="desc-02">Abstract human avatar placeholder for a player seat.</desc>
+  <desc id="desc-02">Compact auburn curls with teal gaming headset.</desc>
   <defs>
     <linearGradient id="bg-02" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#F48FB1"/>
-      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.35"/>
+      <stop offset="0%" stop-color="#E8D4C7"/>
+      <stop offset="100%" stop-color="#F5EADF"/>
     </linearGradient>
   </defs>
   <rect width="128" height="128" rx="24" fill="url(#bg-02)"/>
-  <circle cx="64" cy="54" r="30" fill="#F6D2B5"/>
-  <path d="M34 53 C38 28, 90 27, 94 54 L94 43 C87 23, 41 22, 34 43 Z" fill="#4E342E"/>
-  <rect x="44" y="84" width="40" height="16" rx="8" fill="#E7BCA1"/>
-  <path d="M22 128 C26 100, 43 92, 64 92 C85 92, 102 100, 106 128 Z" fill="#2E7D32"/>
-  <ellipse cx="52" cy="59" rx="4" ry="5" fill="#1F2933"/>
-  <ellipse cx="76" cy="59" rx="4" ry="5" fill="#1F2933"/>
-  <path d="M50 81 Q64 89 78 81" stroke="#8D4A43" stroke-width="3" fill="none" stroke-linecap="round"/>
-  <path d="M46 50 L56 48" stroke="#2C1A16" stroke-width="2" stroke-linecap="round"/>
-  <path d="M72 50 L82 52" stroke="#2C1A16" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="64" cy="64" r="46" fill="#FFFFFF" opacity="0.12"/>
+  <path d="M18 128 C25 104 41 94 64 94 C87 94 103 104 110 128 Z" fill="#2F9C9C"/>
+  <rect x="57" y="84" width="14" height="16" rx="7" fill="#C99B77"/>
+  <path d="M40 45 C44 31 52 24 64 24 C76 24 84 31 88 45" stroke="#2FA9A2" stroke-width="8" fill="none" stroke-linecap="round"/>
+<rect x="26" y="50" width="12" height="24" rx="6" fill="#2FA9A2" stroke="#2A3945" stroke-width="2"/>
+<rect x="90" y="50" width="12" height="24" rx="6" fill="#2FA9A2" stroke="#2A3945" stroke-width="2"/>
+  <path d="M32 56 C32 33 48 21 64 21 C80 21 96 33 96 56 L90 44 L82 50 L75 40 L64 46 L53 40 L46 50 L38 44 Z" fill="#9A4F2B" stroke="#2A3945" stroke-width="2.4"/>
+  <ellipse cx="64" cy="62" rx="29" ry="34" fill="#C99B77" stroke="#2A3945" stroke-width="2.4"/>
+  <circle cx="35" cy="64" r="6" fill="#C99B77"/>
+  <circle cx="93" cy="64" r="6" fill="#C99B77"/>
+  <path d="M43 48 C47 42 54 37 64 37 C74 37 81 42 85 48" stroke="#2A3945" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  
+  <path d="M45 54 C49 49 54 48 58 50" stroke="#2F1F1A" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+<path d="M70 50 C74 48 79 49 83 54" stroke="#2F1F1A" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+  <circle cx="52" cy="61" r="4.6" fill="#5E7B46" stroke="#24323D" stroke-width="1.8"/>
+<circle cx="76" cy="61" r="4.6" fill="#5E7B46" stroke="#24323D" stroke-width="1.8"/>
+<circle cx="52" cy="61" r="1.8" fill="#24323D"/>
+<circle cx="76" cy="61" r="1.8" fill="#24323D"/>
+  <path d="M64 66 L61 76 H67" stroke="#A86954" stroke-width="2.1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M54 82 Q64 89 74 82" stroke="#8D4A43" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  
+  
 </svg>

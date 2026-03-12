@@ -1,20 +1,31 @@
-﻿<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title-09 desc-09">
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title-09 desc-09">
   <title id="title-09">Player avatar 09</title>
-  <desc id="desc-09">Abstract human avatar placeholder for a player seat.</desc>
+  <desc id="desc-09">Silver slick-back with straight brows and beauty mark.</desc>
   <defs>
     <linearGradient id="bg-09" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#80CBC4"/>
-      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.35"/>
+      <stop offset="0%" stop-color="#D9E0E7"/>
+      <stop offset="100%" stop-color="#F2F5F8"/>
     </linearGradient>
   </defs>
   <rect width="128" height="128" rx="24" fill="url(#bg-09)"/>
-  <circle cx="64" cy="54" r="30" fill="#F6D2B5"/>
-  <path d="M34 53 C38 28, 90 27, 94 54 L94 43 C87 23, 41 22, 34 43 Z" fill="#37474F"/>
-  <rect x="44" y="84" width="40" height="16" rx="8" fill="#E7BCA1"/>
-  <path d="M22 128 C26 100, 43 92, 64 92 C85 92, 102 100, 106 128 Z" fill="#AD1457"/>
-  <ellipse cx="52" cy="60" rx="4" ry="5" fill="#1F2933"/>
-  <ellipse cx="76" cy="60" rx="4" ry="5" fill="#1F2933"/>
-  <path d="M50 80 Q64 88 78 80" stroke="#8D4A43" stroke-width="3" fill="none" stroke-linecap="round"/>
-  <path d="M46 53 L56 51" stroke="#2C1A16" stroke-width="2" stroke-linecap="round"/>
-  <path d="M72 49 L82 51" stroke="#2C1A16" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="64" cy="64" r="46" fill="#FFFFFF" opacity="0.12"/>
+  <path d="M18 128 C25 104 41 94 64 94 C87 94 103 104 110 128 Z" fill="#697991"/>
+  <rect x="57" y="84" width="14" height="16" rx="7" fill="#C7946F"/>
+  
+  <path d="M39 54 C39 33 51 23 65 23 C80 23 90 33 89 49 C80 44 70 39 58 39 C51 39 45 41 39 44 Z" fill="#BFC5CC" stroke="#2A3945" stroke-width="2.4"/>
+  <rect x="35" y="30" width="58" height="64" rx="18" fill="#C7946F" stroke="#2A3945" stroke-width="2.4"/>
+  <circle cx="35" cy="64" r="6" fill="#C7946F"/>
+  <circle cx="93" cy="64" r="6" fill="#C7946F"/>
+  
+  
+  <path d="M45 52 H57" stroke="#2F1F1A" stroke-width="2.6" stroke-linecap="round"/>
+<path d="M71 52 H83" stroke="#2F1F1A" stroke-width="2.6" stroke-linecap="round"/>
+  <circle cx="52" cy="61" r="4.6" fill="#6A583D" stroke="#1E2933" stroke-width="1.8"/>
+<circle cx="76" cy="61" r="4.6" fill="#6A583D" stroke="#1E2933" stroke-width="1.8"/>
+<circle cx="52" cy="61" r="1.8" fill="#1E2933"/>
+<circle cx="76" cy="61" r="1.8" fill="#1E2933"/>
+  <path d="M64 66 L61 76 H67" stroke="#A86954" stroke-width="2.1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M56 84 Q63 87 72 81" stroke="#8D4A43" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  
+  <circle cx="78" cy="74" r="1.8" fill="#5C3D31"/>
 </svg>

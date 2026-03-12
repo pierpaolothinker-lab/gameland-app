@@ -19,11 +19,12 @@
   --seat-badge-width: 66px;
   --seat-name-font: 9px;
   --seat-avatar-size: 20px;
+  --seat-lateral-offset: 16px;
   --trick-slot-width: 34px;
   --trick-slot-height: 50px;
   --trick-card-scale: 0.5;
-  --trick-offset-x: 60px;
-  --trick-offset-y: 8px;
+  --trick-offset-x: 50px;
+  --trick-offset-y: 16px;
   --hand-card-box-width: 38px;
   --hand-card-box-height: 66px;
   --hand-card-scale: 0.6;
@@ -130,7 +131,7 @@
   display: block;
   margin-bottom: 2px;
   color: #ffe08a;
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 800;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -373,19 +374,19 @@
 
 .seat-east {
   top: 50%;
-  right: 8px;
+  right: var(--seat-lateral-offset);
   transform: translateY(-50%);
 }
 
 .seat-south {
-  bottom: 4px;
+  bottom: 2px;
   left: 50%;
   transform: translateX(-50%);
 }
 
 .seat-west {
   top: 50%;
-  left: 8px;
+  left: var(--seat-lateral-offset);
   transform: translateY(-50%);
 }
 
@@ -396,7 +397,7 @@
   color: #eafbe4;
   background: rgba(4, 68, 4, 0.88);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 4px 5px 5px;
+  padding: 3px 4px 4px;
   border-radius: 12px;
   font-weight: 600;
   font-size: var(--seat-name-font);
@@ -460,8 +461,8 @@
 .turn-countdown {
   justify-self: center;
   border-radius: 999px;
-  padding: 2px 6px;
-  font-size: 9px;
+  padding: 1px 5px;
+  font-size: 8px;
   line-height: 1.1;
 }
 
@@ -478,7 +479,7 @@
 }
 
 .turn-countdown {
-  min-width: 30px;
+  min-width: 28px;
   background: rgba(255, 255, 255, 0.2);
   color: #ffffff;
   font-weight: 700;
@@ -551,7 +552,7 @@
 .hand-copy {
   display: grid;
   gap: 2px;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .hand-title {
@@ -680,11 +681,12 @@
     --table-pad-side: 60px;
     --seat-badge-width: 82px;
     --seat-avatar-size: 26px;
+    --seat-lateral-offset: 18px;
     --trick-slot-width: 46px;
     --trick-slot-height: 70px;
     --trick-card-scale: 0.7;
-    --trick-offset-x: 74px;
-    --trick-offset-y: 24px;
+    --trick-offset-x: 62px;
+    --trick-offset-y: 28px;
     --hand-card-box-width: 48px;
     --hand-card-box-height: 84px;
     --hand-card-scale: 0.78;
@@ -729,11 +731,12 @@
     --table-pad-side: 68px;
     --seat-badge-width: 92px;
     --seat-avatar-size: 28px;
+    --seat-lateral-offset: 20px;
     --trick-slot-width: 52px;
     --trick-slot-height: 78px;
     --trick-card-scale: 0.78;
-    --trick-offset-x: 84px;
-    --trick-offset-y: 30px;
+    --trick-offset-x: 70px;
+    --trick-offset-y: 34px;
     --hand-card-box-width: 54px;
     --hand-card-box-height: 92px;
     --hand-card-scale: 0.86;
@@ -771,11 +774,12 @@
     --table-pad-side: 88px;
     --seat-badge-width: 110px;
     --seat-avatar-size: 32px;
+    --seat-lateral-offset: 24px;
     --trick-slot-width: 66px;
     --trick-slot-height: 100px;
     --trick-card-scale: 0.94;
-    --trick-offset-x: 108px;
-    --trick-offset-y: 44px;
+    --trick-offset-x: 90px;
+    --trick-offset-y: 50px;
     --hand-card-box-width: 58px;
     --hand-card-box-height: 102px;
     --hand-card-scale: 1;
@@ -808,6 +812,9 @@
     animation: none !important;
   }
 }
+
+
+
 
 
 

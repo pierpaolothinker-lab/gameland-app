@@ -1,9 +1,9 @@
-<ion-content [fullscreen]="true" class="tressette-content">
+﻿<ion-content [fullscreen]="true" class="tressette-content">
   <div class="gameplay-shell">
     <section class="title-block">
       <div class="title-copy">
         <h1>Tressette Gameplay</h1>
-        <p class="subtitle">Tavolo: {{ tableId || '-' }}</p>
+        <p class="subtitle">{{ debugModeEnabled ? ('Tavolo: ' + (tableId || '-')) : 'Partita in corso' }}</p>
       </div>
 
       <ion-button size="small" fill="outline" class="title-back-button" (click)="goToLobby()">Lobby</ion-button>
@@ -22,7 +22,7 @@
       <ion-button size="small" fill="outline" (click)="goToLobby()">Torna alla lobby</ion-button>
     </section>
 
-    <section class="status-board gameplay-status">
+    <section class="status-board gameplay-status" *ngIf="debugModeEnabled">
       <div class="status-chip-row">
         <p class="status-chip">
           <strong>Socket</strong>
@@ -176,3 +176,4 @@
     </section>
   </div>
 </ion-content>
+

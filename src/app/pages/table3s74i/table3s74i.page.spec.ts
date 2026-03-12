@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+﻿import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 
@@ -158,8 +158,10 @@ describe('Table3s74iPage', () => {
   });
 
   it('nasconde endpoint e metadata tavolo fuori debug', () => {
-    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    const element = fixture.nativeElement as HTMLElement;
+    const text = element.textContent ?? '';
 
+    expect(element.querySelector('.gameplay-status')).toBeNull();
     expect(text).not.toContain('Endpoint');
     expect(text).not.toContain('Owner:');
     expect(text).not.toContain('Players:');
@@ -169,7 +171,10 @@ describe('Table3s74iPage', () => {
     debugModeMock.enabled$.next(true);
     fixture.detectChanges();
 
-    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    const element = fixture.nativeElement as HTMLElement;
+    const text = element.textContent ?? '';
+    expect(element.querySelector('.gameplay-status')).not.toBeNull();
+    expect(text).toContain('Socket');
     expect(text).toContain('Endpoint');
     expect(text).toContain('Owner:');
     expect(text).toContain('Players:');
@@ -631,5 +636,6 @@ describe('Table3s74iPage', () => {
     expect(routerMock.navigate).toHaveBeenCalledWith(['/tressette-lobby']);
   });
 });
+
 
 

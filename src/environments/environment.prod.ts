@@ -1,8 +1,8 @@
 export const environment = {
   production: true,
   backend: {
-    apiBaseUrl: 'http://localhost:3500',
-    socketUrl: 'http://localhost:3500',
+    apiBaseUrl: 'https://gameland-server.onrender.com',
+    socketUrl: 'https://gameland-server.onrender.com',
     tressetteTableBasePath: '/api/tressette/tables',
     useMockTableOnError: false,
     useTressetteMockData: false,

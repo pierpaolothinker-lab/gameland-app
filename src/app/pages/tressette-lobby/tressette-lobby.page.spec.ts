@@ -134,7 +134,7 @@ describe('TressetteLobbyPage', () => {
     expect(component.tables.length).toBe(1);
   });
 
-  it('rimuove la sezione Start owner e renderizza CTA centrale su ogni tavolo', () => {
+  it('rimuove la sezione Start owner e renderizza solo il mark centrale', () => {
     component.tables = [
       makeTable('table-center', 'Luca', 'waiting', [{ username: 'Luca', position: 'SUD' }]),
     ];
@@ -143,12 +143,18 @@ describe('TressetteLobbyPage', () => {
 
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
     const center = fixture.nativeElement.querySelector('.table-center-cta') as HTMLButtonElement | null;
+    const mark = fixture.nativeElement.querySelector('.table-center-mark') as HTMLImageElement | null;
+    const play = fixture.nativeElement.querySelector('.table-center-play') as HTMLElement | null;
 
     expect(text).not.toContain('Start owner');
+    expect(text).not.toContain('PLAY');
     expect(center).not.toBeNull();
+    expect(mark?.getAttribute('src')).toContain('gameland-mark-light.svg');
+    expect(play).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.table-center-copy')).toBeNull();
   });
 
-  it('cta centrale passiva quando tavolo non e pronto', () => {
+  it('cta centrale resta passiva quando tavolo non e pronto', () => {
     component.tables = [
       makeTable('tbl-not-ready', 'Luca', 'waiting', [{ username: 'Luca', position: 'SUD' }]),
     ];
@@ -156,15 +162,17 @@ describe('TressetteLobbyPage', () => {
     fixture.detectChanges();
 
     const center = fixture.nativeElement.querySelector('.table-center-cta') as HTMLButtonElement | null;
-    const hint = fixture.nativeElement.querySelector('.table-center-hint') as HTMLElement | null;
+    const play = fixture.nativeElement.querySelector('.table-center-play') as HTMLElement | null;
 
     expect(center).not.toBeNull();
     expect(center?.disabled).toBeTrue();
     expect(center?.className).not.toContain('ready');
-    expect(hint?.textContent).toContain('1/4 posti');
+    expect(center?.className).not.toContain('actionable');
+    expect(play).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.table-center-copy')).toBeNull();
   });
 
-  it('cta centrale pronta ma non owner resta non attivabile', () => {
+  it('cta centrale pronta ma non owner resta passiva e non attivabile', () => {
     component.tables = [
       makeTable(
         'tbl-ready-other-owner',
@@ -183,10 +191,14 @@ describe('TressetteLobbyPage', () => {
     fixture.detectChanges();
 
     const center = fixture.nativeElement.querySelector('.table-center-cta') as HTMLButtonElement | null;
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
 
     expect(center).not.toBeNull();
     expect(center?.disabled).toBeTrue();
+    expect(center?.className).toContain('ready');
     expect(center?.className).toContain('awaiting-owner');
+    expect(center?.className).not.toContain('actionable');
+    expect(text).not.toContain('Attende owner');
 
     component.onTableCenterClick(component.tables[0]);
 

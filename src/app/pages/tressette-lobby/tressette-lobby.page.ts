@@ -270,42 +270,6 @@ export class TressetteLobbyPage implements OnInit {
     return this.isOwnerTable(table) && this.isTableReady(table) && !this.starting;
   }
 
-  tableCenterLabel(table: TressetteTableView): string {
-    if (this.isTableReady(table)) {
-      return 'PLAY';
-    }
-
-    if (table.status === 'in_game') {
-      return 'LIVE';
-    }
-
-    if (table.status === 'ended') {
-      return 'ENDED';
-    }
-
-    return 'GAMELAND';
-  }
-
-  tableCenterHint(table: TressetteTableView): string {
-    if (this.canStartTable(table)) {
-      return 'Avvia la partita';
-    }
-
-    if (this.isTableReady(table)) {
-      return this.isOwnerTable(table) ? 'Pronto al play' : 'Attende owner';
-    }
-
-    if (table.status === 'in_game') {
-      return 'Partita in corso';
-    }
-
-    if (table.status === 'ended') {
-      return 'Tavolo concluso';
-    }
-
-    return `${this.occupiedSeats(table)}/4 posti`;
-  }
-
   tableCenterAriaLabel(table: TressetteTableView): string {
     if (this.canStartTable(table)) {
       return `Avvia partita sul tavolo ${table.tableId}`;
@@ -369,13 +333,14 @@ export class TressetteLobbyPage implements OnInit {
     return 'none';
   }
 
-  
   private startTable(table: TressetteTableView): void {
     if (!this.canStartTable(table)) {
       return;
     }
+
     this.starting = true;
     this.errorBanner = '';
+
     this.tableService.startTable(table.tableId, this.activeUser.username).subscribe({
       next: () => {
         this.starting = false;
@@ -389,6 +354,7 @@ export class TressetteLobbyPage implements OnInit {
       },
     });
   }
+
   private botAvatarVariantClass(tableId: string, username?: string, position?: TressettePosition): string {
     return resolveBotAvatarVariantClass([tableId, position, username]);
   }

@@ -86,17 +86,13 @@
             [attr.aria-label]="tableCenterAriaLabel(table)"
             (click)="onTableCenterClick(table)"
           >
-            <span class="table-center-mark-shell">
+            <span class="table-center-symbol" aria-hidden="true">
               <img
                 class="table-center-mark"
                 src="assets/branding/gameland-mark-light.svg"
                 alt=""
-                aria-hidden="true"
               />
-            </span>
-            <span class="table-center-copy">
-              <span class="table-center-label">{{ tableCenterLabel(table) }}</span>
-              <span class="table-center-hint">{{ tableCenterHint(table) }}</span>
+              <span class="table-center-play"></span>
             </span>
           </button>
 

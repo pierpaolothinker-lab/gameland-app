@@ -39,6 +39,13 @@ describe('LoginPage', () => {
     expect(component).toBeTruthy();
   });
 
+  it('renderizza il primary logo nel brand panel', () => {
+    const logo = (fixture.nativeElement as HTMLElement).querySelector('.brand-logo') as HTMLImageElement | null;
+
+    expect(logo).not.toBeNull();
+    expect(logo?.getAttribute('src')).toContain('gameland-logo-primary-light.svg');
+  });
+
   it('mostra errore se username vuoto', () => {
     component.username = '   ';
 

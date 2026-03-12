@@ -1,0 +1,28 @@
+:host {
+  display: block;
+}
+
+.loader-content {
+  --background:
+    radial-gradient(circle at top, rgba(125, 226, 255, 0.14), transparent 32%),
+    linear-gradient(180deg, #11293e 0%, #0a1d2f 52%, #071525 100%);
+}
+
+.loader-shell {
+  min-height: 100%;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 18px;
+  padding: 24px;
+}
+
+.loader-mark {
+  width: 48px;
+  height: auto;
+  display: block;
+}
+
+ion-spinner {
+  transform: scale(1.06);
+}

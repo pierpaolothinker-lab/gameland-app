@@ -79,6 +79,13 @@ describe('MobileShellPage', () => {
     expect(text).toContain('Profilo');
   });
 
+  it('renderizza il lockup orizzontale del brand nella shell', () => {
+    const logo = (fixture.nativeElement as HTMLElement).querySelector('.shell-brand-lockup') as HTMLImageElement | null;
+
+    expect(logo).not.toBeNull();
+    expect(logo?.getAttribute('src')).toContain('gameland-logo-horizontal-light.svg');
+  });
+
   it('naviga alla route selezionata dalla tab bar', () => {
     const router = TestBed.inject(Router);
     spyOn(router, 'navigateByUrl').and.resolveTo(true);

@@ -1,159 +1,178 @@
 <ion-content [fullscreen]="true" class="tressette-content">
-  <section class="title-block">
-    <h1>Tressette Gameplay</h1>
-    <p class="subtitle">Tavolo: {{ tableId || '-' }}</p>
-  </section>
+  <div class="gameplay-shell">
+    <section class="title-block">
+      <div class="title-copy">
+        <h1>Tressette Gameplay</h1>
+        <p class="subtitle">Tavolo: {{ tableId || '-' }}</p>
+      </div>
 
-  <section class="status-board data-mode-bar" *ngIf="debugModeEnabled">
-    <p><strong>Data Mode:</strong> {{ dataMode | uppercase }}</p>
-    <div class="data-mode-actions">
-      <ion-button size="small" [fill]="dataMode === 'demo' ? 'solid' : 'outline'" (click)="onDataModeChange('demo')">Demo</ion-button>
-      <ion-button size="small" [fill]="dataMode === 'live' ? 'solid' : 'outline'" (click)="onDataModeChange('live')">Live</ion-button>
+      <ion-button size="small" fill="outline" class="title-back-button" (click)="goToLobby()">Lobby</ion-button>
+    </section>
+
+    <section class="status-board data-mode-bar" *ngIf="debugModeEnabled">
+      <p><strong>Data Mode:</strong> {{ dataMode | uppercase }}</p>
+      <div class="data-mode-actions">
+        <ion-button size="small" [fill]="dataMode === 'demo' ? 'solid' : 'outline'" (click)="onDataModeChange('demo')">Demo</ion-button>
+        <ion-button size="small" [fill]="dataMode === 'live' ? 'solid' : 'outline'" (click)="onDataModeChange('live')">Live</ion-button>
+      </div>
+    </section>
+
+    <section class="connection-banner" *ngIf="connectionBannerVisible">
+      <strong>Connessione realtime assente.</strong>
+      <ion-button size="small" fill="outline" (click)="goToLobby()">Torna alla lobby</ion-button>
+    </section>
+
+    <section class="status-board gameplay-status">
+      <div class="status-chip-row">
+        <p class="status-chip">
+          <strong>Socket</strong>
+          <span>{{ socketMessage }}</span>
+        </p>
+        <p class="status-chip">
+          <strong>Tavolo</strong>
+          <span>{{ table?.status ?? 'waiting' }}</span>
+        </p>
+        <p class="status-chip">
+          <strong>Turno</strong>
+          <span>{{ currentTurnLabel }}</span>
+        </p>
+        <p class="status-chip" *ngIf="debugModeEnabled">
+          <strong>Endpoint</strong>
+          <span>{{ socketUrl }}</span>
+        </p>
+      </div>
+      <p class="status-line" *ngIf="lastPlayedMessage"><strong>Ultima:</strong> {{ lastPlayedMessage }}</p>
+      <p class="status-line info" *ngIf="infoMessage">{{ infoMessage }}</p>
+      <p class="status-line error" *ngIf="errorMessage">{{ errorMessage }}</p>
+    </section>
+
+    <div class="loading" *ngIf="loading">
+      <ion-spinner name="crescent"></ion-spinner>
     </div>
-  </section>
 
-  <section class="connection-banner" *ngIf="connectionBannerVisible">
-    <strong>Connessione realtime assente.</strong>
-    <ion-button size="small" fill="outline" (click)="goToLobby()">Torna alla lobby</ion-button>
-  </section>
+    <section class="table-meta" *ngIf="debugModeEnabled && table as t">
+      <p>Owner: <strong>{{ t.owner }}</strong> | Players: <strong>{{ t.players.length }}</strong></p>
+    </section>
 
-  <section class="status-board">
-    <p><strong>Socket:</strong> {{ socketMessage }}</p>
-    <p><strong>Endpoint:</strong> {{ socketUrl }}</p>
-    <p><strong>Stato tavolo:</strong> {{ table?.status ?? 'waiting' }}</p>
-    <p><strong>Turno: {{ currentTurnLabel }}</strong></p>
-    <p *ngIf="lastPlayedMessage"><strong>Ultima giocata:</strong> {{ lastPlayedMessage }}</p>
-    <p class="info" *ngIf="infoMessage">{{ infoMessage }}</p>
-    <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
-  </section>
+    <section class="table-stage">
+      <div class="gameplay-utility-strip">
+        <button type="button" class="utility-chip" [class.active]="quickChatOpen" (click)="toggleQuickChat()">Chat rapida</button>
+        <button type="button" class="utility-chip" [class.active]="contextMenuOpen" (click)="toggleContextMenu()">Menu tavolo</button>
+      </div>
 
-  <div class="loading" *ngIf="loading">
-    <ion-spinner name="crescent"></ion-spinner>
+      <div class="gameplay-utility-panel" *ngIf="quickChatOpen">
+        <p class="panel-title">Chat rapida</p>
+        <p class="panel-copy">Accesso separato alla chat senza tab bar persistente durante la mano.</p>
+        <div class="quick-chat-pills">
+          <span class="quick-chat-pill">Owner: {{ table?.owner ?? '-' }}</span>
+          <span class="quick-chat-pill">Tu: {{ myUsername }}</span>
+          <span class="quick-chat-pill">Stato: {{ table?.status ?? 'waiting' }}</span>
+        </div>
+      </div>
+
+      <div class="gameplay-utility-panel context-menu-panel" *ngIf="contextMenuOpen">
+        <button type="button" class="context-action" (click)="showTableInfo()">Info tavolo</button>
+        <button type="button" class="context-action" (click)="showQuickRules()">Regole rapide</button>
+        <button type="button" class="context-action" (click)="toggleAudio()">Audio: {{ audioEnabled ? 'ON' : 'OFF' }}</button>
+        <button type="button" class="context-action" (click)="toggleVibration()">Vibrazione: {{ vibrationEnabled ? 'ON' : 'OFF' }}</button>
+        <button type="button" class="context-action exit" (click)="goToLobby()">Torna alla lobby</button>
+      </div>
+
+      <div class="game-table-meta">
+        <div class="scoreboard-note" *ngIf="table as t">
+          <p class="scoreboard-title">Taccuino punti</p>
+          <div class="scoreboard-row"><span>Team SN</span><strong>{{ t.points.teamSN }}</strong></div>
+          <div class="scoreboard-row"><span>Team EO</span><strong>{{ t.points.teamEO }}</strong></div>
+          <p class="scoreboard-hand">{{ handLabel }}</p>
+        </div>
+
+        <div class="hand-transition" *ngIf="handTransitionActive">
+          {{ handTransitionMessage }}
+        </div>
+      </div>
+
+      <div class="game-table" [class.reveal-active]="winnerOverlayVisible">
+        <div class="pregame-overlay" *ngIf="preGameOverlayVisible">
+          <div class="pregame-overlay-content">
+            <p class="pregame-label">La partita sta per cominciare</p>
+            <p class="pregame-seconds">{{ preGameSecondsRemaining }}</p>
+          </div>
+        </div>
+
+        <div class="trick-winner-alert trick-winner-overlay" *ngIf="winnerOverlayVisible">{{ trickWinnerMessage }}</div>
+
+        <div class="seat seat-north" [class.turn]="isTurnPosition('NORD')">
+          <div class="player-badge">
+            <span class="player-name" *ngIf="!isBotPlayer('NORD')">{{ playerDisplayName('NORD') }}</span>
+            <span class="bot-seat-badge" *ngIf="isBotPlayer('NORD')">BOT</span>
+            <img class="seat-avatar" *ngIf="getPlayer('NORD')" [ngClass]="seatAvatarClass('NORD')" [src]="seatAvatarSrc('NORD')" [alt]="isBotPlayer('NORD') ? 'Avatar Bot' : 'Avatar giocatore'" />
+            <span class="turn-badge" *ngIf="isTurnPosition('NORD') && !winnerOverlayVisible">DI TURNO</span>
+            <span class="turn-countdown" *ngIf="!winnerOverlayVisible && getSeatCountdown('NORD') !== null">{{ getSeatCountdown('NORD') }}s</span>
+          </div>
+        </div>
+        <div class="seat seat-east" [class.turn]="isTurnPosition('EST')">
+          <div class="player-badge">
+            <span class="player-name" *ngIf="!isBotPlayer('EST')">{{ playerDisplayName('EST') }}</span>
+            <span class="bot-seat-badge" *ngIf="isBotPlayer('EST')">BOT</span>
+            <img class="seat-avatar" *ngIf="getPlayer('EST')" [ngClass]="seatAvatarClass('EST')" [src]="seatAvatarSrc('EST')" [alt]="isBotPlayer('EST') ? 'Avatar Bot' : 'Avatar giocatore'" />
+            <span class="turn-badge" *ngIf="isTurnPosition('EST') && !winnerOverlayVisible">DI TURNO</span>
+            <span class="turn-countdown" *ngIf="!winnerOverlayVisible && getSeatCountdown('EST') !== null">{{ getSeatCountdown('EST') }}s</span>
+          </div>
+        </div>
+        <div class="seat seat-south" [class.turn]="isTurnPosition('SUD')">
+          <div class="player-badge me">
+            <span class="player-name" *ngIf="!isBotPlayer('SUD')">{{ playerDisplayName('SUD') }}</span>
+            <span class="bot-seat-badge" *ngIf="isBotPlayer('SUD')">BOT</span>
+            <img class="seat-avatar" *ngIf="getPlayer('SUD')" [ngClass]="seatAvatarClass('SUD')" [src]="seatAvatarSrc('SUD')" [alt]="isBotPlayer('SUD') ? 'Avatar Bot' : 'Avatar giocatore'" />
+            <span class="turn-badge" *ngIf="isTurnPosition('SUD') && !winnerOverlayVisible">DI TURNO</span>
+            <span class="turn-countdown" *ngIf="!winnerOverlayVisible && getSeatCountdown('SUD') !== null">{{ getSeatCountdown('SUD') }}s</span>
+          </div>
+        </div>
+        <div class="seat seat-west" [class.turn]="isTurnPosition('OVEST')">
+          <div class="player-badge">
+            <span class="player-name" *ngIf="!isBotPlayer('OVEST')">{{ playerDisplayName('OVEST') }}</span>
+            <span class="bot-seat-badge" *ngIf="isBotPlayer('OVEST')">BOT</span>
+            <img class="seat-avatar" *ngIf="getPlayer('OVEST')" [ngClass]="seatAvatarClass('OVEST')" [src]="seatAvatarSrc('OVEST')" [alt]="isBotPlayer('OVEST') ? 'Avatar Bot' : 'Avatar giocatore'" />
+            <span class="turn-badge" *ngIf="isTurnPosition('OVEST') && !winnerOverlayVisible">DI TURNO</span>
+            <span class="turn-countdown" *ngIf="!winnerOverlayVisible && getSeatCountdown('OVEST') !== null">{{ getSeatCountdown('OVEST') }}s</span>
+          </div>
+        </div>
+
+        <div class="trick-center">
+          <div class="trick-slot trick-north">
+            <app-card-na *ngIf="getTrickCard('NORD') as card" [card]="card"></app-card-na>
+          </div>
+          <div class="trick-slot trick-east">
+            <app-card-na *ngIf="getTrickCard('EST') as card" [card]="card"></app-card-na>
+          </div>
+          <div class="trick-slot trick-south">
+            <app-card-na *ngIf="getTrickCard('SUD') as card" [card]="card"></app-card-na>
+          </div>
+          <div class="trick-slot trick-west">
+            <app-card-na *ngIf="getTrickCard('OVEST') as card" [card]="card"></app-card-na>
+          </div>
+        </div>
+      </div>
+
+      <div class="hand-panel" [class.disabled]="!canPlayCards">
+        <div class="hand-copy">
+          <p class="hand-title">La tua mano</p>
+          <p class="hand-hint" *ngIf="canPlayCards">Carte giocabili evidenziate in oro.</p>
+        </div>
+        <div class="hand-cards">
+          <button
+            type="button"
+            class="hand-card"
+            [class.non-playable]="canPlayCards && !isCardPlayable(card)"
+            [class.playable]="canPlayCards && isCardPlayable(card)"
+            *ngFor="let card of effectiveHandCards"
+            [disabled]="!isCardPlayable(card)"
+            (click)="playCard(card)"
+          >
+            <app-card-na [card]="card"></app-card-na>
+          </button>
+        </div>
+      </div>
+    </section>
   </div>
-
-  <section class="table-meta" *ngIf="table as t">
-    <p>Owner: <strong>{{ t.owner }}</strong> | Players: <strong>{{ t.players.length }}</strong></p>
-  </section>
-
-  <section class="table-stage">
-    <div class="gameplay-utility-strip">
-      <button type="button" class="utility-chip" [class.active]="quickChatOpen" (click)="toggleQuickChat()">Chat rapida</button>
-      <button type="button" class="utility-chip" [class.active]="contextMenuOpen" (click)="toggleContextMenu()">Menu tavolo</button>
-    </div>
-
-    <div class="gameplay-utility-panel" *ngIf="quickChatOpen">
-      <p class="panel-title">Chat rapida</p>
-      <p class="panel-copy">Accesso separato alla chat senza tab bar persistente durante la mano.</p>
-      <div class="quick-chat-pills">
-        <span class="quick-chat-pill">Owner: {{ table?.owner ?? '-' }}</span>
-        <span class="quick-chat-pill">Tu: {{ myUsername }}</span>
-        <span class="quick-chat-pill">Stato: {{ table?.status ?? 'waiting' }}</span>
-      </div>
-    </div>
-
-    <div class="gameplay-utility-panel context-menu-panel" *ngIf="contextMenuOpen">
-      <button type="button" class="context-action" (click)="showTableInfo()">Info tavolo</button>
-      <button type="button" class="context-action" (click)="showQuickRules()">Regole rapide</button>
-      <button type="button" class="context-action" (click)="toggleAudio()">Audio: {{ audioEnabled ? 'ON' : 'OFF' }}</button>
-      <button type="button" class="context-action" (click)="toggleVibration()">Vibrazione: {{ vibrationEnabled ? 'ON' : 'OFF' }}</button>
-      <button type="button" class="context-action exit" (click)="goToLobby()">Torna alla lobby</button>
-    </div>
-
-    <div class="game-table" [class.reveal-active]="winnerOverlayVisible">
-      <div class="scoreboard-note" *ngIf="table as t">
-        <p class="scoreboard-title">Taccuino punti</p>
-        <div class="scoreboard-row"><span>Team SN</span><strong>{{ t.points.teamSN }}</strong></div>
-        <div class="scoreboard-row"><span>Team EO</span><strong>{{ t.points.teamEO }}</strong></div>
-        <p class="scoreboard-hand">{{ handLabel }}</p>
-      </div>
-
-      <div class="hand-transition" *ngIf="handTransitionActive">
-        {{ handTransitionMessage }}
-      </div>
-
-      <div class="pregame-overlay" *ngIf="preGameOverlayVisible">
-        <div class="pregame-overlay-content">
-          <p class="pregame-label">La partita sta per cominciare</p>
-          <p class="pregame-seconds">{{ preGameSecondsRemaining }}</p>
-        </div>
-      </div>
-
-      <div class="trick-winner-alert trick-winner-overlay" *ngIf="winnerOverlayVisible">{{ trickWinnerMessage }}
-      </div>
-
-      <div class="seat seat-north" [class.turn]="isTurnPosition('NORD')">
-        <div class="player-badge">
-          <span class="player-name" *ngIf="!isBotPlayer('NORD')">{{ playerDisplayName('NORD') }}</span>
-          <span class="bot-seat-badge" *ngIf="isBotPlayer('NORD')">BOT</span>
-          <img class="seat-avatar" *ngIf="getPlayer('NORD')" [ngClass]="seatAvatarClass('NORD')" [src]="seatAvatarSrc('NORD')" [alt]="isBotPlayer('NORD') ? 'Avatar Bot' : 'Avatar giocatore'" />
-          <span class="turn-badge" *ngIf="isTurnPosition('NORD') && !winnerOverlayVisible">DI TURNO</span>
-          <span class="turn-countdown" *ngIf="!winnerOverlayVisible && getSeatCountdown('NORD') !== null">{{ getSeatCountdown('NORD') }}s</span>
-        </div>
-      </div>
-      <div class="seat seat-east" [class.turn]="isTurnPosition('EST')">
-        <div class="player-badge">
-          <span class="player-name" *ngIf="!isBotPlayer('EST')">{{ playerDisplayName('EST') }}</span>
-          <span class="bot-seat-badge" *ngIf="isBotPlayer('EST')">BOT</span>
-          <img class="seat-avatar" *ngIf="getPlayer('EST')" [ngClass]="seatAvatarClass('EST')" [src]="seatAvatarSrc('EST')" [alt]="isBotPlayer('EST') ? 'Avatar Bot' : 'Avatar giocatore'" />
-          <span class="turn-badge" *ngIf="isTurnPosition('EST') && !winnerOverlayVisible">DI TURNO</span>
-          <span class="turn-countdown" *ngIf="!winnerOverlayVisible && getSeatCountdown('EST') !== null">{{ getSeatCountdown('EST') }}s</span>
-        </div>
-      </div>
-      <div class="seat seat-south" [class.turn]="isTurnPosition('SUD')">
-        <div class="player-badge me">
-          <span class="player-name" *ngIf="!isBotPlayer('SUD')">{{ playerDisplayName('SUD') }}</span>
-          <span class="bot-seat-badge" *ngIf="isBotPlayer('SUD')">BOT</span>
-          <img class="seat-avatar" *ngIf="getPlayer('SUD')" [ngClass]="seatAvatarClass('SUD')" [src]="seatAvatarSrc('SUD')" [alt]="isBotPlayer('SUD') ? 'Avatar Bot' : 'Avatar giocatore'" />
-          <span class="turn-badge" *ngIf="isTurnPosition('SUD') && !winnerOverlayVisible">DI TURNO</span>
-          <span class="turn-countdown" *ngIf="!winnerOverlayVisible && getSeatCountdown('SUD') !== null">{{ getSeatCountdown('SUD') }}s</span>
-        </div>
-      </div>
-      <div class="seat seat-west" [class.turn]="isTurnPosition('OVEST')">
-        <div class="player-badge">
-          <span class="player-name" *ngIf="!isBotPlayer('OVEST')">{{ playerDisplayName('OVEST') }}</span>
-          <span class="bot-seat-badge" *ngIf="isBotPlayer('OVEST')">BOT</span>
-          <img class="seat-avatar" *ngIf="getPlayer('OVEST')" [ngClass]="seatAvatarClass('OVEST')" [src]="seatAvatarSrc('OVEST')" [alt]="isBotPlayer('OVEST') ? 'Avatar Bot' : 'Avatar giocatore'" />
-          <span class="turn-badge" *ngIf="isTurnPosition('OVEST') && !winnerOverlayVisible">DI TURNO</span>
-          <span class="turn-countdown" *ngIf="!winnerOverlayVisible && getSeatCountdown('OVEST') !== null">{{ getSeatCountdown('OVEST') }}s</span>
-        </div>
-      </div>
-
-      <div class="trick-center">
-        <div class="trick-slot trick-north">
-          <app-card-na *ngIf="getTrickCard('NORD') as card" [card]="card"></app-card-na>
-        </div>
-        <div class="trick-slot trick-east">
-          <app-card-na *ngIf="getTrickCard('EST') as card" [card]="card"></app-card-na>
-        </div>
-        <div class="trick-slot trick-south">
-          <app-card-na *ngIf="getTrickCard('SUD') as card" [card]="card"></app-card-na>
-        </div>
-        <div class="trick-slot trick-west">
-          <app-card-na *ngIf="getTrickCard('OVEST') as card" [card]="card"></app-card-na>
-        </div>
-      </div>
-    </div>
-
-    <div class="hand-panel" [class.disabled]="!canPlayCards">
-      <p class="hand-title">La tua mano (click per giocare)</p>
-      <p class="hand-hint" *ngIf="canPlayCards">Carte giocabili evidenziate in oro.</p>
-      <div class="hand-cards">
-        <button
-          type="button"
-          class="hand-card"
-          [class.non-playable]="canPlayCards && !isCardPlayable(card)"
-          [class.playable]="canPlayCards && isCardPlayable(card)"
-          *ngFor="let card of effectiveHandCards"
-          [disabled]="!isCardPlayable(card)"
-          (click)="playCard(card)"
-        >
-          <app-card-na [card]="card"></app-card-na>
-        </button>
-      </div>
-    </div>
-
-    <div class="back-row">
-      <ion-button fill="outline" (click)="goToLobby()">Torna alla lobby</ion-button>
-    </div>
-  </section>
 </ion-content>

@@ -157,6 +157,24 @@ describe('Table3s74iPage', () => {
     expect(text).toContain('Data Mode:');
   });
 
+  it('nasconde endpoint e metadata tavolo fuori debug', () => {
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+
+    expect(text).not.toContain('Endpoint');
+    expect(text).not.toContain('Owner:');
+    expect(text).not.toContain('Players:');
+  });
+
+  it('mostra endpoint e metadata tavolo quando debug mode e on', () => {
+    debugModeMock.enabled$.next(true);
+    fixture.detectChanges();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Endpoint');
+    expect(text).toContain('Owner:');
+    expect(text).toContain('Players:');
+  });
+
   it('carica tableId da route e usa backend realtime fetch', () => {
     expect(component.tableId).toBe('tbl-001');
     expect(serviceMock.getTableRealtime).toHaveBeenCalledWith('tbl-001');
@@ -613,3 +631,5 @@ describe('Table3s74iPage', () => {
     expect(routerMock.navigate).toHaveBeenCalledWith(['/tressette-lobby']);
   });
 });
+
+

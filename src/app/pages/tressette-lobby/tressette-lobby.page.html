@@ -45,7 +45,11 @@
   <section class="create-block">
     <div class="create-actions">
       <ion-button *ngIf="canCreateTable" (click)="createTable()">Crea Tavolo</ion-button>
-      <div class="create-guard" *ngIf="!canCreateTable">Sei gia seduto al tavolo {{ activeSeatTableId }}.</div>
+      <div class="create-guard" *ngIf="!canCreateTable">
+        Sei gia seduto
+        <ng-container *ngIf="debugModeEnabled && activeSeatTableId; else genericSeatedCopy"> al tavolo {{ activeSeatTableId }}</ng-container>
+        <ng-template #genericSeatedCopy> a un tavolo</ng-template>.
+      </div>
       <ion-button fill="outline" (click)="refreshTables()">Aggiorna Lista</ion-button>
     </div>
   </section>
@@ -63,11 +67,13 @@
 
   <section class="table-list" *ngIf="!loading && tables.length > 0">
     <ion-card *ngFor="let table of tables" class="table-card" [class.full]="isTableFull(table)">
-      <ion-card-header>
-        <ion-card-title>{{ table.tableId }}</ion-card-title>
-        <ion-card-subtitle>
-          owner: {{ table.owner }} - stato backend: {{ table.status }}
-        </ion-card-subtitle>
+      <ion-card-header [class.debug-meta-hidden]="!debugModeEnabled">
+        <ng-container *ngIf="debugModeEnabled">
+          <ion-card-title>{{ table.tableId }}</ion-card-title>
+          <ion-card-subtitle>
+            owner: {{ table.owner }} - stato backend: {{ table.status }}
+          </ion-card-subtitle>
+        </ng-container>
         <p class="table-fullness" [class.full]="isTableFull(table)">
           {{ occupiedSeats(table) }}/4 posti - {{ statusLabel(table) }}
         </p>
@@ -183,4 +189,3 @@
     (didDismiss)="onToastDismiss()"
   ></ion-toast>
 </ion-content>
-

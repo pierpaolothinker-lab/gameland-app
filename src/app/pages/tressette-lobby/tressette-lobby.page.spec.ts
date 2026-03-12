@@ -122,6 +122,40 @@ describe('TressetteLobbyPage', () => {
     expect(text).toContain('Switch utente mock');
   });
 
+  it('nasconde metadata tavolo fuori debug', () => {
+    component.tables = [
+      makeTable('table-meta', 'Marta', 'waiting', [{ username: 'Marta', position: 'SUD' }]),
+    ];
+
+    fixture.detectChanges();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    const header = fixture.nativeElement.querySelector('ion-card-header') as HTMLElement | null;
+
+    expect(text).not.toContain('table-meta');
+    expect(text).not.toContain('owner: Marta');
+    expect(text).not.toContain('stato backend: waiting');
+    expect(text).toContain('1/4 posti - IN ATTESA');
+    expect(header?.className ?? '').toContain('debug-meta-hidden');
+  });
+
+  it('mostra metadata tavolo quando debug mode e on', () => {
+    debugModeMock.enabled$.next(true);
+    component.tables = [
+      makeTable('table-meta', 'Marta', 'waiting', [{ username: 'Marta', position: 'SUD' }]),
+    ];
+
+    fixture.detectChanges();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    const header = fixture.nativeElement.querySelector('ion-card-header') as HTMLElement | null;
+
+    expect(text).toContain('table-meta');
+    expect(text).toContain('owner: Marta');
+    expect(text).toContain('stato backend: waiting');
+    expect(header?.className ?? '').not.toContain('debug-meta-hidden');
+  });
+
   it('renderizza il mark brand nel header lobby', () => {
     const logo = (fixture.nativeElement as HTMLElement).querySelector('.lobby-brand-mark') as HTMLImageElement | null;
 
@@ -263,6 +297,7 @@ describe('TressetteLobbyPage', () => {
     expect(text).not.toContain('Siediti');
     expect(text).not.toContain('Aggiungi Bot');
   });
+
   it('nasconde crea tavolo quando utente e gia seduto', () => {
     component.tables = [
       makeTable('table-a', 'Luca', 'waiting', [{ username: 'Luca', position: 'SUD' }]),
@@ -272,10 +307,25 @@ describe('TressetteLobbyPage', () => {
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
 
     expect(text).not.toContain('Crea Tavolo');
-    expect(text).toContain('Sei gia seduto al tavolo table-a.');
+    expect(text).toContain('Sei gia seduto');
+    expect(text).toContain('a un tavolo.');
+    expect(text).not.toContain('table-a');
 
     component.createTable();
     expect(serviceMock.createTable).not.toHaveBeenCalled();
+  });
+
+  it('mostra table id nella guard create solo in debug', () => {
+    debugModeMock.enabled$.next(true);
+    component.tables = [
+      makeTable('table-a', 'Luca', 'waiting', [{ username: 'Luca', position: 'SUD' }]),
+    ];
+
+    fixture.detectChanges();
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+
+    expect(text).toContain('Sei gia seduto');
+    expect(text).toContain('al tavolo table-a.');
   });
 
   it('non renderizza label posizione nelle seat card lobby', () => {
@@ -307,7 +357,6 @@ describe('TressetteLobbyPage', () => {
     expect(text).not.toContain('Bot-1');
   });
 
-  
   it('renderizza avatar umano e bot nella lobby occupata', () => {
     component.tables = [
       makeTable('tbl-bot', 'Luca', 'waiting', [
@@ -327,6 +376,7 @@ describe('TressetteLobbyPage', () => {
     expect(southAvatar?.getAttribute('src')).toMatch(/^assets\/avatars\/players\/(player-(0[1-9]|1[0-9]|20)|animals\/animal-(0[1-9]|1[0-9]|20))\.svg$/);
     expect(southAvatar?.className).toContain('human-avatar');
   });
+
   it('gestione errore API', () => {
     serviceMock.listTables.and.returnValue(throwError(() => new Error('offline')));
 
@@ -366,4 +416,5 @@ describe('TressetteLobbyPage', () => {
     expect(routerMock.navigate).toHaveBeenCalledWith(['/table3s74i', 'tbl-owner-ready']);
   });
 });
+
 

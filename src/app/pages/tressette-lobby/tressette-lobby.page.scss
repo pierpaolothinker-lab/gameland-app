@@ -110,11 +110,19 @@
   align-content: start;
 }
 
+.table-card ion-card-header.debug-meta-hidden {
+  min-height: 0;
+}
+
 .table-fullness {
   margin: 8px 0 0;
   font-size: 13px;
   font-weight: 700;
   color: #83e983;
+}
+
+.table-card ion-card-header.debug-meta-hidden .table-fullness {
+  margin-top: 0;
 }
 
 .table-fullness.full {
@@ -201,17 +209,18 @@
   position: absolute;
   inset: 0;
   clip-path: polygon(26% 18%, 26% 82%, 82% 50%);
-  background: linear-gradient(180deg, rgba(255, 242, 207, 0.96) 0%, rgba(255, 197, 94, 0.92) 100%);
-  filter: drop-shadow(0 1px 0 rgba(59, 34, 7, 0.28));
+  background: linear-gradient(180deg, rgba(18, 40, 58, 0.98) 0%, rgba(8, 21, 33, 0.98) 100%);
+  filter: drop-shadow(0 1px 0 rgba(255, 247, 226, 0.24)) drop-shadow(0 4px 6px rgba(5, 16, 26, 0.28));
 }
 
 .table-center-play::after {
   content: '';
   position: absolute;
-  inset: -8px;
+  inset: -10px;
   border-radius: 10px;
   transform: rotate(45deg) scale(0.92);
-  background: radial-gradient(circle, rgba(255, 210, 123, 0.16) 0%, rgba(255, 210, 123, 0.02) 64%, rgba(255, 210, 123, 0) 100%);
+  background: linear-gradient(180deg, rgba(255, 236, 189, 0.9) 0%, rgba(232, 183, 93, 0.9) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 248, 228, 0.54), inset 0 -4px 6px rgba(101, 61, 16, 0.2), 0 6px 12px rgba(15, 9, 2, 0.14);
   opacity: 0;
   transition: opacity 260ms ease, transform 260ms ease;
   z-index: -1;
@@ -232,31 +241,31 @@
 }
 
 .table-center-cta.actionable .table-center-mark {
-  opacity: 0.76;
+  opacity: 0.62;
   mix-blend-mode: normal;
-  filter: saturate(1.02) brightness(1.03) contrast(1.02) drop-shadow(0 9px 18px rgba(4, 18, 29, 0.24));
-  transform: scale(1.03);
+  filter: saturate(0.95) brightness(0.98) contrast(0.98) drop-shadow(0 8px 16px rgba(4, 18, 29, 0.22));
+  transform: scale(1.02);
 }
 
 .table-center-cta.actionable .table-center-play {
   opacity: 1;
-  transform: translate(-42%, -50%) scale(1.58);
+  transform: translate(-42%, -50%) scale(1.72);
 }
 
 .table-center-cta.actionable .table-center-play::after {
   opacity: 1;
-  transform: rotate(45deg) scale(1.1);
+  transform: rotate(45deg) scale(1.14);
 }
 
 .table-center-cta.actionable:hover .table-center-mark,
 .table-center-cta.actionable:focus-visible .table-center-mark {
-  transform: scale(1.08);
-  filter: saturate(1.05) brightness(1.08) contrast(1.03) drop-shadow(0 12px 22px rgba(4, 18, 29, 0.28));
+  transform: scale(1.06);
+  filter: saturate(0.98) brightness(1.01) contrast(1) drop-shadow(0 10px 20px rgba(4, 18, 29, 0.26));
 }
 
 .table-center-cta.actionable:hover .table-center-play,
 .table-center-cta.actionable:focus-visible .table-center-play {
-  transform: translate(-42%, -50%) scale(1.72);
+  transform: translate(-42%, -50%) scale(1.88);
 }
 
 .table-center-cta:focus-visible {
@@ -273,6 +282,7 @@
     transform: translateY(-1px) scale(1.025);
   }
 }
+
 .seat {
   position: absolute;
   width: 110px;

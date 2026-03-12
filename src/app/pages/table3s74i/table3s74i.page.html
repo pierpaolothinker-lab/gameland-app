@@ -101,6 +101,34 @@
 
         <div class="trick-winner-alert trick-winner-overlay" *ngIf="winnerOverlayVisible">{{ trickWinnerMessage }}</div>
 
+        <button
+          *ngIf="hasPreviousTrick"
+          type="button"
+          class="previous-trick-entry"
+          [class.active]="previousTrickPeekOpen"
+          aria-label="Apri trick precedente"
+          [attr.aria-expanded]="previousTrickPeekOpen"
+          aria-controls="previous-trick-panel"
+          (click)="togglePreviousTrickPeek()"
+        >
+          <span class="previous-trick-entry-deck" aria-hidden="true">
+            <span class="back-card"></span>
+            <span class="front-card"></span>
+          </span>
+        </button>
+
+        <section class="previous-trick-panel" *ngIf="previousTrickPeekOpen" id="previous-trick-panel" aria-label="Trick precedente">
+          <p class="previous-trick-empty" *ngIf="!hasPreviousTrick">
+            Nessun trick precedente disponibile.
+          </p>
+
+          <div class="previous-trick-mini-table" *ngIf="hasPreviousTrick">
+            <div class="previous-trick-slot" *ngFor="let position of positions; trackBy: trackByPosition" [ngClass]="'peek-' + position.toLowerCase()" [attr.aria-label]="'Carta ' + position">
+              <app-card-na *ngIf="getPreviousTrickCard(position) as card" [card]="card"></app-card-na>
+            </div>
+          </div>
+        </section>
+
         <div class="seat seat-north" [class.turn]="isTurnPosition('NORD')">
           <div class="player-badge">
             <span class="player-name" *ngIf="!isBotPlayer('NORD')">{{ playerDisplayName('NORD') }}</span>

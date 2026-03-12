@@ -113,6 +113,8 @@ export class Table3s74iPage implements OnInit, OnDestroy {
   currentHandIndex: number | null = null;
   preGameCountdownActive = false;
   preGameSecondsRemaining = 0;
+  previousTrickCards: TressetteTrickCard[] = [];
+  previousTrickPeekOpen = false;
   quickChatOpen = false;
   contextMenuOpen = false;
   audioEnabled = true;
@@ -267,8 +269,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
   }
 
   goToLobby(): void {
-    this.quickChatOpen = false;
-    this.contextMenuOpen = false;
+    this.closeSecondaryPanels();
     void this.router.navigate(['/tressette-lobby']);
   }
 
@@ -276,6 +277,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     this.quickChatOpen = !this.quickChatOpen;
     if (this.quickChatOpen) {
       this.contextMenuOpen = false;
+      this.previousTrickPeekOpen = false;
     }
   }
 
@@ -283,6 +285,15 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     this.contextMenuOpen = !this.contextMenuOpen;
     if (this.contextMenuOpen) {
       this.quickChatOpen = false;
+      this.previousTrickPeekOpen = false;
+    }
+  }
+
+  togglePreviousTrickPeek(): void {
+    this.previousTrickPeekOpen = !this.previousTrickPeekOpen;
+    if (this.previousTrickPeekOpen) {
+      this.quickChatOpen = false;
+      this.contextMenuOpen = false;
     }
   }
 
@@ -361,6 +372,14 @@ export class Table3s74iPage implements OnInit, OnDestroy {
 
   getTrickCard(position: TressettePosition): ICardIT | null {
     return this.table?.currentTrick?.find((trickCard) => trickCard.position === position)?.card ?? null;
+  }
+
+  getPreviousTrickCard(position: TressettePosition): ICardIT | null {
+    return this.previousTrickCards.find((trickCard) => trickCard.position === position)?.card ?? null;
+  }
+
+  get hasPreviousTrick(): boolean {
+    return this.previousTrickCards.length > 0;
   }
 
   isCardPlayable(card: ICardIT): boolean {
@@ -478,6 +497,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       const applied = this.applyAuthoritativePayload(filteredPayload, {
         cancelTrickReveal: !this.isAnyTrickRevealActive(),
       });
+      this.resetPreviousTrickState();
       if (!applied && this.table) {
         this.table = { ...this.table, status: 'in_game' };
       }
@@ -567,6 +587,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       const previousTrick = this.table?.currentTrick ?? [];
       const revealTrick = payload.trickCards ?? payload.currentTrick ?? previousTrick;
 
+      this.storePreviousTrick(revealTrick);
 
       const winnerFromEvent = payload.winner?.trim();
       this.setLastTrickWinner(winnerFromEvent || '-');
@@ -1031,6 +1052,28 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       clearInterval(this.countdownInterval);
       this.countdownInterval = undefined;
     }
+  }
+
+  private closeSecondaryPanels(): void {
+    this.quickChatOpen = false;
+    this.contextMenuOpen = false;
+    this.previousTrickPeekOpen = false;
+  }
+
+  private storePreviousTrick(trickCards?: TressetteTrickCard[]): void {
+    if (!Array.isArray(trickCards) || trickCards.length === 0) {
+      return;
+    }
+
+    this.previousTrickCards = trickCards.map((trickCard) => ({
+      ...trickCard,
+      card: trickCard.card,
+    }));
+  }
+
+  private resetPreviousTrickState(): void {
+    this.previousTrickCards = [];
+    this.previousTrickPeekOpen = false;
   }
 
   private getLeadSuit(): number | null {

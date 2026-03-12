@@ -7,6 +7,14 @@
   color: #eef6ff;
 }
 
+.hero-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
 .eyebrow {
   margin: 0;
   font-size: 12px;
@@ -15,8 +23,16 @@
   color: #a7cbe8;
 }
 
+.hero-wordmark {
+  flex: 0 0 auto;
+  width: clamp(104px, 30vw, 132px);
+  max-width: 40%;
+  height: auto;
+  opacity: 0.92;
+}
+
 .hero h1 {
-  margin: 8px 0 6px;
+  margin: 0 0 6px;
 }
 
 .subtitle {
@@ -40,4 +56,11 @@
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+}
+
+@media (min-width: 720px) {
+  .hero-wordmark {
+    width: 132px;
+    max-width: none;
+  }
 }

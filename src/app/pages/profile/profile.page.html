@@ -1,7 +1,19 @@
 <ion-content [fullscreen]="true" class="profile-content">
   <section class="profile-hero">
-    <p class="profile-kicker">Profilo</p>
-    <h2>{{ username }}</h2>
+    <div class="profile-hero-topline">
+      <div class="profile-copy">
+        <p class="profile-kicker">Profilo</p>
+        <h2>{{ username }}</h2>
+      </div>
+
+      <div class="profile-brand-mark-frame" aria-label="Brand Gameland">
+        <img
+          class="profile-brand-mark"
+          src="assets/branding/gameland-mark-light.svg"
+          alt="Gameland"
+        />
+      </div>
+    </div>
     <p>Sessione mock locale attiva, con accesso rapido a preferenze e utility personali.</p>
   </section>
 

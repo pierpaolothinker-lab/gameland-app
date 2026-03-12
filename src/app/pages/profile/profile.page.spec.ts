@@ -3,11 +3,11 @@ import { provideRouter, Router } from '@angular/router';
 
 import { AuthSessionService } from 'src/app/services/auth/auth-session.service';
 
-import { GameSelectPage } from './game-select.page';
+import { ProfilePage } from './profile.page';
 
-describe('GameSelectPage', () => {
-  let component: GameSelectPage;
-  let fixture: ComponentFixture<GameSelectPage>;
+describe('ProfilePage', () => {
+  let component: ProfilePage;
+  let fixture: ComponentFixture<ProfilePage>;
   let authMock: {
     currentUser: { userId: string; username: string };
     logout: jasmine.Spy;
@@ -20,7 +20,7 @@ describe('GameSelectPage', () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [GameSelectPage],
+      imports: [ProfilePage],
       providers: [
         provideRouter([]),
         {
@@ -30,7 +30,7 @@ describe('GameSelectPage', () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(GameSelectPage);
+    fixture = TestBed.createComponent(ProfilePage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -39,14 +39,14 @@ describe('GameSelectPage', () => {
     expect(component).toBeTruthy();
   });
 
-  it('renderizza il wordmark compatto nella hero', () => {
-    const logo = (fixture.nativeElement as HTMLElement).querySelector('.hero-wordmark') as HTMLImageElement | null;
+  it('renderizza il mark brand nel hero del profilo', () => {
+    const logo = (fixture.nativeElement as HTMLElement).querySelector('.profile-brand-mark') as HTMLImageElement | null;
 
     expect(logo).not.toBeNull();
-    expect(logo?.getAttribute('src')).toContain('gameland-wordmark-light.svg');
+    expect(logo?.getAttribute('src')).toContain('gameland-mark-light.svg');
   });
 
-  it('legge username da sessione', () => {
+  it('mostra username da sessione', () => {
     expect(component.username).toBe('PlayerOne');
   });
 

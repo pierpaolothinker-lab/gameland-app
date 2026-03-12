@@ -6,6 +6,7 @@ import { IonButton, IonContent, IonSpinner } from '@ionic/angular/standalone';
 import { Socket } from 'socket.io-client';
 
 import { AuthSessionService } from 'src/app/services/auth/auth-session.service';
+import { DebugModeService } from 'src/app/services/debug-mode/debug-mode.service';
 import { DataMode, DataModeService } from 'src/app/services/data-mode/data-mode.service';
 import { TressetteTableService } from 'src/app/services/tressette/tressette-table.service';
 import { ICardIT, Suit } from 'src/app/shared/domain/models/cardIT.model';
@@ -99,6 +100,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
   socketMessage = 'disconnected';
 
   dataMode: DataMode;
+  debugModeEnabled = false;
   turnPlayerUsername = '';
   turnPlayerPosition: TressettePosition | null = null;
   countdownSeconds: number | null = null;
@@ -129,6 +131,7 @@ export class Table3s74iPage implements OnInit, OnDestroy {
   constructor(
     private readonly tableService: TressetteTableService,
     private readonly authSessionService: AuthSessionService,
+    private readonly debugModeService: DebugModeService,
     private readonly dataModeService: DataModeService,
     private readonly route: ActivatedRoute,
     private readonly router: Router
@@ -145,6 +148,12 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     }
 
     this.tableId = routeTableId;
+
+    this.debugModeService.enabled$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((enabled) => {
+        this.debugModeEnabled = enabled;
+      });
 
     this.dataModeService.mode$
       .pipe(takeUntilDestroyed(this.destroyRef))

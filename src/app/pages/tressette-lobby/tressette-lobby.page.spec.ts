@@ -1,8 +1,9 @@
-﻿import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 
 import { AuthSessionService, MockSessionUser } from 'src/app/services/auth/auth-session.service';
+import { DebugModeService } from 'src/app/services/debug-mode/debug-mode.service';
 import { DataMode, DataModeService } from 'src/app/services/data-mode/data-mode.service';
 import { TressetteTableService } from 'src/app/services/tressette/tressette-table.service';
 import { TressetteTableView } from 'src/app/shared/domain/models/tressette-table.model';
@@ -28,6 +29,10 @@ describe('TressetteLobbyPage', () => {
     mode: DataMode;
     mode$: BehaviorSubject<DataMode>;
     setMode: jasmine.Spy;
+  };
+  let debugModeMock: {
+    enabled: boolean;
+    enabled$: BehaviorSubject<boolean>;
   };
   let routerMock: {
     navigate: jasmine.Spy;
@@ -76,6 +81,11 @@ describe('TressetteLobbyPage', () => {
       }),
     };
 
+    debugModeMock = {
+      enabled: false,
+      enabled$: new BehaviorSubject<boolean>(false),
+    };
+
     routerMock = {
       navigate: jasmine.createSpy('navigate').and.returnValue(Promise.resolve(true)),
     };
@@ -86,6 +96,7 @@ describe('TressetteLobbyPage', () => {
         { provide: TressetteTableService, useValue: serviceMock },
         { provide: AuthSessionService, useValue: authMock },
         { provide: DataModeService, useValue: dataModeMock },
+        { provide: DebugModeService, useValue: debugModeMock },
         { provide: Router, useValue: routerMock },
       ],
     }).compileComponents();
@@ -93,6 +104,22 @@ describe('TressetteLobbyPage', () => {
     fixture = TestBed.createComponent(TressetteLobbyPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
+  });
+
+  it('nasconde controlli debug in lobby quando debug mode e off', () => {
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+
+    expect(text).not.toContain('Data Mode');
+    expect(text).not.toContain('Switch utente mock');
+  });
+
+  it('mostra controlli debug in lobby quando debug mode e on', () => {
+    debugModeMock.enabled$.next(true);
+    fixture.detectChanges();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Data Mode');
+    expect(text).toContain('Switch utente mock');
   });
 
   it('render lista tavoli', () => {
@@ -254,8 +281,3 @@ describe('TressetteLobbyPage', () => {
     expect(routerMock.navigate).toHaveBeenCalledWith(['/table3s74i', 'tbl-owner-ready']);
   });
 });
-
-
-
-
-

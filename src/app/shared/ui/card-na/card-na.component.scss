@@ -1,7 +1,10 @@
 :host {
-  width: 58px;
-  height: 105px;
-  border-radius: 10px;
+  --card-width: 58px;
+  --card-height: 105px;
+
+  width: var(--card-width);
+  height: var(--card-height);
+  border-radius: clamp(8px, calc(var(--card-width) * 0.18), 10px);
   background-image: url('./../../../../assets/carte_napoletane.png');
   background-repeat: no-repeat;
   background-size: calc(1024px * (65 / 87)) calc(649px * (108 / 139));
@@ -12,7 +15,7 @@
   cursor: pointer;
   transition: box-shadow 0.2s ease, transform 0.2s ease;
   position: relative;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 calc(var(--card-height) * 0.038) calc(var(--card-height) * 0.076) rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
   overflow: hidden;
 }

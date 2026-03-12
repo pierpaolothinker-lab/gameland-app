@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+﻿import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 
@@ -155,6 +155,29 @@ describe('Table3s74iPage', () => {
 
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
     expect(text).toContain('Data Mode:');
+  });
+
+  it('nasconde endpoint e metadata tavolo fuori debug', () => {
+    const element = fixture.nativeElement as HTMLElement;
+    const text = element.textContent ?? '';
+
+    expect(element.querySelector('.gameplay-status')).toBeNull();
+    expect(text).not.toContain('Endpoint');
+    expect(text).not.toContain('Owner:');
+    expect(text).not.toContain('Players:');
+  });
+
+  it('mostra endpoint e metadata tavolo quando debug mode e on', () => {
+    debugModeMock.enabled$.next(true);
+    fixture.detectChanges();
+
+    const element = fixture.nativeElement as HTMLElement;
+    const text = element.textContent ?? '';
+    expect(element.querySelector('.gameplay-status')).not.toBeNull();
+    expect(text).toContain('Socket');
+    expect(text).toContain('Endpoint');
+    expect(text).toContain('Owner:');
+    expect(text).toContain('Players:');
   });
 
   it('carica tableId da route e usa backend realtime fetch', () => {
@@ -613,3 +636,6 @@ describe('Table3s74iPage', () => {
     expect(routerMock.navigate).toHaveBeenCalledWith(['/tressette-lobby']);
   });
 });
+
+
+

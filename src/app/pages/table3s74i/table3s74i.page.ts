@@ -74,7 +74,7 @@ interface TrickEndedPayload extends AuthoritativePayload {
 }
 
 interface HandLifecyclePayload extends AuthoritativePayload {
-  status?: 'in_game' | 'waiting' | 'ended';
+  status?: 'starting' | 'in_game' | 'waiting' | 'ended';
 }
 
 interface PreGameCountdownPayload {
@@ -270,6 +270,11 @@ export class Table3s74iPage implements OnInit, OnDestroy {
 
   goToLobby(): void {
     this.closeSecondaryPanels();
+    if (this.canLeaveTableBeforeGame()) {
+      this.leaveTableAndReturnToLobby();
+      return;
+    }
+
     void this.router.navigate(['/tressette-lobby']);
   }
 
@@ -622,6 +627,17 @@ export class Table3s74iPage implements OnInit, OnDestroy {
       }
 
       this.errorMessage = payload?.error?.message ?? 'Errore socket';
+    });
+
+    this.socket.on('tressette:table-left', (payload?: { tableId?: string; username?: string }) => {
+      if (!payload || payload.tableId !== this.tableId || payload.username !== this.myUsername) {
+        return;
+      }
+
+      this.closeSecondaryPanels();
+      this.socket?.disconnect();
+      this.socket = undefined;
+      void this.router.navigate(['/tressette-lobby']);
     });
   }
 
@@ -1095,5 +1111,33 @@ export class Table3s74iPage implements OnInit, OnDestroy {
     }
 
     return this.table.players.find((player) => player.username === username)?.position ?? null;
+  }
+
+  private canLeaveTableBeforeGame(): boolean {
+    return !!this.tableId && !!this.myPlayer && this.table?.status === 'waiting';
+  }
+
+  private leaveTableAndReturnToLobby(): void {
+    this.tableService.leaveTable(this.tableId, this.myUsername).subscribe({
+      next: () => {
+        this.closeSecondaryPanels();
+        this.socket?.disconnect();
+        this.socket = undefined;
+        void this.router.navigate(['/tressette-lobby']);
+      },
+      error: (error: unknown) => {
+        const apiCode =
+          (error as { error?: { error?: { code?: string }; code?: string } })?.error?.error?.code ||
+          (error as { error?: { code?: string } })?.error?.code;
+
+        if (apiCode === 'TABLE_NOT_LEAVABLE') {
+          this.infoMessage = 'Il tavolo e gia partito: ritorno alla lobby senza liberare il posto.';
+          void this.router.navigate(['/tressette-lobby']);
+          return;
+        }
+
+        this.errorMessage = 'Uscita dal tavolo fallita.';
+      },
+    });
   }
 }

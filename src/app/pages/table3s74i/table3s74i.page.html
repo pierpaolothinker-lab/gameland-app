@@ -139,16 +139,16 @@
         </div>
 
         <div class="trick-center">
-          <div class="trick-slot trick-north">
+          <div class="trick-slot trick-north" [class.filled]="!!getTrickCard('NORD')">
             <app-card-na *ngIf="getTrickCard('NORD') as card" [card]="card"></app-card-na>
           </div>
-          <div class="trick-slot trick-east">
+          <div class="trick-slot trick-east" [class.filled]="!!getTrickCard('EST')">
             <app-card-na *ngIf="getTrickCard('EST') as card" [card]="card"></app-card-na>
           </div>
-          <div class="trick-slot trick-south">
+          <div class="trick-slot trick-south" [class.filled]="!!getTrickCard('SUD')">
             <app-card-na *ngIf="getTrickCard('SUD') as card" [card]="card"></app-card-na>
           </div>
-          <div class="trick-slot trick-west">
+          <div class="trick-slot trick-west" [class.filled]="!!getTrickCard('OVEST')">
             <app-card-na *ngIf="getTrickCard('OVEST') as card" [card]="card"></app-card-na>
           </div>
         </div>

@@ -42,13 +42,6 @@
     </div>
   </section>
 
-  <section class="create-block start-owner-block">
-    <div class="start-owner-title">Start owner</div>
-    <div class="start-owner-target">Tavolo owner target: <strong>{{ ownerTargetTableId }}</strong></div>
-    <div class="start-owner-reason" *ngIf="!canStartOwnerTable">{{ startDisabledReason }}</div>
-    <ion-button [disabled]="!canStartOwnerTable" (click)="startMyGame()">Avvia la mia partita</ion-button>
-  </section>
-
   <section class="create-block">
     <div class="create-actions">
       <ion-button *ngIf="canCreateTable" (click)="createTable()">Crea Tavolo</ion-button>
@@ -83,6 +76,29 @@
       <ion-card-content>
         <div class="mini-table-wrap">
           <div class="mini-table-bg"></div>
+          <button
+            type="button"
+            class="table-center-cta"
+            [class.ready]="isTableReady(table)"
+            [class.actionable]="canStartTable(table)"
+            [class.awaiting-owner]="isTableReady(table) && !isOwnerTable(table)"
+            [disabled]="!canStartTable(table)"
+            [attr.aria-label]="tableCenterAriaLabel(table)"
+            (click)="onTableCenterClick(table)"
+          >
+            <span class="table-center-mark-shell">
+              <img
+                class="table-center-mark"
+                src="assets/branding/gameland-mark-light.svg"
+                alt=""
+                aria-hidden="true"
+              />
+            </span>
+            <span class="table-center-copy">
+              <span class="table-center-label">{{ tableCenterLabel(table) }}</span>
+              <span class="table-center-hint">{{ tableCenterHint(table) }}</span>
+            </span>
+          </button>
 
           <div class="seat seat-nord" [class.occupied]="seatOccupied(table, 'NORD')" [class.empty]="!seatOccupied(table, 'NORD')">
             <div class="seat-player has-avatar" *ngIf="seatOccupied(table, 'NORD'); else emptyNord">
@@ -171,3 +187,4 @@
     (didDismiss)="onToastDismiss()"
   ></ion-toast>
 </ion-content>
+

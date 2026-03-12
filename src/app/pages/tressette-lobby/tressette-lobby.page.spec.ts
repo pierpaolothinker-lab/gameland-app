@@ -134,6 +134,65 @@ describe('TressetteLobbyPage', () => {
     expect(component.tables.length).toBe(1);
   });
 
+  it('rimuove la sezione Start owner e renderizza CTA centrale su ogni tavolo', () => {
+    component.tables = [
+      makeTable('table-center', 'Luca', 'waiting', [{ username: 'Luca', position: 'SUD' }]),
+    ];
+
+    fixture.detectChanges();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    const center = fixture.nativeElement.querySelector('.table-center-cta') as HTMLButtonElement | null;
+
+    expect(text).not.toContain('Start owner');
+    expect(center).not.toBeNull();
+  });
+
+  it('cta centrale passiva quando tavolo non e pronto', () => {
+    component.tables = [
+      makeTable('tbl-not-ready', 'Luca', 'waiting', [{ username: 'Luca', position: 'SUD' }]),
+    ];
+
+    fixture.detectChanges();
+
+    const center = fixture.nativeElement.querySelector('.table-center-cta') as HTMLButtonElement | null;
+    const hint = fixture.nativeElement.querySelector('.table-center-hint') as HTMLElement | null;
+
+    expect(center).not.toBeNull();
+    expect(center?.disabled).toBeTrue();
+    expect(center?.className).not.toContain('ready');
+    expect(hint?.textContent).toContain('1/4 posti');
+  });
+
+  it('cta centrale pronta ma non owner resta non attivabile', () => {
+    component.tables = [
+      makeTable(
+        'tbl-ready-other-owner',
+        'Marta',
+        'waiting',
+        [
+          { username: 'Luca', position: 'SUD' },
+          { username: 'Marta', position: 'NORD' },
+          { username: 'Diego', position: 'EST' },
+          { username: 'Sara', position: 'OVEST' },
+        ],
+        true
+      ),
+    ];
+
+    fixture.detectChanges();
+
+    const center = fixture.nativeElement.querySelector('.table-center-cta') as HTMLButtonElement | null;
+
+    expect(center).not.toBeNull();
+    expect(center?.disabled).toBeTrue();
+    expect(center?.className).toContain('awaiting-owner');
+
+    component.onTableCenterClick(component.tables[0]);
+
+    expect(serviceMock.startTable).not.toHaveBeenCalled();
+  });
+
   it('click seat vuoto -> join quando utente non e seduto in nessun tavolo', () => {
     component.tables = [
       makeTable('table-join', 'Marta', 'waiting', [{ username: 'Marta', position: 'SUD' }]),
@@ -265,7 +324,7 @@ describe('TressetteLobbyPage', () => {
     expect(component.loading).toBeFalse();
   });
 
-  it('start success -> navigation a gameplay con tableId', () => {
+  it('cta centrale owner pronto -> navigation a gameplay con tableId', () => {
     component.tables = [
       makeTable('tbl-owner-not-ready', 'Luca', 'waiting', [{ username: 'Luca', position: 'SUD' }]),
       makeTable(
@@ -282,7 +341,14 @@ describe('TressetteLobbyPage', () => {
       ),
     ];
 
-    component.startMyGame();
+    fixture.detectChanges();
+
+    const centers = fixture.nativeElement.querySelectorAll('.table-center-cta') as NodeListOf<HTMLButtonElement>;
+
+    expect(centers[0].disabled).toBeTrue();
+    expect(centers[1].disabled).toBeFalse();
+
+    centers[1].click();
 
     expect(serviceMock.startTable).toHaveBeenCalledWith('tbl-owner-ready', 'Luca');
     expect(routerMock.navigate).toHaveBeenCalledWith(['/table3s74i', 'tbl-owner-ready']);

@@ -66,25 +66,6 @@
   align-self: center;
 }
 
-.start-owner-block {
-  display: grid;
-  gap: 6px;
-}
-
-.start-owner-title {
-  font-weight: 700;
-  color: #264b57;
-}
-
-.start-owner-target {
-  color: #385968;
-}
-
-.start-owner-reason {
-  color: #5f7783;
-  font-size: 13px;
-}
-
 .error-banner {
   margin: 0 16px 12px;
   padding: 10px;
@@ -138,18 +119,143 @@
   margin-top: 12px;
   min-height: 250px;
   position: relative;
+  isolation: isolate;
 }
 
 .mini-table-bg {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 104px;
-  height: 104px;
+  width: 118px;
+  height: 118px;
   transform: translate(-50%, -50%);
   background: radial-gradient(circle at 35% 35%, #9f7448 0%, #6b4521 70%, #45290d 100%);
   border-radius: 50%;
-  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.45);
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.45), 0 10px 18px rgba(0, 0, 0, 0.18);
+  opacity: 0.92;
+}
+
+.table-center-cta {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 132px;
+  min-height: 132px;
+  transform: translate(-50%, -50%);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  text-align: center;
+  z-index: 1;
+  cursor: default;
+}
+
+.table-center-cta:disabled {
+  opacity: 1;
+}
+
+.table-center-mark-shell {
+  width: 76px;
+  height: 76px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 35% 35%, rgba(31, 123, 69, 0.32) 0%, rgba(8, 49, 28, 0.2) 100%);
+  border: 1px solid rgba(221, 245, 255, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.table-center-mark {
+  width: 36px;
+  height: auto;
+  display: block;
+  opacity: 0.38;
+  filter: saturate(0.88) brightness(0.95);
+  transition: opacity 180ms ease, transform 180ms ease, filter 180ms ease;
+}
+
+.table-center-copy {
+  display: grid;
+  gap: 2px;
+  justify-items: center;
+}
+
+.table-center-label {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(221, 245, 255, 0.4);
+  transition: color 180ms ease, opacity 180ms ease;
+}
+
+.table-center-hint {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(221, 245, 255, 0.62);
+  transition: color 180ms ease, opacity 180ms ease;
+}
+
+.table-center-cta.ready .table-center-mark-shell {
+  background: radial-gradient(circle at 35% 35%, rgba(34, 147, 81, 0.4) 0%, rgba(10, 62, 34, 0.3) 100%);
+  border-color: rgba(255, 210, 123, 0.4);
+}
+
+.table-center-cta.ready .table-center-mark {
+  opacity: 0.82;
+  filter: saturate(1) brightness(1.06);
+}
+
+.table-center-cta.ready .table-center-label {
+  color: #ffe1a2;
+}
+
+.table-center-cta.ready .table-center-hint {
+  color: rgba(245, 250, 255, 0.88);
+}
+
+.table-center-cta.actionable {
+  cursor: pointer;
+}
+
+.table-center-cta.actionable .table-center-mark-shell {
+  background: radial-gradient(circle at 35% 35%, rgba(42, 170, 94, 0.46) 0%, rgba(11, 86, 44, 0.35) 100%);
+  border-color: rgba(255, 210, 123, 0.72);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 0 0 3px rgba(255, 210, 123, 0.16), 0 12px 26px rgba(6, 20, 34, 0.34);
+  animation: lobby-play-pulse 2.8s ease-in-out infinite;
+}
+
+.table-center-cta.actionable .table-center-mark {
+  opacity: 1;
+}
+
+.table-center-cta.actionable:hover .table-center-mark-shell,
+.table-center-cta.actionable:focus-visible .table-center-mark-shell {
+  transform: scale(1.03);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 0 0 4px rgba(255, 210, 123, 0.2), 0 14px 30px rgba(6, 20, 34, 0.4);
+}
+
+.table-center-cta.awaiting-owner .table-center-label {
+  color: rgba(255, 210, 123, 0.86);
+}
+
+.table-center-cta.awaiting-owner .table-center-hint {
+  color: rgba(255, 245, 215, 0.82);
+}
+
+@keyframes lobby-play-pulse {
+  0%,
+  100% {
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 0 0 3px rgba(255, 210, 123, 0.16), 0 12px 26px rgba(6, 20, 34, 0.34);
+  }
+
+  50% {
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 0 0 6px rgba(255, 210, 123, 0.1), 0 16px 32px rgba(6, 20, 34, 0.42);
+  }
 }
 
 .seat {
@@ -162,6 +268,7 @@
   text-align: center;
   display: grid;
   gap: 6px;
+  z-index: 2;
 }
 
 .seat.occupied {
@@ -342,6 +449,19 @@
 .table-card {
   width: 100%;
   max-width: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .table-center-mark-shell,
+  .table-center-mark,
+  .table-center-label,
+  .table-center-hint {
+    transition: none;
+  }
+
+  .table-center-cta.actionable .table-center-mark-shell {
+    animation: none;
+  }
 }
 
 @media (min-width: 801px) {

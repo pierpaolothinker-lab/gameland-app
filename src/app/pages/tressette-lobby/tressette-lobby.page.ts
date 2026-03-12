@@ -199,88 +199,12 @@ export class TressetteLobbyPage implements OnInit {
     }
   }
 
-  get selectedOwnerTable(): TressetteTableView | null {
-    const ownerTables = this.tables.filter((table) => table.owner === this.activeUser.username);
-    if (ownerTables.length === 0) {
-      return null;
-    }
-
-    const ready = ownerTables.find((table) => table.status === 'waiting' && this.isTableFull(table));
-    if (ready) {
-      return ready;
-    }
-
-    const waiting = ownerTables.find((table) => table.status === 'waiting');
-    if (waiting) {
-      return waiting;
-    }
-
-    return ownerTables[0];
-  }
-
-  get ownerTargetTableId(): string {
-    return this.selectedOwnerTable?.tableId ?? '-';
-  }
-
-  get canStartOwnerTable(): boolean {
-    const ownerTable = this.selectedOwnerTable;
-    if (!ownerTable || this.starting) {
-      return false;
-    }
-
-    return ownerTable.status === 'waiting' && this.isTableFull(ownerTable);
-  }
-
-  get startDisabledReason(): string {
-    const ownerTable = this.selectedOwnerTable;
-    if (!ownerTable) {
-      return 'Nessun tavolo owner';
-    }
-
-    if (ownerTable.status !== 'waiting') {
-      return 'Il tuo tavolo non e in stato waiting';
-    }
-
-    if (!this.isTableFull(ownerTable)) {
-      return 'Il tuo tavolo non e completo (servono 4/4)';
-    }
-
-    if (this.starting) {
-      return 'Avvio partita in corso...';
-    }
-
-    return '';
-  }
-
   get canCreateTable(): boolean {
     return !this.activeUserSeatedTable() && !this.loading;
   }
 
   get activeSeatTableId(): string | null {
     return this.activeUserSeatedTable()?.tableId ?? null;
-  }
-
-  startMyGame(): void {
-    const ownerTable = this.selectedOwnerTable;
-    if (!ownerTable || !this.canStartOwnerTable) {
-      return;
-    }
-
-    this.starting = true;
-    this.errorBanner = '';
-
-    this.tableService.startTable(ownerTable.tableId, this.activeUser.username).subscribe({
-      next: () => {
-        this.starting = false;
-        this.openToast('Partita avviata su ' + ownerTable.tableId);
-        this.refreshTables();
-        void this.router.navigate(['/table3s74i', ownerTable.tableId]);
-      },
-      error: (error) => {
-        this.starting = false;
-        this.errorBanner = this.normalizeErrorMessage(error, 'Avvio partita fallito');
-      },
-    });
   }
 
   seatOccupied(table: TressetteTableView, position: TressettePosition): boolean {
@@ -334,6 +258,76 @@ export class TressetteLobbyPage implements OnInit {
     return this.occupiedSeats(table) >= 4 || table.isComplete;
   }
 
+  isTableReady(table: TressetteTableView): boolean {
+    return table.status === 'waiting' && this.isTableFull(table);
+  }
+
+  isOwnerTable(table: TressetteTableView): boolean {
+    return table.owner === this.activeUser.username;
+  }
+
+  canStartTable(table: TressetteTableView): boolean {
+    return this.isOwnerTable(table) && this.isTableReady(table) && !this.starting;
+  }
+
+  tableCenterLabel(table: TressetteTableView): string {
+    if (this.isTableReady(table)) {
+      return 'PLAY';
+    }
+
+    if (table.status === 'in_game') {
+      return 'LIVE';
+    }
+
+    if (table.status === 'ended') {
+      return 'ENDED';
+    }
+
+    return 'GAMELAND';
+  }
+
+  tableCenterHint(table: TressetteTableView): string {
+    if (this.canStartTable(table)) {
+      return 'Avvia la partita';
+    }
+
+    if (this.isTableReady(table)) {
+      return this.isOwnerTable(table) ? 'Pronto al play' : 'Attende owner';
+    }
+
+    if (table.status === 'in_game') {
+      return 'Partita in corso';
+    }
+
+    if (table.status === 'ended') {
+      return 'Tavolo concluso';
+    }
+
+    return `${this.occupiedSeats(table)}/4 posti`;
+  }
+
+  tableCenterAriaLabel(table: TressetteTableView): string {
+    if (this.canStartTable(table)) {
+      return `Avvia partita sul tavolo ${table.tableId}`;
+    }
+
+    if (this.isTableReady(table)) {
+      return this.isOwnerTable(table)
+        ? `Tavolo ${table.tableId} pronto`
+        : `Tavolo ${table.tableId} pronto, in attesa dell owner`;
+    }
+
+    return `Centro tavolo ${table.tableId}, stato ${this.statusLabel(table)}`;
+  }
+
+  onTableCenterClick(table: TressetteTableView): void {
+    if (!this.canStartTable(table)) {
+      return;
+    }
+
+    this.startTable(table);
+  }
+
   statusLabel(table: TressetteTableView): string {
     if (table.status === 'in_game') {
       return 'IN GAME';
@@ -368,8 +362,7 @@ export class TressetteLobbyPage implements OnInit {
       return 'none';
     }
 
-    const ownerContextTableId = this.selectedOwnerTable?.tableId;
-    if (ownerContextTableId === table.tableId && table.owner === this.activeUser.username && !this.isTableFull(table)) {
+    if (this.isOwnerTable(table) && !this.isTableFull(table)) {
       return 'add_bot';
     }
 
@@ -377,6 +370,25 @@ export class TressetteLobbyPage implements OnInit {
   }
 
   
+  private startTable(table: TressetteTableView): void {
+    if (!this.canStartTable(table)) {
+      return;
+    }
+    this.starting = true;
+    this.errorBanner = '';
+    this.tableService.startTable(table.tableId, this.activeUser.username).subscribe({
+      next: () => {
+        this.starting = false;
+        this.openToast('Partita avviata su ' + table.tableId);
+        this.refreshTables();
+        void this.router.navigate(['/table3s74i', table.tableId]);
+      },
+      error: (error) => {
+        this.starting = false;
+        this.errorBanner = this.normalizeErrorMessage(error, 'Avvio partita fallito');
+      },
+    });
+  }
   private botAvatarVariantClass(tableId: string, username?: string, position?: TressettePosition): string {
     return resolveBotAvatarVariantClass([tableId, position, username]);
   }
@@ -394,3 +406,4 @@ export class TressetteLobbyPage implements OnInit {
     return apiMessage ? `${fallback}: ${apiMessage}` : fallback;
   }
 }
+

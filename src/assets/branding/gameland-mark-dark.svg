@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Gameland mark dark</title>
+  <desc id="desc">Rounded app mark for Gameland with a G ring, four player nodes and a play-table diamond.</desc>
+  <defs>
+    <linearGradient id="chip-dark" x1="76" y1="64" x2="448" y2="460" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#12324C"/>
+      <stop offset="100%" stop-color="#081827"/>
+    </linearGradient>
+    <linearGradient id="glow-dark" x1="116" y1="112" x2="396" y2="408" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#86E9FF"/>
+      <stop offset="100%" stop-color="#54C7EC"/>
+    </linearGradient>
+  </defs>
+  <rect x="48" y="48" width="416" height="416" rx="128" fill="url(#chip-dark)"/><rect x="60" y="60" width="392" height="392" rx="116" fill="none" stroke="#DDF5FF" stroke-opacity="0.18" stroke-width="10"/>
+  <path d="M332 182 C309 157 276 144 238 144 C174 144 124 194 124 258 C124 323 174 372 238 372 C285 372 324 347 344 311" fill="none" stroke="url(#glow-dark)" stroke-width="54" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M238 258 H344" fill="none" stroke="#7DE2FF" stroke-width="54" stroke-linecap="round"/>
+  <circle cx="170" cy="170" r="14" fill="#DDF5FF"/>
+  <circle cx="342" cy="170" r="14" fill="#DDF5FF"/>
+  <circle cx="170" cy="342" r="14" fill="#DDF5FF"/>
+  <circle cx="342" cy="342" r="14" fill="#DDF5FF"/>
+  <path d="M256 190 L322 256 L256 322 L190 256 Z" fill="#FFBF5E" stroke="#19344F" stroke-width="10" stroke-linejoin="round"/>
+  <path d="M236 223 L292 256 L236 289 Z" fill="#0B1627"/>
+</svg>

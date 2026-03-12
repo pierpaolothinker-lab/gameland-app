@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="180" viewBox="0 0 1100 180" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Gameland wordmark dark</title>
+  <desc id="desc">Wordmark for light surfaces</desc>
+  <g fill="#081827" font-family="Trebuchet MS, Segoe UI, sans-serif" font-size="112" font-weight="700" letter-spacing="10">
+    <text x="0" y="124">GAME</text>
+    <text x="560" y="124">LAND</text>
+  </g>
+  <path d="M488 56 L526 94 L488 132 L450 94 Z" fill="#FFBF5E" stroke="#19344F" stroke-width="8" stroke-linejoin="round"/>
+</svg>

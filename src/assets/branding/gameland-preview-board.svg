@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1220" viewBox="0 0 1600 1220" fill="none">
+  <rect width="1600" height="1220" fill="#E8EDF3"/>
+  <text x="72" y="88" fill="#081827" font-family="Trebuchet MS, Segoe UI, sans-serif" font-size="40" font-weight="700">Gameland logo preview board</text>
+  <text x="72" y="124" fill="#36506A" font-family="Trebuchet MS, Segoe UI, sans-serif" font-size="18">Primary, mark and horizontal lockups on light, dark and monochrome scenarios.</text>
+
+  <rect x="72" y="168" width="696" height="420" rx="40" fill="#F8FBFF"/>
+  <text x="108" y="220" fill="#081827" font-family="Trebuchet MS, Segoe UI, sans-serif" font-size="28" font-weight="700">Light surface</text>
+  <image href="gameland-logo-primary-dark.svg" x="122" y="248" width="270" height="258"/>
+  <image href="gameland-logo-horizontal-dark.svg" x="414" y="280" width="300" height="78"/>
+  <image href="gameland-mark-dark.svg" x="472" y="378" width="144" height="144"/>
+  <image href="gameland-wordmark-dark.svg" x="414" y="538" width="292" height="48"/>
+
+  <rect x="832" y="168" width="696" height="420" rx="40" fill="#0C1D30"/>
+  <text x="868" y="220" fill="#F5FAFF" font-family="Trebuchet MS, Segoe UI, sans-serif" font-size="28" font-weight="700">Night surface</text>
+  <image href="gameland-logo-primary-light.svg" x="882" y="248" width="270" height="258"/>
+  <image href="gameland-logo-horizontal-light.svg" x="1174" y="280" width="300" height="78"/>
+  <image href="gameland-mark-light.svg" x="1232" y="378" width="144" height="144"/>
+  <image href="gameland-wordmark-light.svg" x="1174" y="538" width="292" height="48"/>
+
+  <rect x="72" y="640" width="1456" height="260" rx="40" fill="#FFFFFF"/>
+  <text x="108" y="692" fill="#081827" font-family="Trebuchet MS, Segoe UI, sans-serif" font-size="28" font-weight="700">Monochrome</text>
+  <g fill="#081827" color="#081827">
+    <image href="gameland-logo-horizontal-mono.svg" x="120" y="732" width="430" height="110"/>
+    <image href="gameland-logo-primary-mono.svg" x="594" y="690" width="220" height="210"/>
+    <image href="gameland-mark-mono.svg" x="920" y="712" width="156" height="156"/>
+    <image href="gameland-wordmark-mono.svg" x="1122" y="774" width="330" height="54"/>
+  </g>
+
+  <rect x="72" y="944" width="1456" height="208" rx="40" fill="#10293E"/>
+  <text x="108" y="998" fill="#F5FAFF" font-family="Trebuchet MS, Segoe UI, sans-serif" font-size="28" font-weight="700">Small-size checks</text>
+  <text x="108" y="1030" fill="#B8D7EE" font-family="Trebuchet MS, Segoe UI, sans-serif" font-size="18">Icon mark at 24 / 32 / 40 / 64 / 96 px over a night-blue app surface.</text>
+  <image href="gameland-mark-light.svg" x="130" y="1054" width="24" height="24"/>
+  <image href="gameland-mark-light.svg" x="194" y="1050" width="32" height="32"/>
+  <image href="gameland-mark-light.svg" x="272" y="1046" width="40" height="40"/>
+  <image href="gameland-mark-light.svg" x="362" y="1034" width="64" height="64"/>
+  <image href="gameland-mark-light.svg" x="474" y="1018" width="96" height="96"/>
+  <g fill="#D4E8F7" font-family="Trebuchet MS, Segoe UI, sans-serif" font-size="16" text-anchor="middle">
+    <text x="142" y="1098">24</text>
+    <text x="210" y="1098">32</text>
+    <text x="292" y="1098">40</text>
+    <text x="394" y="1114">64</text>
+    <text x="522" y="1146">96</text>
+  </g>
+</svg>

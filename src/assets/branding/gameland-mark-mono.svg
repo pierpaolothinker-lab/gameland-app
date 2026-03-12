@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Gameland mark mono</title>
+  <desc id="desc">Monochrome app mark combining a G ring, four player nodes and a play-table diamond.</desc>
+  <path d="M332 182 C309 157 276 144 238 144 C174 144 124 194 124 258 C124 323 174 372 238 372 C285 372 324 347 344 311" fill="none" stroke="currentColor" stroke-width="54" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M238 258 H344" fill="none" stroke="currentColor" stroke-width="54" stroke-linecap="round"/>
+  <circle cx="170" cy="170" r="14" fill="currentColor"/>
+  <circle cx="342" cy="170" r="14" fill="currentColor"/>
+  <circle cx="170" cy="342" r="14" fill="currentColor"/>
+  <circle cx="342" cy="342" r="14" fill="currentColor"/>
+  <path d="M256 190 L322 256 L256 322 L190 256 Z M236 223 L292 256 L236 289 Z" fill="currentColor" fill-rule="evenodd"/>
+</svg>

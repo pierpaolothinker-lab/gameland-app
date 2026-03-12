@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="360" viewBox="0 0 1400 360" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Gameland horizontal logo light</title>
+  <desc id="desc">Horizontal lockup with the Gameland mark and GAME LAND wordmark.</desc>
+  <defs>
+    <linearGradient id="horizontal-chip-light" x1="32" y1="20" x2="312" y2="320" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#2F7194"/>
+      <stop offset="100%" stop-color="#17435F"/>
+    </linearGradient>
+    <linearGradient id="horizontal-glow-light" x1="54" y1="56" x2="286" y2="286" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#D6F3FF"/>
+    </linearGradient>
+  </defs>
+  <rect x="20" y="20" width="300" height="300" rx="92" fill="url(#horizontal-chip-light)"/><rect x="30" y="30" width="280" height="280" rx="82" fill="none" stroke="#FFFFFF" stroke-opacity="0.28" stroke-width="8"/>
+  <path d="M222 122 C204 103 179 92 150 92 C99 92 60 131 60 182 C60 233 99 272 150 272 C188 272 220 252 236 224" fill="none" stroke="url(#horizontal-glow-light)" stroke-width="42" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M150 182 H236" fill="none" stroke="#F5FAFF" stroke-width="42" stroke-linecap="round"/>
+  <circle cx="102" cy="112" r="11" fill="#B9EAFF"/>
+  <circle cx="240" cy="112" r="11" fill="#B9EAFF"/>
+  <circle cx="102" cy="250" r="11" fill="#B9EAFF"/>
+  <circle cx="240" cy="250" r="11" fill="#B9EAFF"/>
+  <path d="M170 124 L222 176 L170 228 L118 176 Z" fill="#FFD27B" stroke="#EAF6FF" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M154 150 L198 176 L154 202 Z" fill="#12324C"/>
+  <g fill="#F5FAFF" font-family="Trebuchet MS, Segoe UI, sans-serif" font-size="128" font-weight="700" letter-spacing="10">
+    <text x="390" y="206">GAME</text>
+    <text x="840" y="206">LAND</text>
+  </g>
+  <path d="M760 130 L798 168 L760 206 L722 168 Z" fill="#FFD27B" stroke="#EAF6FF" stroke-width="8" stroke-linejoin="round"/>
+</svg>

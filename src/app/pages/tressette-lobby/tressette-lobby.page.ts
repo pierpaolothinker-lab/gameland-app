@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnDestroy, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import {
@@ -17,6 +17,7 @@ import {
   IonSpinner,
   IonToast,
 } from '@ionic/angular/standalone';
+import { Socket } from 'socket.io-client';
 
 import { AuthSessionService, MockSessionUser } from 'src/app/services/auth/auth-session.service';
 import { DebugModeService } from 'src/app/services/debug-mode/debug-mode.service';
@@ -25,6 +26,17 @@ import { TressetteTableService } from 'src/app/services/tressette/tressette-tabl
 import { TressettePlayer, TressettePosition, TressetteTableView } from 'src/app/shared/domain/models/tressette-table.model';
 import { resolveBotAvatarVariantClass } from 'src/app/shared/utils/bot-avatar-variant.util';
 import { resolveDefaultPlayerAvatar } from 'src/app/shared/utils/player-avatar.util';
+
+interface LobbyStatePayload {
+  mode?: DataMode;
+  tables?: TressetteTableView[];
+}
+
+interface TableLeftPayload {
+  mode?: DataMode;
+  tableId?: string;
+  username?: string;
+}
 
 @Component({
   selector: 'app-tressette-lobby',
@@ -48,7 +60,7 @@ import { resolveDefaultPlayerAvatar } from 'src/app/shared/utils/player-avatar.u
     CommonModule,
   ],
 })
-export class TressetteLobbyPage implements OnInit {
+export class TressetteLobbyPage implements OnInit, OnDestroy {
   readonly positions: TressettePosition[] = ['SUD', 'NORD', 'EST', 'OVEST'];
   readonly availableUsers = this.authSessionService.availableUsers;
 
@@ -66,6 +78,8 @@ export class TressetteLobbyPage implements OnInit {
   debugModeEnabled = false;
 
   private readonly destroyRef = inject(DestroyRef);
+  private socket?: Socket;
+  private navigationTargetTableId: string | null = null;
 
   constructor(
     private readonly tableService: TressetteTableService,
@@ -83,6 +97,8 @@ export class TressetteLobbyPage implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((user) => {
         this.activeUser = user;
+        this.emitWatchLobby();
+        this.syncGameplayTransition();
       });
 
     this.debugModeService.enabled$
@@ -98,9 +114,17 @@ export class TressetteLobbyPage implements OnInit {
         this.dataMode = mode;
         if (changed) {
           this.openToast(`Data mode: ${mode.toUpperCase()}`);
+          this.reconnectSocketForMode();
+        } else {
+          this.ensureSocketConnected();
         }
         this.refreshTables();
       });
+  }
+
+  ngOnDestroy(): void {
+    this.socket?.disconnect();
+    this.socket = undefined;
   }
 
   onDataModeChange(mode: DataMode): void {
@@ -115,6 +139,7 @@ export class TressetteLobbyPage implements OnInit {
       next: (tables) => {
         this.tables = tables;
         this.loading = false;
+        this.syncGameplayTransition();
       },
       error: (error) => {
         this.loading = false;
@@ -138,9 +163,10 @@ export class TressetteLobbyPage implements OnInit {
     this.errorBanner = '';
 
     this.tableService.createTable(this.activeUser.username).subscribe({
-      next: () => {
+      next: (table) => {
+        this.loading = false;
+        this.upsertTable(table);
         this.openToast(`Tavolo creato come ${this.activeUser.username}`);
-        this.refreshTables();
       },
       error: (error) => {
         this.loading = false;
@@ -154,9 +180,11 @@ export class TressetteLobbyPage implements OnInit {
     this.errorBanner = '';
 
     this.tableService.joinTable(tableId, this.activeUser.username, position).subscribe({
-      next: () => {
+      next: (table) => {
+        this.loading = false;
+        this.upsertTable(table);
         this.openToast(`${this.activeUser.username} seduto su ${position}`);
-        this.refreshTables();
+        this.syncGameplayTransition();
       },
       error: (error) => {
         this.loading = false;
@@ -175,10 +203,10 @@ export class TressetteLobbyPage implements OnInit {
     this.errorBanner = '';
 
     this.tableService.addBot(tableId, this.activeUser.username, position).subscribe({
-      next: () => {
+      next: (table) => {
         this.addingBot = false;
+        this.upsertTable(table);
         this.openToast(`Bot aggiunto su ${position}`);
-        this.refreshTables();
       },
       error: (error) => {
         this.addingBot = false;
@@ -293,6 +321,10 @@ export class TressetteLobbyPage implements OnInit {
   }
 
   statusLabel(table: TressetteTableView): string {
+    if (table.status === 'starting') {
+      return 'AVVIO';
+    }
+
     if (table.status === 'in_game') {
       return 'IN GAME';
     }
@@ -342,11 +374,11 @@ export class TressetteLobbyPage implements OnInit {
     this.errorBanner = '';
 
     this.tableService.startTable(table.tableId, this.activeUser.username).subscribe({
-      next: () => {
+      next: (updatedTable) => {
         this.starting = false;
+        this.upsertTable(updatedTable);
         this.openToast('Partita avviata su ' + table.tableId);
-        this.refreshTables();
-        void this.router.navigate(['/table3s74i', table.tableId]);
+        this.syncGameplayTransition();
       },
       error: (error) => {
         this.starting = false;
@@ -370,6 +402,108 @@ export class TressetteLobbyPage implements OnInit {
       (error as { error?: { message?: string } })?.error?.message;
 
     return apiMessage ? `${fallback}: ${apiMessage}` : fallback;
+  }
+
+  private ensureSocketConnected(): void {
+    if (this.socket) {
+      return;
+    }
+
+    this.socket = this.tableService.connectSocket();
+
+    this.socket.on('connect', () => {
+      this.emitWatchLobby();
+    });
+
+    this.socket.on('tressette:lobby-state', (payload?: LobbyStatePayload) => {
+      if (!payload || (payload.mode && payload.mode !== this.dataMode)) {
+        return;
+      }
+
+      this.tables = Array.isArray(payload.tables) ? payload.tables : [];
+      this.loading = false;
+      this.errorBanner = '';
+      this.syncGameplayTransition();
+    });
+
+    this.socket.on('tressette:table-updated', (table: TressetteTableView & { mode?: DataMode }) => {
+      if (!table || (table.mode && table.mode !== this.dataMode)) {
+        return;
+      }
+
+      this.upsertTable(table);
+      this.loading = false;
+      this.errorBanner = '';
+      this.syncGameplayTransition();
+    });
+
+    this.socket.on('tressette:table-left', (payload?: TableLeftPayload) => {
+      if (!payload || (payload.mode && payload.mode !== this.dataMode)) {
+        return;
+      }
+
+      if (payload.tableId) {
+        this.navigationTargetTableId = null;
+      }
+      this.emitWatchLobby();
+    });
+
+    this.socket.on('tressette:error', (payload: { error?: { message?: string } }) => {
+      this.loading = false;
+      this.addingBot = false;
+      this.starting = false;
+      this.errorBanner = payload?.error?.message ?? 'Errore realtime lobby';
+    });
+  }
+
+  private reconnectSocketForMode(): void {
+    if (this.socket) {
+      this.socket.disconnect();
+      this.socket = undefined;
+    }
+
+    this.navigationTargetTableId = null;
+    this.ensureSocketConnected();
+  }
+
+  private emitWatchLobby(): void {
+    this.socket?.emit('tressette:watch-lobby', { username: this.activeUser.username });
+  }
+
+  private upsertTable(table: TressetteTableView): void {
+    const nextTables = [...this.tables];
+    const index = nextTables.findIndex((entry) => entry.tableId === table.tableId);
+    if (index >= 0) {
+      nextTables[index] = table;
+    } else {
+      nextTables.push(table);
+    }
+
+    this.tables = nextTables;
+  }
+
+  private syncGameplayTransition(): void {
+    const activeTable = this.activeUserSeatedTable();
+    if (!activeTable) {
+      this.navigationTargetTableId = null;
+      return;
+    }
+
+    if (activeTable.status !== 'starting' && activeTable.status !== 'in_game') {
+      if (this.navigationTargetTableId === activeTable.tableId) {
+        this.navigationTargetTableId = null;
+      }
+      return;
+    }
+
+    if (this.navigationTargetTableId === activeTable.tableId) {
+      return;
+    }
+
+    this.navigationTargetTableId = activeTable.tableId;
+    void this.router.navigate(['/table3s74i', activeTable.tableId]).finally(() => {
+      this.navigationTargetTableId = null;
+    });
   }
 }
 

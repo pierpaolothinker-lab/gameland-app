@@ -13,7 +13,7 @@ export interface TressettePoints {
   teamEO: number;
 }
 
-export type TressetteStatus = 'waiting' | 'in_game' | 'ended';
+export type TressetteStatus = 'waiting' | 'starting' | 'in_game' | 'ended';
 
 export interface TressetteTrickCard {
   position: TressettePosition;

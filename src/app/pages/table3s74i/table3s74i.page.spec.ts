@@ -17,6 +17,7 @@ describe('Table3s74iPage', () => {
   let serviceMock: {
     getTableRealtime: jasmine.Spy;
     connectSocket: jasmine.Spy;
+    leaveTable: jasmine.Spy;
   };
 
   let authMock: {
@@ -85,6 +86,7 @@ describe('Table3s74iPage', () => {
 
     serviceMock = {
       getTableRealtime: jasmine.createSpy('getTableRealtime').and.returnValue(of(tableMock)),
+      leaveTable: jasmine.createSpy('leaveTable').and.returnValue(of(tableMock)),
       connectSocket: jasmine.createSpy('connectSocket').and.callFake(() => {
         const handlers: Record<string, (...args: any[]) => void> = {};
         socketHandlersList.push(handlers);
@@ -702,6 +704,31 @@ describe('Table3s74iPage', () => {
 
     expect(component.contextMenuOpen).toBeFalse();
     expect(component.previousTrickPeekOpen).toBeFalse();
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/tressette-lobby']);
+  });
+
+  it('ritorna alla lobby liberando davvero il seat se il tavolo e ancora waiting', () => {
+    component.table = {
+      ...tableMock,
+      status: 'waiting',
+      players: [
+        { username: 'Luca', position: 'SUD' },
+        { username: 'Marta', position: 'NORD' },
+      ],
+    };
+
+    component.goToLobby();
+
+    expect(serviceMock.leaveTable).toHaveBeenCalledWith('tbl-001', 'Luca');
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/tressette-lobby']);
+  });
+
+  it('reagisce a table-left realtime del giocatore attivo tornando in lobby', () => {
+    latestSocketHandlers()['tressette:table-left']?.({
+      tableId: 'tbl-001',
+      username: 'Luca',
+    });
+
     expect(routerMock.navigate).toHaveBeenCalledWith(['/tressette-lobby']);
   });
 });

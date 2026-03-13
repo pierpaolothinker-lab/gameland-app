@@ -18,6 +18,7 @@ describe('TressetteLobbyPage', () => {
     joinTable: jasmine.Spy;
     addBot: jasmine.Spy;
     startTable: jasmine.Spy;
+    connectSocket: jasmine.Spy;
   };
   let authMock: {
     availableUsers: MockSessionUser[];
@@ -37,6 +38,8 @@ describe('TressetteLobbyPage', () => {
   let routerMock: {
     navigate: jasmine.Spy;
   };
+  let socketHandlers: Record<string, (...args: any[]) => void>;
+  let socketEmitSpy: jasmine.Spy;
 
   const activeUser: MockSessionUser = { userId: 'u-luca', username: 'Luca' };
 
@@ -57,12 +60,22 @@ describe('TressetteLobbyPage', () => {
 
   beforeEach(async () => {
     const baseTable = makeTable('table-1', 'owner-a', 'waiting', [{ username: 'owner-a', position: 'SUD' }]);
+    socketHandlers = {};
+    socketEmitSpy = jasmine.createSpy('emit');
+
     serviceMock = {
       listTables: jasmine.createSpy('listTables').and.returnValue(of([baseTable])),
       createTable: jasmine.createSpy('createTable').and.returnValue(of(baseTable)),
       joinTable: jasmine.createSpy('joinTable').and.returnValue(of(baseTable)),
       addBot: jasmine.createSpy('addBot').and.returnValue(of(baseTable)),
       startTable: jasmine.createSpy('startTable').and.returnValue(of(baseTable)),
+      connectSocket: jasmine.createSpy('connectSocket').and.returnValue({
+        on: jasmine.createSpy('on').and.callFake((event: string, cb: (...args: any[]) => void) => {
+          socketHandlers[event] = cb;
+        }),
+        emit: socketEmitSpy,
+        disconnect: jasmine.createSpy('disconnect'),
+      }),
     };
 
     authMock = {
@@ -165,7 +178,55 @@ describe('TressetteLobbyPage', () => {
 
   it('render lista tavoli', () => {
     expect(serviceMock.listTables).toHaveBeenCalledTimes(1);
+    expect(serviceMock.connectSocket).toHaveBeenCalledTimes(1);
     expect(component.tables.length).toBe(1);
+  });
+
+  it('emette watch-lobby con username attivo alla connect socket', () => {
+    socketHandlers['connect']?.();
+
+    expect(socketEmitSpy).toHaveBeenCalledWith('tressette:watch-lobby', { username: 'Luca' });
+  });
+
+  it('aggiorna i tavoli da lobby-state realtime senza refresh manuale', () => {
+    socketHandlers['tressette:lobby-state']?.({
+      mode: 'demo',
+      tables: [
+        makeTable('table-live', 'Marta', 'waiting', [
+          { username: 'Marta', position: 'SUD' },
+          { username: 'Luca', position: 'NORD' },
+        ]),
+      ],
+    });
+
+    expect(component.tables.length).toBe(1);
+    expect(component.tables[0].tableId).toBe('table-live');
+    expect(component.tables[0].players.length).toBe(2);
+  });
+
+  it('porta in gameplay anche un seated non owner quando il suo tavolo passa a starting', () => {
+    component.tables = [
+      makeTable(
+        'table-starting',
+        'Marta',
+        'waiting',
+        [
+          { username: 'Luca', position: 'SUD' },
+          { username: 'Marta', position: 'NORD' },
+          { username: 'Diego', position: 'EST' },
+          { username: 'Sara', position: 'OVEST' },
+        ],
+        true
+      ),
+    ];
+
+    socketHandlers['tressette:table-updated']?.({
+      ...component.tables[0],
+      status: 'starting',
+      mode: 'demo',
+    });
+
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/table3s74i', 'table-starting']);
   });
 
   it('rimuove la sezione Start owner e renderizza solo il mark centrale', () => {
@@ -413,7 +474,7 @@ describe('TressetteLobbyPage', () => {
     centers[1].click();
 
     expect(serviceMock.startTable).toHaveBeenCalledWith('tbl-owner-ready', 'Luca');
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/table3s74i', 'tbl-owner-ready']);
+    expect(routerMock.navigate).not.toHaveBeenCalled();
   });
 });
 
